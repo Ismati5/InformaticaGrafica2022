@@ -1,34 +1,80 @@
-#include <iostream>
+/**
+ * @file point.cpp
+ * @author Adrián Yago & Ismael Tienda
+ * @brief
+ * @version 0.1
+ * @date 2022-09-25
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
 #include "point.hpp"
 #include "direction.hpp"
 
+/**
+ * @brief Construct a new Point:: Point object
+ *
+ * @param x
+ * @param y
+ * @param z
+ */
+Point::Point(float x, float y, float z) : x(x), y(y), z(z) {}
 
-
-Point Point::operator+(const Direction& d) const{
-    Point p;
-    p.c[0] = this->c[0] + d.c[0];
-    p.c[1] = this->c[1] + d.c[1];
-    p.c[2] = this->c[2] + d.c[2];
-    return p;
-}
-Point Point::operator-(const Direction& d) const{
-    Point p;
-    p.c[0] = this->c[0] - d.c[0];
-    p.c[1] = this->c[1] - d.c[1];
-    p.c[2] = this->c[2] - d.c[2];
-    return p;
-}
-Direction Point::operator-(const Point& p) const{
-    Direction d;
-    d.c[0] = this->c[0] - p.c[0];
-    d.c[1] = this->c[1] - p.c[1];
-    d.c[2] = this->c[2] - p.c[2];
-    return d;
-}
-
-std::ostream& operator<<(std::ostream& os, const Point& p)
+/**
+ * @brief Point = Point + Direction
+ *
+ * @param d
+ * @return Point
+ */
+Point Point::operator+(const Direction &d) const
 {
- 	os << "{" << p.c[0] << ", " << p.c[1] << ", " << p.c[2] << "}";
+    Point p;
+    p.x = this->x + d.x;
+    p.y = this->y + d.y;
+    p.z = this->z + d.z;
+    return p;
+};
 
-	return os;
-}
+/**
+ * @brief Point = Point - Direction
+ *
+ * @param d
+ * @return Point
+ */
+Point Point::operator-(const Direction &d) const
+{
+    Point p;
+    p.x = this->x - d.x;
+    p.y = this->y - d.y;
+    p.z = this->z - d.z;
+    return p;
+};
+
+/**
+ * @brief Direction = Point - Point
+ *
+ * @param p
+ * @return Direction
+ */
+Direction Point::operator-(const Point &p) const
+{
+    Direction d;
+    d.x = this->x - p.x;
+    d.y = this->y - p.y;
+    d.z = this->z - p.z;
+    return d;
+};
+
+/**
+ * @brief operator<<
+ *
+ * @param os
+ * @param p
+ * @return ostream&
+ */
+ostream &operator<<(ostream &os, const Point &p)
+{
+    os << "{" << p.x << ", " << p.y << ", " << p.z << "}";
+
+    return os;
+};

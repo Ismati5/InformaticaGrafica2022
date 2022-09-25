@@ -1,3 +1,13 @@
+/**
+ * @file point.hpp
+ * @author Adrián Yago & Ismael Tienda
+ * @brief
+ * @version 0.1
+ * @date 2022-09-25
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
 #pragma once
 
 #include <iostream>
@@ -6,24 +16,57 @@ using namespace std;
 
 class Direction;
 
-class Point{
+/**
+ * @brief Point represents a 3D Point in space
+ *
+ */
+class Point
+{
 
 public:
-    //c[0] = Px, c[1] = Py, c[2] = Pz
-    float c[3];
+    float x, y, z;
 
-    Point(float x = 0.0, float y = 0.0, float z = 0.0){
-        c[0] = x; c[1] = y; c[2] = z;
-    }
+    /**
+     * @brief Construct a new Point object
+     *
+     * @param x
+     * @param y
+     * @param z
+     */
+    Point(float x = 0.0, float y = 0.0, float z = 0.0);
 
-    //point + direction
-    Point operator+(const Direction& d) const;
-    //direction + direction
-    Point operator-(const Direction& d) const;
-    //point + point
-    Direction operator-(const Point& p) const;
+    /**
+     * @brief Point = Point + Direction
+     *
+     * @param d
+     * @return Point
+     */
+    Point operator+(const Direction &d) const;
 
-    friend ostream &operator<<(std::ostream& os, const Point& p);
+    /**
+     * @brief Point = Point - Direction
+     *
+     * @param d
+     * @return Point
+     */
+    Point operator-(const Direction &d) const;
+
+    /**
+     * @brief Direction = Point - Point
+     *
+     * @param p
+     * @return Direction
+     */
+    Direction operator-(const Point &p) const;
+
+    /**
+     * @brief operator<<
+     *
+     * @param os
+     * @param p
+     * @return ostream&
+     */
+    friend ostream &operator<<(std::ostream &os, const Point &p);
 };
 
-ostream &operator<<(std::ostream& os, const Point& p);
+ostream &operator<<(std::ostream &os, const Point &p);
