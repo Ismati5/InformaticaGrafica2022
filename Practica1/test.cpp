@@ -30,7 +30,8 @@ int main()
 
     Vect4 v1(p1);
 
-    cout << m1 * v1 << endl;
+    cout << m1 << endl;
+    cout << inverse(m1) << endl;
 
     return 0;
 }
