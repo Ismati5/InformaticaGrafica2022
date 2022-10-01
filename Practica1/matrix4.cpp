@@ -54,15 +54,18 @@ Matrix4 Matrix4::operator/(const float &n) const {
 
 Matrix4 inverse(Matrix4 m1){
     float det = determinant4x4(m1.m);
-
     Matrix4 adj;
 
     for(int i = 0; i < 4; i++)
-        for(int j = 0; j < 4; j++)
-            adj.m[i][j] = determinant3x3(m1.m,i,j);
-        
+        for(int j = 0; j < 4; j++){
+            if ((j % 2 != 0 && i % 2 == 0) || 
+                (j % 2 == 0 && i % 2 != 0))
+                adj.m[i][j] = -determinant3x3(m1.m,i,j);
+            else 
+                adj.m[i][j] = determinant3x3(m1.m,i,j);
+            
+        }
     return transpose(adj) / det;
-
 }
 
 Matrix4 transpose(Matrix4 m1){
@@ -95,20 +98,18 @@ float determinant4x4(float m1[4][4]){
 float determinant3x3(float m1[4][4], int r, int c){
     float mAux[3][3];
 
-    for(int i = 0; i < 3; i++)
-        for(int j = 0; j < 3; j++)
-            mAux[i][j] = 0.0;
-
     int i2 = 0, j2 = 0;
 
     for(int i = 0; i < 4; i++, i2++) {
         if (i == r) i++;
-
+        if (i == 4) break;
         for(int j = 0; j < 4; j++, j2++) {
             if (j == c) j++;
+            if (j == 4) break;
             mAux[i2][j2] = m1[i][j];
         }
-    } 
+        j2 = 0;
+    }
 
     return (mAux[0][0] * mAux[1][1] * mAux[2][2] +
         mAux[0][1] * mAux[1][2] * mAux[2][0] + 
