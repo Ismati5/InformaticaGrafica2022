@@ -13,13 +13,14 @@
 #include "direction.hpp"
 #include "vect4.hpp"
 #include "matrix4.hpp"
+#include "sphere.hpp"
 
 using namespace std;
 
 /**
  *
  *   Compilar con
- *   g++ point.cpp direction.cpp test.cpp -o test
+ *   g++ point.cpp direction.cpp test.cpp matrix4.cpp vect4.cpp sphere.cpp -o test
  *
  */
 int main()
