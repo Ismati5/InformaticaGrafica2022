@@ -84,7 +84,7 @@ Matrix4 inverse(Matrix4 m1);
  * @param m1
  * @return float
  */
-float determinant4x4(float m1[4][4]);
+float determinant4x4(Matrix4 m1);
 
 /**
  * @brief   Returns determinant of matrix eliminating the
@@ -134,9 +134,12 @@ Matrix4 tm_scale(float x, float y, float z);
  * @return Matrix4
  */
 Matrix4 tm_rotation(float th, int a);
+
 // Returns a change of base transformation matrix
-// given ¿?
-// Matrix4 TM_changeBase(¿?);**************************************************************
+// to a new base with origin in o and axes in
+// u,v and w
+Matrix4 TM_changeBase(Direction u, Direction v,
+     Direction w, Vect4 o );
 
 /**
  * @brief << operator

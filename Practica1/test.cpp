@@ -26,8 +26,9 @@ using namespace std;
 int main()
 {
     Point p1(1.0, 2.0, 3.0);
-    Direction d1;
-    Matrix4 m1 = tm_translation(1.0, 2.0, 3.0);
+    Direction d1, d2, d3;
+    Vect4 v(p1);
+    Matrix4 m1 = tm_rotation(45, 0);
 
     Vect4 v1(p1);
 

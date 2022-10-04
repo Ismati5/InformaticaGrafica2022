@@ -85,7 +85,8 @@ Matrix4 Matrix4::operator/(const float &n) const
  */
 Matrix4 inverse(Matrix4 m1)
 {
-    float det = determinant4x4(m1.m);
+
+    float det = determinant4x4(m1);
     Matrix4 adj;
 
     for (int i = 0; i < 4; i++)
@@ -97,6 +98,7 @@ Matrix4 inverse(Matrix4 m1)
             else
                 adj.m[i][j] = determinant3x3(m1.m, i, j);
         }
+
     return transpose(adj) / det;
 }
 
@@ -123,21 +125,23 @@ Matrix4 transpose(Matrix4 m1)
  * @param m1
  * @return float
  */
-float determinant4x4(float m1[4][4])
+float determinant4x4(Matrix4 m1)
 {
     double c, r = 1;
+    //m1 must not be modified
+    Matrix4 aux = m1;
 
     for (int i = 0; i < 4; i++)
     {
         for (int k = i + 1; k < 4; k++)
         {
-            c = m1[k][i] / m1[i][i];
+            c = aux.m[k][i] / aux.m[i][i];
             for (int j = i; j < 4; j++)
-                m1[k][j] = m1[k][j] - c * m1[i][j];
+                aux.m[k][j] = aux.m[k][j] - c * aux.m[i][j];
         }
     }
     for (int i = 0; i < 4; i++)
-        r *= m1[i][i];
+        r *= aux.m[i][i];
     return r;
 }
 
@@ -153,9 +157,9 @@ float determinant4x4(float m1[4][4])
 float determinant3x3(float m1[4][4], int r, int c)
 {
     float mAux[3][3];
-
+    
     int i2 = 0, j2 = 0;
-
+    //cout << "i = " << r << "   " << "j = " << c << endl;
     for (int i = 0; i < 4; i++, i2++)
     {
         if (i == r)
@@ -169,6 +173,7 @@ float determinant3x3(float m1[4][4], int r, int c)
             if (j == 4)
                 break;
             mAux[i2][j2] = m1[i][j];
+            //cout << mAux[i2][j2] << " i,j = " << i << "," << j <<endl;
         }
         j2 = 0;
     }
@@ -267,6 +272,36 @@ Matrix4 tm_rotation(float th, int a)
     }
 
     return m1;
+}
+
+Matrix4 TM_changeBase(Direction u, Direction v,
+     Direction w, Vect4 o )
+{
+    Matrix4 m1;
+
+    //First column
+    m1.m[0][0] = u.x;
+    m1.m[1][0] = u.y;
+    m1.m[2][0] = u.z;
+
+    //Second column
+    m1.m[0][1] = v.x;
+    m1.m[1][1] = v.y;
+    m1.m[2][1] = v.z;
+
+    //Third column
+    m1.m[0][2] = w.x;
+    m1.m[1][2] = w.y;
+    m1.m[2][2] = w.z;
+
+    //Fourth column
+    m1.m[0][3] = o.v[0];
+    m1.m[1][3] = o.v[1];
+    m1.m[2][3] = o.v[2];
+    m1.m[3][3] = 1;
+
+    return m1;
+
 }
 
 /**
