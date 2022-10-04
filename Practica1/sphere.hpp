@@ -12,13 +12,9 @@
 #include <iostream>
 #include "direction.hpp"
 #include "point.hpp"
+#include <cmath>
 
 using namespace std;
-
-struct Reference
-{
-    float angle_g, angle_t;
-};
 
 /**
  * @brief Sphere represents a 3D sphere
@@ -29,10 +25,8 @@ class Sphere
 
 public:
     Direction axis;
-    Point center;
-
-    Reference ref;
-
+    Point center, reference;
+    float radius;
     /**
      * @brief Construct a new Sphere object
      *
@@ -40,13 +34,19 @@ public:
      * @param center
      * @param reference
      */
-    Sphere(Direction axis, Point center)
-        : axis(axis), center(center) {}
+    Sphere(Direction axis, Point center, Point reference)
+        : axis(axis), center(center), reference(reference)
+    {
+        Direction radius1 = axis / 2;
+        Direction radius2 = reference - center;
 
-    /**
-     * @brief Set the Reference object
-     *
-     * @param _ref
-     */
-    void setReference(Reference _ref);
+        if (radius1.modulus() - radius2.modulus() > pow(10, -6))
+        {
+            throw std::invalid_argument("Radius is not the same");
+        }
+        else
+        {
+            radius = radius2.modulus();
+        }
+    }
 };

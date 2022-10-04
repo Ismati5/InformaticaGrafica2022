@@ -26,14 +26,16 @@ using namespace std;
 int main()
 {
     Point p1(1.0, 2.0, 3.0);
-    Direction d1, d2, d3;
-    Vect4 v(p1);
-    Matrix4 m1 = tm_rotation(45, 0);
+    Direction d1(3.0, 4.0, 9.0);
+    // Direction d1, d2, d3;
+    //  Vect4 v(p1);
+    //   Matrix4 m1 = tm_rotation(45, 0);
 
-    Vect4 v1(p1);
+    // Vect4 v1(p1);
 
-    cout << m1 << endl;
-    cout << inverse(m1) << endl;
+    // cout << m1 << endl;
+    // cout << inverse(m1) << endl;
+    Sphere(d1, p1, p1);
 
     return 0;
 }

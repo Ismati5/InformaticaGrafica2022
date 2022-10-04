@@ -1,5 +1,5 @@
 /**
- * @file sphere.cpp
+ * @file station.cpp
  * @author Adrián Yago & Ismael Tienda
  * @brief
  * @version 0.1
@@ -8,4 +8,4 @@
  * @copyright Copyright (c) 2022
  *
  */
-#include "sphere.hpp"
+#include "station.hpp"
