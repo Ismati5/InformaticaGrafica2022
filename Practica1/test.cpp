@@ -14,6 +14,7 @@
 #include "vect4.hpp"
 #include "matrix4.hpp"
 #include "sphere.hpp"
+#include "station.hpp"
 
 using namespace std;
 
@@ -25,8 +26,9 @@ using namespace std;
  */
 int main()
 {
-    Point p1(1.0, 2.0, 3.0);
-    Direction d1(3.0, 4.0, 9.0);
+    Point center(0, 0, 0);
+    Point ref(0.5, 0.5, 0.5);
+    Direction axis(0, 1, 0);
     // Direction d1, d2, d3;
     //  Vect4 v(p1);
     //   Matrix4 m1 = tm_rotation(45, 0);
@@ -35,7 +37,7 @@ int main()
 
     // cout << m1 << endl;
     // cout << inverse(m1) << endl;
-    Sphere(d1, p1, p1);
-
+    Sphere sp(axis, center, ref);
+    Station(sp, 0, 0);
     return 0;
 }
