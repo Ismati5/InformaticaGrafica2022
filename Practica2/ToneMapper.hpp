@@ -4,49 +4,43 @@
 
 using namespace std;
 
-void processHeader(ifstream &file, float m, float c, int width, int height) {
+void processHeader(ifstream &file, ofstream &outFile, 
+        float &m, float &c, int &width, int &height) {
 
     int initial_vars = 0;
     string line;
 
-    ifstream file;
+    while (initial_vars < 3) { 
+        getline(file, line);
+        if (line[0] == '#'){
+            if (line[1] == 'M' && line[2] == 'A'
+                && line[3] == 'X' && line[4] == '=')
+                m = stof(line.substr(5,line.length()));
+        } else{
 
-    if (!file) {
-        throw std::invalid_argument("File not found!");
-    } else {
-        
-        while (initial_vars < 3) { 
-            getline(file, line);
-            if (line[0] == '#'){
-                if (line[1] == 'M' && line[2] == 'A'
-                 && line[3] == 'X' && line[4] == '=')
-                    m = stof(line.substr(5,line.length()));
-            } else{
-
-                //First line is skipped
-                //Image resolution
-                if (initial_vars == 1) {
+            //First line is skipped
+            //Image resolution
+            if (initial_vars == 1) {
+                
+                width = stoi(line.substr(0, line.find(" ")));
+                height = stoi(line.substr(line.find(" "), line.length()));
                     
-                    width = stoi(line.substr(0, line.find(" ")));
-                    height = stoi(line.substr(line.find(" "), line.length()));
-                        
-                }//Color resolution 
-                else if (initial_vars == 2)
-                    c = stof(line);
+            }//Color resolution 
+            else if (initial_vars == 2)
+                c = stof(line);
 
-                initial_vars++;
-            } 
-            
+            initial_vars++;
         }
+
+        outFile << line << endl;
+    }
 
 }
 
-void clamping(string fileName){
+void clamping(string fileName) {
 
     float m, c;
     int width, height;
-    int initial_vars = 0;
-    string line;
 
     ifstream file;
     ofstream outFile;
@@ -56,31 +50,8 @@ void clamping(string fileName){
     if (!file) {
         throw std::invalid_argument("File not found!");
     } else {
-        
-        while (initial_vars < 3) { 
-            getline(file, line);
-            if (line[0] == '#'){
-                if (line[1] == 'M' && line[2] == 'A'
-                 && line[3] == 'X' && line[4] == '=')
-                    m = stof(line.substr(5,line.length()));
-            } else{
 
-                //First line is skipped
-                //Image resolution
-                if (initial_vars == 1) {
-                    
-                    width = stoi(line.substr(0, line.find(" ")));
-                    height = stoi(line.substr(line.find(" "), line.length()));
-                        
-                }//Color resolution 
-                else if (initial_vars == 2)
-                    c = stof(line);
-
-                initial_vars++;
-            } 
-            
-            outFile << line << endl;
-        }
+        processHeader(file, outFile, m, c, width, height);
 
         string num;
         int numI;
@@ -112,4 +83,44 @@ void clamping(string fileName){
 
     file.close();
     outFile.close();
+}
+
+void equalization(string fileName) {
+
+    float m, c;
+    int width, height;
+
+    ifstream file;
+    ofstream outFile;
+    file.open(fileName);
+    outFile.open("clamping_" + fileName);
+
+    if (!file) {
+        throw std::invalid_argument("File not found!");
+    } else {
+
+        processHeader(file, outFile, m, c, width, height);
+
+    }
+
+}
+
+void gamma(string fileName) {
+
+    float m, c;
+    int width, height;
+
+    ifstream file;
+    ofstream outFile;
+    file.open(fileName);
+    outFile.open("clamping_" + fileName);
+
+    if (!file) {
+        throw std::invalid_argument("File not found!");
+    } else {
+
+        processHeader(file, outFile, m, c, width, height);
+
+    }
+
 }
