@@ -1,43 +1,92 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cmath>
 
 using namespace std;
 
-void processHeader(ifstream &file, ofstream &outFile, 
-        float &m, float &c, int &width, int &height) {
+void processHeader(ifstream &file, ofstream &outFile,
+                   float &m, float &c, int &width, int &height, bool ldr, bool write)
+{
 
     int initial_vars = 0;
     string line;
+    bool hasMax = false;
 
-    while (initial_vars < 3) { 
+    while (initial_vars < 3)
+    {
         getline(file, line);
-        if (line[0] == '#'){
-            if (line[1] == 'M' && line[2] == 'A'
-                && line[3] == 'X' && line[4] == '=')
-                m = stof(line.substr(5,line.length()));
-        } else{
+        if (line[0] == '#')
+        {
+            if (line[1] == 'M' && line[2] == 'A' && line[3] == 'X' && line[4] == '=')
+            {
+                m = stof(line.substr(5, line.length()));
+                hasMax = true;
+            }
 
-            //First line is skipped
-            //Image resolution
-            if (initial_vars == 1) {
-                
+            if (write)
+                outFile << line << endl;
+        }
+        else
+        {
+
+            // First line is skipped
+            // Image resolution
+            if (initial_vars == 1)
+            {
+
                 width = stoi(line.substr(0, line.find(" ")));
                 height = stoi(line.substr(line.find(" "), line.length()));
-                    
-            }//Color resolution 
-            else if (initial_vars == 2)
-                c = stof(line);
 
+                if (write)
+                    outFile << line << endl;
+
+            } // Color resolution
+            else if (initial_vars == 2)
+            {
+                c = stof(line);
+                int hdrC = ldr ? 255 : c;
+                if (write)
+                    outFile << hdrC << endl;
+            }
+
+            else if (write)
+                outFile << line << endl;
             initial_vars++;
         }
-
-        outFile << line << endl;
     }
 
+    if (!hasMax)
+        m = c;
 }
 
-void clamping(string fileName) {
+void showProgress(int row, int height)
+{
+    if (row % 30 == 0)
+    {
+        int bar = row;
+        int percentage = 0;
+        cout << "\tProgress:\t";
+        percentage = row * 100 / height;
+        for (int i = 0; i < 20; i++)
+        {
+            if (bar >= height / 20)
+            {
+                cout << "+";
+            }
+            else
+            {
+                cout << ".";
+            }
+            bar -= height / 20;
+        }
+        cout << "\t" << percentage << "%" << endl
+             << endl;
+    }
+}
+
+void ldr(string fileName)
+{
 
     float m, c;
     int width, height;
@@ -45,47 +94,61 @@ void clamping(string fileName) {
     ifstream file;
     ofstream outFile;
     file.open(fileName);
-    outFile.open("clamping_" + fileName);
+    outFile.open("ldr/ldr_" + fileName);
 
-    if (!file) {
+    if (!file)
+    {
         throw std::invalid_argument("File not found!");
-    } else {
-
-        processHeader(file, outFile, m, c, width, height);
+    }
+    else
+    {
+        processHeader(file, outFile, m, c, width, height, true, true);
 
         string num;
         int numI;
         int count = 0;
         int column = 0;
-        
-        while(!file.eof()){
-            file >> num;
+        int row = 0;
+
+        file >> num;
+        while (!file.eof())
+        {
             numI = stoi(num);
-            if(((numI * m) / c) > m){
-                outFile << c;
-            } else {
-                outFile << numI;
-            }
+            float v = numI * m / c;
+            int reduced = round(v * (255 / m));
+            outFile << reduced;
             count++;
-            if (count == 3){
+            if (count == 3)
+            {
                 count = 0;
                 outFile << "    ";
                 column++;
             }
-            if (column == width) {
+            if (column == width)
+            {
                 outFile << endl;
                 column = 0;
-            } else {
+                row++;
+                showProgress(row, height);
+            }
+            else
+            {
                 outFile << " ";
-            }   
+            }
+            file >> num;
         }
     }
+    cout << "\tProgress:\t####################\t100%" << endl
+         << endl;
+    cout << "LDR export completed! Check the new file "
+         << "ldr_" + fileName << "." << endl;
 
     file.close();
     outFile.close();
 }
 
-void equalization(string fileName) {
+void clamping(string fileName)
+{
 
     float m, c;
     int width, height;
@@ -93,19 +156,161 @@ void equalization(string fileName) {
     ifstream file;
     ofstream outFile;
     file.open(fileName);
-    outFile.open("clamping_" + fileName);
+    outFile.open("clamping/clamping_" + fileName);
 
-    if (!file) {
+    if (!file)
+    {
         throw std::invalid_argument("File not found!");
-    } else {
+    }
+    else
+    {
 
-        processHeader(file, outFile, m, c, width, height);
+        processHeader(file, outFile, m, c, width, height, false, true);
 
+        string num;
+        int numI;
+        int count = 0;
+        int column = 0;
+        int row = 0;
+
+        file >> num;
+        while (!file.eof())
+        {
+            numI = stoi(num);
+            if (((numI * m) / c) > m)
+            {
+                outFile << c;
+            }
+            else
+            {
+                outFile << numI;
+            }
+            count++;
+            if (count == 3)
+            {
+                count = 0;
+                outFile << "    ";
+                column++;
+            }
+            if (column == width)
+            {
+                outFile << endl;
+                column = 0;
+                row++;
+                showProgress(row, height);
+            }
+            else
+            {
+                outFile << " ";
+            }
+            file >> num;
+        }
     }
 
+    cout << "\tProgress:\t####################\t100%" << endl
+         << endl;
+    cout << "Clamping completed! Check the new file "
+         << "clamping_" + fileName << "." << endl;
+
+    file.close();
+    outFile.close();
 }
 
-void gamma(string fileName) {
+void equalization(string fileName)
+{
+
+    float m, c;
+    int width, height;
+
+    ifstream file;
+    ofstream outFile;
+    file.open(fileName);
+    outFile.open("equalization/equalization_" + fileName);
+
+    if (!file)
+    {
+        throw std::invalid_argument("File not found!");
+    }
+    else
+    {
+
+        processHeader(file, outFile, m, c, width, height, false, true);
+
+        string num;
+        int numI;
+
+        /*int min = 0;
+        int max = 0;
+
+        cout << "\tProcessing file..." << endl
+             << "\tProgress:\t....................\t0%" << endl
+             << endl;
+
+        file >> num;
+        while (!file.eof())
+        {
+            numI = stoi(num);
+            if (numI > max)
+                max = numI;
+            if (numI < min)
+                min = numI;
+            file >> num;
+        }
+
+        max = max * m / c;
+        file.close();
+
+        // cout << "MIN: " << min << "  :  MAX: " << max << endl;
+
+        file.open(fileName);
+        processHeader(file, outFile, m, c, width, height, false, false);*/
+
+        int count = 0;
+        int column = 0;
+        int row = 0;
+
+        file >> num;
+        while (!file.eof())
+        {
+            numI = stoi(num);
+            float v = numI * m / c;
+            v = v / m;
+            v = v * c / m;
+            numI = round(v);
+            outFile << numI;
+            count++;
+            if (count == 3)
+            {
+                count = 0;
+                outFile << "    ";
+                column++;
+            }
+            if (column == width)
+            {
+                outFile << endl;
+                column = 0;
+                row++;
+                showProgress(row, height);
+            }
+            else
+            {
+                outFile << " ";
+            }
+            file >> num;
+        }
+    }
+
+    cout << "\tProgress:\t####################\t100%" << endl
+         << endl;
+    cout << "Equalization completed! Check the new file "
+         << "equalization_" + fileName << "." << endl;
+
+    file.close();
+    outFile.close();
+}
+
+void gamma(string fileName)
+{
 
     float m, c;
     int width, height;
@@ -115,12 +320,13 @@ void gamma(string fileName) {
     file.open(fileName);
     outFile.open("clamping_" + fileName);
 
-    if (!file) {
+    if (!file)
+    {
         throw std::invalid_argument("File not found!");
-    } else {
-
-        processHeader(file, outFile, m, c, width, height);
-
     }
+    else
+    {
 
+        processHeader(file, outFile, m, c, width, height, false, true);
+    }
 }
