@@ -62,26 +62,26 @@ void processHeader(ifstream &file, ofstream &outFile,
 
 void showProgress(int row, int height)
 {
-    if (row % 30 == 0)
+    if (row % 20 == 0)
     {
         int bar = row;
         int percentage = 0;
-        cout << "\tProgress:\t";
+        cout << "[";
         percentage = row * 100 / height;
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 40; i++)
         {
-            if (bar >= height / 20)
+            if (bar >= height / 40)
             {
                 cout << "+";
             }
             else
             {
-                cout << ".";
+                cout << " ";
             }
-            bar -= height / 20;
+            bar -= height / 40;
         }
-        cout << "\t" << percentage << "%" << endl
-             << endl;
+        cout << "]\t" << percentage << "%\r";
+        cout.flush();
     }
 }
 
@@ -138,7 +138,7 @@ void ldr(string fileName)
             file >> num;
         }
     }
-    cout << "\tProgress:\t####################\t100%" << endl
+    cout << "[++++++++++++++++++++++++++++++++++++++++]\t100%" << endl
          << endl;
     cout << "LDR export completed! Check the new file "
          << "ldr_" + fileName << "." << endl;
@@ -147,7 +147,7 @@ void ldr(string fileName)
     outFile.close();
 }
 
-void clamping(string fileName)
+void clamping(string fileName, float value = 0.0)
 {
 
     float m, c;
@@ -156,7 +156,7 @@ void clamping(string fileName)
     ifstream file;
     ofstream outFile;
     file.open(fileName);
-    outFile.open("clamping/clamping_" + fileName);
+    outFile.open("clamping/c_" + fileName);
 
     if (!file)
     {
@@ -167,8 +167,13 @@ void clamping(string fileName)
 
         processHeader(file, outFile, m, c, width, height, false, true);
 
+        if (value == 0.0)
+        {
+            value = m;
+        }
+
         string num;
-        int numI;
+        int s;
         int count = 0;
         int column = 0;
         int row = 0;
@@ -176,14 +181,20 @@ void clamping(string fileName)
         file >> num;
         while (!file.eof())
         {
-            numI = stoi(num);
-            if (((numI * m) / c) > m)
+            s = stoi(num);
+            float v = s * m / c;
+            if (v > value)
             {
-                outFile << c;
+                v = value;
+                v = v * m / value;
+                s = round(v * c / m);
+                outFile << s;
             }
             else
             {
-                outFile << numI;
+                v = v * m / value;
+                s = round(v * c / m);
+                outFile << s;
             }
             count++;
             if (count == 3)
@@ -207,16 +218,16 @@ void clamping(string fileName)
         }
     }
 
-    cout << "\tProgress:\t####################\t100%" << endl
+    cout << "[++++++++++++++++++++++++++++++++++++++++]\t100%" << endl
          << endl;
     cout << "Clamping completed! Check the new file "
-         << "clamping_" + fileName << "." << endl;
+         << "c_" + fileName << "." << endl;
 
     file.close();
     outFile.close();
 }
 
-void equalization(string fileName)
+void equalization(string fileName, float value = 0.0)
 {
 
     float m, c;
@@ -225,7 +236,7 @@ void equalization(string fileName)
     ifstream file;
     ofstream outFile;
     file.open(fileName);
-    outFile.open("equalization/equalization_" + fileName);
+    outFile.open("equalization/e_" + fileName);
 
     if (!file)
     {
@@ -235,9 +246,6 @@ void equalization(string fileName)
     {
 
         processHeader(file, outFile, m, c, width, height, false, true);
-
-        string num;
-        int numI;
 
         /*int min = 0;
         int max = 0;
@@ -265,19 +273,26 @@ void equalization(string fileName)
         file.open(fileName);
         processHeader(file, outFile, m, c, width, height, false, false);*/
 
+        string num;
+        int s;
+
         int count = 0;
         int column = 0;
         int row = 0;
 
+        if (value == 0.0)
+        {
+            value = m;
+        }
+
         file >> num;
         while (!file.eof())
         {
-            numI = stoi(num);
-            float v = numI * m / c;
-            v = v / m;
-            v = v * c / m;
-            numI = round(v);
-            outFile << numI;
+            s = stoi(num);
+            float v = s * m / c;
+            v = v * m / value;
+            s = round(v * c / m);
+            outFile << s;
             count++;
             if (count == 3)
             {
@@ -300,10 +315,10 @@ void equalization(string fileName)
         }
     }
 
-    cout << "\tProgress:\t####################\t100%" << endl
+    cout << "[++++++++++++++++++++++++++++++++++++++++]\t100%" << endl
          << endl;
     cout << "Equalization completed! Check the new file "
-         << "equalization_" + fileName << "." << endl;
+         << "e_" + fileName << "." << endl;
 
     file.close();
     outFile.close();
@@ -318,7 +333,7 @@ void gamma(string fileName)
     ifstream file;
     ofstream outFile;
     file.open(fileName);
-    outFile.open("clamping_" + fileName);
+    outFile.open("g_" + fileName);
 
     if (!file)
     {

@@ -10,11 +10,11 @@ int main(int argc, char *argv[])
     }
     else if (argv[1][1] == 'c')
     {
-        clamping(argv[2]);
+        clamping(argv[2], stof(argv[3]));
     }
     else if (argv[1][1] == 'e')
     {
-        equalization(argv[2]);
+        equalization(argv[2], stof(argv[3]));
     }
     else if (argv[1][1] == 'g')
     {
