@@ -6,7 +6,8 @@
 using namespace std;
 
 void processHeader(ifstream &file, ofstream &outFile,
-                   float &m, float &c, int &width, int &height, bool ldr, bool write)
+                   float &m, float &c, int &width,
+                   int &height, bool ldr, bool write)
 {
 
     int initial_vars = 0;
@@ -156,7 +157,7 @@ void clamping(string fileName, float value = 0.0)
     ifstream file;
     ofstream outFile;
     file.open(fileName);
-    outFile.open("clamping/c_" + fileName);
+    outFile.open("c_" + fileName);
 
     if (!file)
     {
@@ -236,7 +237,7 @@ void equalization(string fileName, float value = 0.0)
     ifstream file;
     ofstream outFile;
     file.open(fileName);
-    outFile.open("equalization/e_" + fileName);
+    outFile.open("e_" + fileName);
 
     if (!file)
     {
@@ -324,8 +325,30 @@ void equalization(string fileName, float value = 0.0)
     outFile.close();
 }
 
-void gamma(string fileName)
+void equalizationAndCampling(string fileName, float value = 0.0)
 {
+    string oldFileName = fileName;
+    //First the picture is equalized
+    equalization(fileName, value);
+    fileName = "e_" + oldFileName;
+
+    //Then the picture is clamped
+    clamping(fileName, value);
+
+    if (remove(("e_" + oldFileName).c_str()))
+    {
+        throw std::invalid_argument("Error deleting e_" + oldFileName);
+    }
+
+}
+
+//Gamma values between 0-2 (>1 darker, <1 brighter)
+void gamma(string fileName, float g, float value)
+{
+    string oldFileName = fileName;
+    //First the picture is equalized
+    equalization(fileName, value);
+    fileName = "e_" + fileName;
 
     float m, c;
     int width, height;
@@ -333,7 +356,7 @@ void gamma(string fileName)
     ifstream file;
     ofstream outFile;
     file.open(fileName);
-    outFile.open("g_" + fileName);
+    outFile.open("g_" + oldFileName);
 
     if (!file)
     {
@@ -341,7 +364,78 @@ void gamma(string fileName)
     }
     else
     {
-
         processHeader(file, outFile, m, c, width, height, false, true);
+
+        string num;
+
+        long s;
+        int count = 0;
+        int column = 0;
+        int row = 0;
+
+        file >> num;
+        while (!file.eof())
+        {
+            //Read the number and save it
+            s = stoi(num);
+            long v = s * m / c;
+            //Apply gamma curve
+            v = pow(v, g);
+            s = round(v * c / m); //v = v * m
+            //Write number to the outfile
+            outFile << s;
+            count++;
+            //Write spaces every three numbers
+            if (count == 3)
+            {
+                count = 0;
+                outFile << "    ";
+                column++;
+            }
+            //No more columns in this row
+            if (column == width)
+            {
+                outFile << endl;
+                column = 0;
+                row++;
+                showProgress(row, height);
+            }
+            else
+            {
+                outFile << " ";
+            }
+            file >> num;
+        }
     }
+
+    cout << "[++++++++++++++++++++++++++++++++++++++++]\t100%" << endl
+         << endl;
+    cout << "Gamma curve completed! Check the new file "
+         << "g_" + oldFileName << "." << endl;
+
+    file.close();
+    outFile.close();
+
+    //e_filename is removed
+    if (remove(fileName.c_str()))
+    {
+        throw std::invalid_argument("Error deleting " + fileName);
+    }
+
+}
+
+void clampingAndGamma(string fileName, float g, float value = 0.0)
+{
+    string oldFileName = fileName;
+    gamma(fileName, g, value);
+    fileName = "g_" + oldFileName;
+
+    //Then the picture is clamped
+    clamping(fileName, value);
+
+    if (remove(("g_" + oldFileName).c_str()))
+    {
+        throw std::invalid_argument("Error deleting g_" + oldFileName);
+    }
+
 }
