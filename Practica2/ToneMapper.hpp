@@ -380,8 +380,8 @@ void gamma(string fileName, float g, float value)
             s = stoi(num);
             long v = s * m / c;
             //Apply gamma curve
-            v = pow(v, g);
-            s = round(v * c / m); //v = v * m
+            v = m * pow(v/m, g);
+            s = round(v * c / m);
             //Write number to the outfile
             outFile << s;
             count++;
