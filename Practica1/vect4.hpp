@@ -62,6 +62,7 @@ public:
         p.x = v[0];
         p.y = v[1];
         p.z = v[2];
+        return p;
     }
 
     /**
