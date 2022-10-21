@@ -21,7 +21,7 @@ using namespace std;
 /**
  *
  *   Compilar con
- *   g++ point.cpp direction.cpp test.cpp matrix4.cpp vect4.cpp sphere.cpp station.cpp -o test
+ *   g++ point.cpp direction.cpp test.cpp matrix4.cpp vect4.cpp sphere.cpp station.cpp plane.cpp -o test
  *
  */
 int main()
@@ -29,6 +29,7 @@ int main()
     Point center(0, 0, 0);
     Point ref(0.5, 0, 0);
     Direction axis(0, 1, 0);
+    float emission[3] = {0,0,0};
     // Direction d1, d2, d3;
     //  Vect4 v(p1);
     //   Matrix4 m1 = tm_rotation(45, 0);
@@ -37,7 +38,7 @@ int main()
 
     // cout << m1 << endl;
     // cout << inverse(m1) << endl;
-    Sphere sp(axis, center, ref);
+    Sphere sp(axis, center, ref, emission);
     Station a(sp, 0, 0);
 
 

@@ -58,6 +58,10 @@ public:
         emission[2] = emi[2];
     }
 
+    template <typename T> int sign(T val) {
+        return (T(0) < val) - (val < T(0));
+    }
+
     //Returns distance from point to hit in sphere
     float Intersect(Ray ray) {
 
@@ -93,7 +97,3 @@ public:
     }
 
 };
-
-template <typename T> int sign(T val) {
-    return (T(0) < val) - (val < T(0));
-}
