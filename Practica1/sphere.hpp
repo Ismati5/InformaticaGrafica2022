@@ -28,6 +28,9 @@ public:
     Direction axis;
     Point center, reference;
     float radius;
+    //emission RGB tuple
+    float emission[3];
+
     /**
      * @brief Construct a new Sphere object
      *
@@ -35,7 +38,7 @@ public:
      * @param center
      * @param reference
      */
-    Sphere(Direction axis, Point center, Point reference)
+    Sphere(Direction axis, Point center, Point reference,  float emi[3])
         : axis(axis), center(center), reference(reference)
     {
         Direction radius1 = axis / 2;
@@ -49,6 +52,10 @@ public:
         {
             radius = radius2.modulus();
         }
+
+        emission[0] = emi[0];
+        emission[1] = emi[1];
+        emission[2] = emi[2];
     }
 
     //Returns distance from point to hit in sphere
@@ -74,9 +81,10 @@ public:
 
         float a = d.x*d.x + d.y*d.y + d.z*d.z;
         float b = 2*d.x*p.x + 2*d.y*p.y + 2*d.z+p.z - 2*d.x*center.x - 2*d.y*center.y - 2*d.z*center.z;
-        float c = p.x*p.x + p.y*p.y + p.z*p.z + 2*center.x*p.x + 2*center.y*p.y + 2*center.z*p.z + 
-                  center.x*center.x + center.y*center.y + center.z*center.z - radius*radius;
+        float c = p.x*p.x + p.y*p.y + p.z*p.z + 2*center.x*p.x + 2*center.y*p.y + 
+                  2*center.z*p.z + center.x*center.x + center.y*center.y + center.z*center.z - radius*radius;
 
+        // 2c / (-b -+ sqrt(b^2 -4ac)) 
         float temp = -0.5 * (b + sign(b) * sqrt(b*b - 4*a*c));
         float x1 = temp / a;
         float x2 = c / temp;
