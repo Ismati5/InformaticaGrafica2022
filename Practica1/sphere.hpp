@@ -62,8 +62,11 @@ public:
         return (T(0) < val) - (val < T(0));
     }
 
-    //Returns distance from point to hit in sphere
-    float Intersect(Ray ray) {
+    //Returns the number of intersections with a ray. 
+    //In case that the ray hits at least once, t1 will have
+    //the distance to the closest hit. If the ray hits twice 
+    //t2 will have the distance to the further hit.
+    int Intersect(Ray ray, float& t1, float&t2, Direction& sur_normal) {
 
         Direction d  = ray.d;
         Point p = ray.p;
@@ -88,11 +91,28 @@ public:
         float c = p.x*p.x + p.y*p.y + p.z*p.z + 2*center.x*p.x + 2*center.y*p.y + 
                   2*center.z*p.z + center.x*center.x + center.y*center.y + center.z*center.z - radius*radius;
 
-        // 2c / (-b -+ sqrt(b^2 -4ac)) 
-        float temp = -0.5 * (b + sign(b) * sqrt(b*b - 4*a*c));
-        float x1 = temp / a;
-        float x2 = c / temp;
+        float discriminant = b*b - 4*a*c;
+    
+        if (discriminant > 0 && a > 1e-6) {
+                t1 = (-b + sqrt(discriminant)) / (2*a);
+                t2 = (-b - sqrt(discriminant)) / (2*a);
+                if (t1 > t2)  {  
+                    float aux = t1;
+                    t1 = t2;
+                    t2 = aux;
+                }
+        } else return 0; //No solutions
 
+        // 2c / (-b -+ sqrt(b^2 -4ac)) 
+        //float temp = -0.5 * (b + sign(b) * sqrt(b*b - 4*a*c));
+        //float x1 = temp / a;
+        //float x2 = c / temp;
+
+        Point intersection(t1 * d.x, t1*d.y, t1*d.z);
+        //Hallar el vector perpendicular a la superficie que pasa por intersection
+
+        if (t1 == t2) return 1;
+        else return 2; 
 
     }
 
