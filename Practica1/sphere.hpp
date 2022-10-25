@@ -86,10 +86,12 @@ public:
 
         // (x*x + y*y + z*z)t^2 + (2xn + 2ym + 2zb - 2xc - 2yc - 2zc)t + (n*n + m*m + b*b + 2cn + 2cm + 2cb + c*c + c*c + c*c - r*r) = 0
 
+        // (x*x + y*y + z*z)t^2
         float a = d.x*d.x + d.y*d.y + d.z*d.z;
+        //(2xn + 2ym + 2zb - 2xc - 2yc - 2zc)t
         float b = 2*d.x*p.x + 2*d.y*p.y + 2*d.z+p.z - 2*d.x*center.x - 2*d.y*center.y - 2*d.z*center.z;
-        float c = p.x*p.x + p.y*p.y + p.z*p.z + 2*center.x*p.x + 2*center.y*p.y + 
-                  2*center.z*p.z + center.x*center.x + center.y*center.y + center.z*center.z - radius*radius;
+        //(n*n + m*m + b*b + 2cn + 2cm + 2cb + c*c + c*c + c*c - r*r)
+        float c = p.x*p.x + p.y*p.y + p.z*p.z + 2*center.x*p.x + 2*center.y*p.y + 2*center.z*p.z + center.x*center.x + center.y*center.y + center.z*center.z - radius*radius;
 
         float discriminant = b*b - 4*a*c;
     
@@ -103,13 +105,17 @@ public:
                 }
         } else return 0; //No solutions
 
+        Point intersection(t1 * d.x, t1*d.y, t1*d.z);
+        //Gradient f(x,y,z) = (2(c-1)^2 * x, 2(c-1)^2 * y,  2(c-1)^2 * z)
+        //Vector NO UNITARIO
+        sur_normal.x = 2 * (c - 1) * (c - 1) * intersection.x;
+        sur_normal.y = 2 * (c - 1) * (c - 1) * intersection.y;
+        sur_normal.z = 2 * (c - 1) * (c - 1) * intersection.z;
+
         // 2c / (-b -+ sqrt(b^2 -4ac)) 
         //float temp = -0.5 * (b + sign(b) * sqrt(b*b - 4*a*c));
         //float x1 = temp / a;
         //float x2 = c / temp;
-
-        Point intersection(t1 * d.x, t1*d.y, t1*d.z);
-        //Hallar el vector perpendicular a la superficie que pasa por intersection
 
         if (t1 == t2) return 1;
         else return 2; 
