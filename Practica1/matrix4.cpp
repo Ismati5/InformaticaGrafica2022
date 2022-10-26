@@ -113,8 +113,12 @@ Matrix4 transpose(Matrix4 m1)
     Matrix4 m2;
 
     for (int i = 0; i < 4; i++)
+    {
         for (int j = 0; j < 4; j++)
+        {
             m2.m[i][j] = m1.m[j][i];
+        }
+    }
 
     return m2;
 }
@@ -304,30 +308,30 @@ Matrix4 TM_changeBase(Direction u, Direction v,
 }
 
 /**
-     * @brief operator<<
-     *
-     * @param os
-     * @param v
-     * @return ostream&
-     */
-    ostream &operator<<(ostream &os, const Matrix4 &m)
-    {
-        os << "/ ";
-        for (int i = 0; i < 4; i++)
-            os << setw(5) << fixed << setprecision(2) << m.m[0][i] << " ";
-        os << "\\" << endl
-        << "| ";
-        for (int i = 0; i < 4; i++)
-            os << setw(5) << fixed << setprecision(2) << m.m[1][i] << " ";
-        os << "|" << endl
-        << "| ";
-        for (int i = 0; i < 4; i++)
-            os << setw(5) << fixed << setprecision(2) << m.m[2][i] << " ";
-        os << "|" << endl
-        << "\\ ";
-        for (int i = 0; i < 4; i++)
-            os << setw(5) << fixed << setprecision(2) << m.m[3][i] << " ";
-        os << "/" << endl;
+ * @brief operator<<
+ *
+ * @param os
+ * @param v
+ * @return ostream&
+ */
+ostream &operator<<(ostream &os, const Matrix4 &m)
+{
+    os << "/ ";
+    for (int i = 0; i < 4; i++)
+        os << setw(5) << fixed << setprecision(2) << m.m[0][i] << " ";
+    os << "\\" << endl
+       << "| ";
+    for (int i = 0; i < 4; i++)
+        os << setw(5) << fixed << setprecision(2) << m.m[1][i] << " ";
+    os << "|" << endl
+       << "| ";
+    for (int i = 0; i < 4; i++)
+        os << setw(5) << fixed << setprecision(2) << m.m[2][i] << " ";
+    os << "|" << endl
+       << "\\ ";
+    for (int i = 0; i < 4; i++)
+        os << setw(5) << fixed << setprecision(2) << m.m[3][i] << " ";
+    os << "/" << endl;
 
-        return os;
-    };
+    return os;
+};

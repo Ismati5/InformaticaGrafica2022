@@ -50,22 +50,30 @@ public:
 
         // Base change to the local shpere coords
         Direction refVect = sp.reference - sp.center; // Direction from center to reference
-        cout << refVect << endl;
-        Matrix4 T = TM_changeBase(sp.axis/sp.axis.modulus(), refVect/refVect.modulus(), sp.axis.crossProd(refVect)/sp.axis.crossProd(refVect).modulus(), sp.center);
+        // cout << refVect << endl;
+        Matrix4 T = TM_changeBase(sp.axis.crossProd(refVect) / sp.axis.crossProd(refVect).modulus(), sp.axis.crossProd(refVect).crossProd(refVect) / sp.axis.crossProd(refVect).crossProd(refVect).modulus(), sp.axis / sp.axis.modulus(), sp.center);
         Vect4 localCoordsRef(sp.reference);
-        cout << "test " << sp.axis.crossProd(refVect) << " " << sp.axis.crossProd(refVect).modulus()  << endl;
-        cout << "old base: " << localCoordsRef << endl;
-        cout << "T mat: " << endl << T << endl;
-        localCoordsRef =  T * localCoordsRef; // Reference point on local base
-        
-        cout << "new base: " << localCoordsRef << endl;
-        T = tm_rotation(azimuth, 0);
-        localCoordsRef = T * localCoordsRef;
-        cout << "new base and rotated in x: " << localCoordsRef << endl;
-        cout << inclination << " : " << asin(sp.axis.dotProd(refVect) / (sp.axis.modulus() * refVect.modulus())) << endl;
+        // cout << "test " << sp.axis.crossProd(refVect) << " " << sp.axis.crossProd(refVect).modulus() << endl;
+        // cout << "old base: " << localCoordsRef << endl;
+        // cout << "T mat: " << endl << T << endl;
+        localCoordsRef = T * localCoordsRef; // Reference point on local base
+        // cout << "new base: " << localCoordsRef << endl;
         T = tm_rotation(inclination - asin(sp.axis.dotProd(refVect) / (sp.axis.modulus() * refVect.modulus())), 1);
         localCoordsRef = T * localCoordsRef;
-        cout << "new base and rotated in y: " << localCoordsRef << endl;
+        // cout << "new base and rotated in x: " << localCoordsRef << endl;
+        // cout << inclination << " : " << asin(sp.axis.dotProd(refVect) / (sp.axis.modulus() * refVect.modulus())) << endl;
+        T = tm_rotation(-azimuth, 2);
+        localCoordsRef = T * localCoordsRef;
+        // cout << "new base and rotated in y: " << localCoordsRef << endl;
+        T = TM_changeBase(sp.axis.crossProd(refVect) / sp.axis.crossProd(refVect).modulus(), sp.axis.crossProd(refVect).crossProd(refVect) / sp.axis.crossProd(refVect).crossProd(refVect).modulus(), sp.axis / sp.axis.modulus(), sp.center);
+
+        // cout << T << endl;
+
+        T = inverse(T);
+
+        // cout << T << endl;
+
+        localCoordsRef = T * localCoordsRef;
 
         position = localCoordsRef.toPoint();
 
