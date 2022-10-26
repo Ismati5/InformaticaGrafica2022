@@ -135,6 +135,8 @@ float determinant4x4(Matrix4 m1)
     // m1 must not be modified
     Matrix4 aux = m1;
 
+    cout << m1 << endl;
+
     for (int i = 0; i < 4; i++)
     {
         for (int k = i + 1; k < 4; k++)
@@ -145,7 +147,9 @@ float determinant4x4(Matrix4 m1)
         }
     }
     for (int i = 0; i < 4; i++)
+    {
         r *= aux.m[i][i];
+    }
     return r;
 }
 
