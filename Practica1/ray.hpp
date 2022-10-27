@@ -14,6 +14,7 @@ public:
     Direction d;
     Point p;
 
+    Ray(){}
     Ray(Direction d, Point p) : d(d), p(p){}
 
 };

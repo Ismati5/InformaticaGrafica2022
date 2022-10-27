@@ -27,13 +27,13 @@ class Plane
 public:
 
     Direction normal;
-    Point center;
+    float c;
     //emission RGB tuple
     float emission[3];
 
 
-    Plane(Direction normal, Point center,  float emi[3]): 
-        normal(normal), center(center){
+    Plane(Direction normal, float c,  float emi[3]): 
+        normal(normal), c(c){
 
             emission[0] = emi[0];
             emission[1] = emi[1];
@@ -47,13 +47,11 @@ public:
         Direction d  = ray.d;
         Point p = ray.p;
 
-        //t = ( (c - p) * n ) / (d * n)
         //assuming vectors are normalized
         float denominator = d.dotProd(normal);
         if (denominator > 1e-6) {
 
-            Direction temp = center - p;
-            t1 = temp.dotProd(normal) / denominator;
+            //float numerator = c + p*normal;
             //The normal is equal to the surface normal
             sur_normal = normal;
 

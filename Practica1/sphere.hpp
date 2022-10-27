@@ -66,7 +66,7 @@ public:
     //In case that the ray hits at least once, t1 will have
     //the distance to the closest hit. If the ray hits twice 
     //t2 will have the distance to the further hit.
-    int Intersect(Ray ray, float& t1, float&t2, Direction& sur_normal) {
+    bool Intersect(Ray ray, float& t1, float&t2, Direction& sur_normal) {
 
         Direction d  = ray.d;
         Point p = ray.p;
@@ -103,7 +103,8 @@ public:
                     t1 = t2;
                     t2 = aux;
                 }
-        } else return 0; //No solutions
+                if (t1 < 0) return false; //Sphere is behind camera
+        } else return false; //No solutions
 
         Point intersection(t1 * d.x, t1*d.y, t1*d.z);
         //Gradient f(x,y,z) = (2(c-1)^2 * x, 2(c-1)^2 * y,  2(c-1)^2 * z)
@@ -111,14 +112,14 @@ public:
         sur_normal.x = 2 * (c - 1) * (c - 1) * intersection.x;
         sur_normal.y = 2 * (c - 1) * (c - 1) * intersection.y;
         sur_normal.z = 2 * (c - 1) * (c - 1) * intersection.z;
+        sur_normal.normalize();
 
         // 2c / (-b -+ sqrt(b^2 -4ac)) 
         //float temp = -0.5 * (b + sign(b) * sqrt(b*b - 4*a*c));
         //float x1 = temp / a;
-        //float x2 = c / temp;
-
-        if (t1 == t2) return 1;
-        else return 2; 
+        //float x2 = c / temp; 
+        
+        return true;
 
     }
 
