@@ -26,9 +26,9 @@ using namespace std;
  */
 int main()
 {
-    Point center(1, 1, 1);
-    Point ref(1, 2, 1);
-    Direction axis(2, 0, 0);
+    Point center(0, 0, 0);
+    Point ref(1, 0, 0);
+    Direction axis(0, 0, 2);
     float emission[3] = {0, 0, 0};
     // Direction d1, d2, d3;
     //  Vect4 v(p1);
@@ -39,7 +39,7 @@ int main()
     // cout << m1 << endl;
     // cout << inverse(m1) << endl;
     Sphere sp(axis, center, ref, emission);
-    Station a(sp, 20, 10);
+    Station a(sp, 90, 90);
 
     cout << a.position << endl;
     return 0;
