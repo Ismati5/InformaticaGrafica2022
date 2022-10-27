@@ -29,10 +29,10 @@ public:
     Direction normal;
     float c;
     //emission RGB tuple
-    float emission[3];
+    int emission[3];
 
 
-    Plane(Direction normal, float c,  float emi[3]): 
+    Plane(Direction normal, float c,  int emi[3]): 
         normal(normal), c(c){
 
             emission[0] = emi[0];
@@ -45,17 +45,18 @@ public:
     bool Intersect(Ray ray, float& t1, Direction& sur_normal) {
 
         Direction d  = ray.d;
-        Point p = ray.p;
+        Point o = ray.p;
 
         //assuming vectors are normalized
         float denominator = d.dotProd(normal);
         if (denominator > 1e-6) {
 
-            //float numerator = c + p*normal;
+            //float numerator = c + o*normal;
+            //t1 = -(numerator/denominator);
             //The normal is equal to the surface normal
             sur_normal = normal;
 
-            return true;
+            if (t1 > 0) return true; //the plane is not behind
         }
 
         //no intersection

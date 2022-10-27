@@ -31,6 +31,15 @@ public:
     //emission RGB tuple
     float emission[3];
 
+    Sphere(Point center, float radius,  int emi[3])
+        : center(center), radius(radius){
+
+        emission[0] = emi[0];
+        emission[1] = emi[1];
+        emission[2] = emi[2];
+
+    }
+
     /**
      * @brief Construct a new Sphere object
      *
@@ -38,7 +47,7 @@ public:
      * @param center
      * @param reference
      */
-    Sphere(Direction axis, Point center, Point reference,  float emi[3])
+    Sphere(Direction axis, Point center, Point reference,  int emi[3])
         : axis(axis), center(center), reference(reference)
     {
         Direction radius1 = axis / 2;
@@ -94,10 +103,11 @@ public:
         float c = p.x*p.x + p.y*p.y + p.z*p.z + 2*center.x*p.x + 2*center.y*p.y + 2*center.z*p.z + center.x*center.x + center.y*center.y + center.z*center.z - radius*radius;
 
         float discriminant = b*b - 4*a*c;
-    
+
         if (discriminant > 0 && a > 1e-6) {
                 t1 = (-b + sqrt(discriminant)) / (2*a);
                 t2 = (-b - sqrt(discriminant)) / (2*a);
+
                 if (t1 > t2)  {  
                     float aux = t1;
                     t1 = t2;
