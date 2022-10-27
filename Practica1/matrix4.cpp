@@ -77,6 +77,41 @@ Matrix4 Matrix4::operator/(const float &n) const
     return m1;
 }
 
+
+/**
+ * @brief Returns determinant of a nxn matrix
+ *
+ * @param m1
+ * @param n
+ * @return float
+ */
+float determinant( Matrix4 m1, int n) {
+   int det = 0;
+   Matrix4 submatrix;
+   if (n == 2)
+   return ((m1.m[0][0] * m1.m[1][1]) - (m1.m[1][0] * m1.m[0][1]));
+   else 
+   {
+      for (int x = 0; x < n; x++) 
+      {
+         int subi = 0;
+         for (int i = 1; i < n; i++) 
+         {
+            int subj = 0;
+            for (int j = 0; j < n; j++) 
+            {
+               if (j == x) continue;
+               submatrix.m[subi][subj] = m1.m[i][j];
+               subj++;
+            }
+            subi++;
+         }
+         det = det + (pow(-1, x) * m1.m[0][x] * determinant(submatrix, n-1));
+      }
+   }
+   return det;
+}
+
 /**
  * @brief Returns inverse matrix of m1
  *
@@ -86,7 +121,8 @@ Matrix4 Matrix4::operator/(const float &n) const
 Matrix4 inverse(Matrix4 m1)
 {
 
-    float det = determinant4x4(m1);
+    float det = determinant(m1, 4);
+    cout << det << endl;
     Matrix4 adj;
 
     for (int i = 0; i < 4; i++)
@@ -121,36 +157,6 @@ Matrix4 transpose(Matrix4 m1)
     }
 
     return m2;
-}
-
-/**
- * @brief Returns determinant of a 4x4 matrix
- *
- * @param m1
- * @return float
- */
-float determinant4x4(Matrix4 m1)
-{
-    double c, r = 1;
-    // m1 must not be modified
-    Matrix4 aux = m1;
-
-    cout << m1 << endl;
-
-    for (int i = 0; i < 4; i++)
-    {
-        for (int k = i + 1; k < 4; k++)
-        {
-            c = aux.m[k][i] / aux.m[i][i];
-            for (int j = i; j < 4; j++)
-                aux.m[k][j] = aux.m[k][j] - c * aux.m[i][j];
-        }
-    }
-    for (int i = 0; i < 4; i++)
-    {
-        r *= aux.m[i][i];
-    }
-    return r;
 }
 
 /**
