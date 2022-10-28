@@ -46,14 +46,18 @@ int main()
 
     //RENDER TESTS
 
-    int red[3] = {230, 2, 56};
-    int yellow[3] = {246, 199, 7};
-    int blue[3] = {0, 0, 255};
-    int green[3] = {0, 255, 0};
-    int white[3] = {255, 255, 255};
-    int purple[3] = {191, 64, 191};
-    int samiti[3] = {230, 2, 56};
-    int mercumtio[3] = {137, 5, 84};
+    /*
+    *
+    * Pastel RGB color codes
+    *
+    */
+    int red[3] = {255, 109, 106};
+    int yellow[3] = {233, 236, 107};
+    int blue[3] = {139, 211, 230};
+    int green[3] = {119,221,119};
+    int gray[3] = {207,207,196};
+    int purple[3] = {177,162,202};
+    int orange[3] = {239,190,125};
  /*
     Direction n(-1, 0, 0);
     Plane test_pl(n, 1, black);
@@ -79,27 +83,27 @@ int main()
 
     vector<Plane> plane_objs;
     Direction n(1,0,0);
-    Plane left_plane(n, 1, white);
+    Plane left_plane(n, 1, orange);
     plane_objs.push_back(left_plane);
     Direction n1(-1,0,0);
-    Plane right_plane(n1, 1, white);
+    Plane right_plane(n1, 1, yellow);
     plane_objs.push_back(right_plane);
     Direction n2(0,1,0);
-    Plane floor_plane(n2, 1, mercumtio);
+    Plane floor_plane(n2, 1, gray);
     plane_objs.push_back(floor_plane);
     Direction n3(0,-1,0);
-    Plane ceiling_plane(n3, 1, samiti);
+    Plane ceiling_plane(n3, 1, red);
     plane_objs.push_back(ceiling_plane);
     Direction n4(0,0,-1);
-    Plane back_plane(n4, 1, yellow);
+    Plane back_plane(n4, 1, purple);
     plane_objs.push_back(back_plane);
 
     vector<Sphere> sphere_objs;
     Point c(-0.5, -0.7, 0.25);
-    Sphere left_sphere(c, 0.3,  white);
+    Sphere left_sphere(c, 0.3,  blue);
     sphere_objs.push_back(left_sphere);
     Point c1(0.5, -0.7, -0.25);
-    Sphere right_sphere(c1, 0.3,  white);
+    Sphere right_sphere(c1, 0.3,  green);
     sphere_objs.push_back(right_sphere);
 
     camera.render(sphere_objs, plane_objs, 64);
