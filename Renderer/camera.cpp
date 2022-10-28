@@ -42,12 +42,12 @@ void progressBar(int row, int height, unsigned start)
             if (estimated > 60)
             {
                 cout << "       (Estimated time: " << int(estimated) / 60 << "min " << int(estimated) % 60
-                     << "s) \r";
+                     << "s)         \r";
             }
             else
             {
-                cout << "       (Estimated time: " << int(estimated) % 60
-                     << "s) \r";
+                cout << "       (Estimated time: " << int(estimated)
+                     << "s)         \r";
             }
         }
         else
