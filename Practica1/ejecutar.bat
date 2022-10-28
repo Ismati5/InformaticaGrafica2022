@@ -1,0 +1,1 @@
+g++ point.cpp direction.cpp test.cpp matrix4.cpp vect4.cpp sphere.cpp station.cpp plane.cpp camera.cpp -o test -std=c++11
