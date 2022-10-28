@@ -10,8 +10,11 @@
 #include <cmath>
 #include <vector>
 #include <limits>
+#include <ctime>
 
 using namespace std;
+
+void progressBar(int row, int height, unsigned start);
 
 class Camera
 {
@@ -35,16 +38,16 @@ public:
         botLeft = origin - U + L + F;
         botRight = origin - U - L + F;
 
-        cout << "topLeft: " << topLeft << endl;
-        cout << "topRight: " << topRight << endl;
-        cout << "botLeft: " << botLeft << endl;
-        cout << "botRight: " << botRight << endl;
+        // cout << "topLeft: " << topLeft << endl;
+        // cout << "topRight: " << topRight << endl;
+        // cout << "botLeft: " << botLeft << endl;
+        // cout << "botRight: " << botRight << endl;
 
         pixelSize_x = (topLeft - topRight) / size[0];
         pixelSize_y = (topLeft - botLeft) / size[1];
 
-        cout << "pixelSize_x: " << pixelSize_x << endl;
-        cout << "pixelSize_y: " << pixelSize_y << endl;
+        // cout << "pixelSize_x: " << pixelSize_x << endl;
+        // cout << "pixelSize_y: " << pixelSize_y << endl;
     }
 
     void render(string outfile, vector<Sphere> sphere_objs, vector<Plane> plane_objs, int rays_per_pix)
@@ -67,6 +70,8 @@ public:
         float t1, t2, lowest_t1 = numeric_limits<float>::infinity();
         Direction sur_normal;
 
+        unsigned start = clock();
+
         for (float i = 0; i < size[0]; i++)
         {
             for (float j = 0; j < size[1]; j++)
@@ -85,7 +90,8 @@ public:
                     Direction variation_y(ray_x, ray_y, ray_z);
 
                     Point pixel = topLeft - pixelSize_x * j - pixelSize_y * i - pixelSize_x / 2 - pixelSize_y / 2 + variation_x + variation_y;
-                    // cout << "[" << i << "]" << "[" << j << "] " << pixel << endl;
+                    /*cout << "[" << i << "]"
+                         << "[" << j << "] " << pixel << endl;*/
                     ray.d = (pixel - origin).normalize();
 
                     // check sphere intersections
@@ -139,6 +145,7 @@ public:
                     file << total_emission[0] << " " << total_emission[1] << " " << total_emission[2] << "    ";
 
                     intersections = 0;
+
                     total_emission[0] = 0;
                     total_emission[1] = 0;
                     total_emission[2] = 0;
@@ -149,9 +156,14 @@ public:
                     file << 0 << " " << 0 << " " << 0 << "    ";
                 }
             }
+            progressBar(i, size[0], start);
             file << endl;
         }
 
+        cout << "   Progress   [||||||||||||||||||||||||||||||||||||||||]\t100%        (Image rendering completed!)" << endl
+             << "File saved as renders/"
+             << outfile << "." << endl
+             << endl;
         file.close();
     }
 };

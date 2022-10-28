@@ -33,7 +33,7 @@ void createRender(string file, int rays)
     Direction l(-1, 0, 0);
     Direction u(0, 1, 0);
     Direction f(0, 0, 3);
-    int size[2] = {256, 256};
+    int size[2] = {1200, 1200};
 
     Camera camera(l, u, f, o, size);
 
