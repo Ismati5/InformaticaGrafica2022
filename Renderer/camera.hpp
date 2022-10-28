@@ -56,7 +56,7 @@ public:
         // file header
         ofstream file("renders/" + outfile);
         file << "P3" << endl;
-        file << "# " << outfile << endl;
+        // file << "# " << outfile << endl;
         file << size[0] << " " << size[1] << endl;
         file << "255" << endl;
 
