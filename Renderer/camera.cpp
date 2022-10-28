@@ -10,6 +10,13 @@
  */
 #include "camera.hpp"
 
+/**
+ * @brief Generates a progress bar
+ *
+ * @param row
+ * @param height
+ * @param start
+ */
 void progressBar(int row, int height, unsigned start)
 {
     if (row % 20 == 0)

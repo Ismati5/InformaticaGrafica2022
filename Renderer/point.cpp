@@ -35,7 +35,7 @@ Point Point::operator+(const Direction &d) const
     return p;
 };
 
-//xt + n || yt + m || zt + b
+// xt + n || yt + m || zt + b
 
 // (x, y, z)
 // (n, m, b)
@@ -44,9 +44,9 @@ Point Point::operator+(const Direction &d) const
 
 // (xt + n)^2 - 2*(xt + n)*c + c^2 + (yt + m)^2 - 2*(yt + m)*c + c^2 + (zt + b)^2 - 2*(zt + b)*c + c^2 - r^2
 
-// (xt)^2 + n*n + 2xnt - 2xct + 2cn + c*c + 
-// (yt)^2 + m*m + 2ymt - 2yct + 2cm + c*c + 
-// (zt)^2 + b*b + 2zbt - 2zct + 2cb + c*c - r^2 
+// (xt)^2 + n*n + 2xnt - 2xct + 2cn + c*c +
+// (yt)^2 + m*m + 2ymt - 2yct + 2cm + c*c +
+// (zt)^2 + b*b + 2zbt - 2zct + 2cb + c*c - r^2
 
 // (x*x + y*y + z*z)t^2 + (2xn + 2ym + 2zb - 2xc - 2yc - 2zc)t + (n*n + m*m + b*b + 2cn + 2cm + 2cb + c*c + c*c + c*c - r*r)
 

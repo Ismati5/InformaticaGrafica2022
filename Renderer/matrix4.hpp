@@ -139,7 +139,7 @@ Matrix4 tm_rotation(float th, int a);
 // to a new base with origin in o and axes in
 // u,v and w
 Matrix4 TM_changeBase(Direction u, Direction v,
-     Direction w, Vect4 o );
+                      Direction w, Vect4 o);
 
 /**
  * @brief << operator

@@ -1,3 +1,13 @@
+/**
+ * @file camera.hpp
+ * @author Adrián Yago & Ismael Tienda
+ * @brief
+ * @version 0.1
+ * @date 2022-10-29
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
 #pragma once
 
 #include <iostream>
@@ -14,8 +24,19 @@
 
 using namespace std;
 
+/**
+ * @brief Generates a progress bar
+ *
+ * @param row
+ * @param height
+ * @param start
+ */
 void progressBar(int row, int height, unsigned start);
 
+/**
+ * @brief Camera class
+ *
+ */
 class Camera
 {
 
@@ -27,6 +48,15 @@ public:
     Point topLeft, topRight, botLeft, botRight;
     Direction pixelSize_x, pixelSize_y;
 
+    /**
+     * @brief Construct a new Camera object
+     *
+     * @param _L
+     * @param _U
+     * @param _F
+     * @param O
+     * @param _size
+     */
     Camera(Direction _L, Direction _U, Direction _F, Point O, int _size[2]) : L(_L), U(_U), F(_F), origin(O)
     {
 
@@ -50,6 +80,14 @@ public:
         // cout << "pixelSize_y: " << pixelSize_y << endl;
     }
 
+    /**
+     * @brief Renders an scene
+     *
+     * @param outfile
+     * @param sphere_objs
+     * @param plane_objs
+     * @param rays_per_pix
+     */
     void render(string outfile, vector<Sphere> sphere_objs, vector<Plane> plane_objs, int rays_per_pix)
     {
 

@@ -77,7 +77,6 @@ Matrix4 Matrix4::operator/(const float &n) const
     return m1;
 }
 
-
 /**
  * @brief Returns determinant of a nxn matrix
  *
@@ -85,31 +84,33 @@ Matrix4 Matrix4::operator/(const float &n) const
  * @param n
  * @return float
  */
-float determinant( Matrix4 m1, int n) {
-   int det = 0;
-   Matrix4 submatrix;
-   if (n == 2)
-   return ((m1.m[0][0] * m1.m[1][1]) - (m1.m[1][0] * m1.m[0][1]));
-   else 
-   {
-      for (int x = 0; x < n; x++) 
-      {
-         int subi = 0;
-         for (int i = 1; i < n; i++) 
-         {
-            int subj = 0;
-            for (int j = 0; j < n; j++) 
+float determinant(Matrix4 m1, int n)
+{
+    int det = 0;
+    Matrix4 submatrix;
+    if (n == 2)
+        return ((m1.m[0][0] * m1.m[1][1]) - (m1.m[1][0] * m1.m[0][1]));
+    else
+    {
+        for (int x = 0; x < n; x++)
+        {
+            int subi = 0;
+            for (int i = 1; i < n; i++)
             {
-               if (j == x) continue;
-               submatrix.m[subi][subj] = m1.m[i][j];
-               subj++;
+                int subj = 0;
+                for (int j = 0; j < n; j++)
+                {
+                    if (j == x)
+                        continue;
+                    submatrix.m[subi][subj] = m1.m[i][j];
+                    subj++;
+                }
+                subi++;
             }
-            subi++;
-         }
-         det = det + (pow(-1, x) * m1.m[0][x] * determinant(submatrix, n-1));
-      }
-   }
-   return det;
+            det = det + (pow(-1, x) * m1.m[0][x] * determinant(submatrix, n - 1));
+        }
+    }
+    return det;
 }
 
 /**

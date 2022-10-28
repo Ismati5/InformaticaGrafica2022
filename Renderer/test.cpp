@@ -106,6 +106,6 @@ int main()
     Sphere right_sphere(c1, 0.3, green);
     sphere_objs.push_back(right_sphere);
 
-    camera.render(sphere_objs, plane_objs, 64);
+    // camera.render(sphere_objs, plane_objs, 64);
     return 0;
 }
