@@ -9,6 +9,7 @@
 #include "ray.hpp"
 #include <cmath>
 #include <vector>
+#include <limits>
 
 using namespace std;
 
@@ -52,18 +53,18 @@ public:
 
         float closest_emission[3];
         bool intersected = false;
-        float t1,t2, lowest_t1 = 0;
+        float t1,t2, lowest_t1 = numeric_limits<float>::infinity();
         Direction sur_normal;
 
         for (float i = 0; i < size[0]; i++){
            for (float j = 0; j < size[1]; j++){
                 Point pixel = topLeft + pixelSize_x * i + pixelSize_y * j;
-                ray.d = pixel - origin;
+                ray.d = (pixel - origin).normalize();
 
                 //check sphere intersections
                 for(Sphere i : sphere_objs){
-                    if (i.Intersect(ray, t1, t2, sur_normal)){
-                        if (t1 < lowest_t1) {
+                    if (i.Intersect(ray, t1, sur_normal)){
+                        if (t1 > 0 && t1 < lowest_t1) {
                             lowest_t1 = t1;
                             closest_emission[0] = i.emission[0];
                             closest_emission[1] = i.emission[1];
@@ -76,7 +77,7 @@ public:
                 //check plane intersections
                 for(Plane i : plane_objs){
                     if (i.Intersect(ray, t1, sur_normal)){
-                        if (t1 < lowest_t1) {
+                        if (t1 > 0 && t1 < lowest_t1) {
                             lowest_t1 = t1;
                             closest_emission[0] = i.emission[0];
                             closest_emission[1] = i.emission[1];
@@ -86,10 +87,13 @@ public:
                     }
                 }
                 
+                //cout << "Intersected: " << intersected << endl;
+                //cout << "Distance: " << lowest_t1 << endl;
+
                 if (intersected) {
                     file << closest_emission[0] << " " << closest_emission[1] << " " << closest_emission[2] << "    ";
                     intersected = false;
-                    lowest_t1 = 0;
+                    lowest_t1 = numeric_limits<float>::infinity();
                 }
                 
             } 
