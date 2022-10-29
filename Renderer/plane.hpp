@@ -1,6 +1,5 @@
-#pragma once
 /**
- * @file sphere.hpp
+ * @file plane.hpp
  * @author Adrián Yago & Ismael Tienda
  * @brief
  * @version 0.1
@@ -9,27 +8,35 @@
  * @copyright Copyright (c) 2022
  *
  */
+#pragma once
+
 #include <iostream>
 #include "direction.hpp"
 #include "point.hpp"
 #include "ray.hpp"
+#include "object.hpp"
 #include <cmath>
 
 using namespace std;
 
 /**
- * @brief Sphere represents a 3D sphere
+ * @brief Plane represents a 3D plane
  *
  */
-class Plane
+class Plane : public Object
 {
 
 public:
     Direction normal;
     float c;
-    // emission RGB tuple
-    int emission[3];
 
+    /**
+     * @brief Construct a new Plane object
+     *
+     * @param normal
+     * @param c
+     * @param emi
+     */
     Plane(Direction normal, float c, int emi[3]) : normal(normal), c(c)
     {
 
@@ -38,29 +45,14 @@ public:
         emission[2] = emi[2];
     }
 
-    // Returns distance from point to hit in plane
-    bool Intersect(Ray ray, float &t1, Direction &sur_normal)
-    {
-
-        Direction d = ray.d;
-        Point o = ray.p;
-
-        // assuming vectors are normalized
-        float denominator = d.dotProd(normal);
-
-        if (denominator != 0)
-        {
-
-            float numerator = -(c + (o.x * normal.x + o.y * normal.y + o.z * normal.z));
-            t1 = numerator / denominator;
-            // The normal is equal to the surface normal
-            sur_normal = normal;
-
-            if (t1 > 0)
-                return true; // the plane is not behind
-        }
-
-        // no intersection
-        return false;
-    }
+    /**
+     * @brief Returns distance from point to hit in plane
+     *
+     * @param ray
+     * @param t1
+     * @param sur_normal
+     * @return true
+     * @return false
+     */
+    bool intersect(Ray ray, float &t1, Direction &sur_normal);
 };

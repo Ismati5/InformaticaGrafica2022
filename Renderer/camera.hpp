@@ -88,7 +88,7 @@ public:
      * @param plane_objs
      * @param rays_per_pix
      */
-    void render(string outfile, vector<Sphere> sphere_objs, vector<Plane> plane_objs, int rays_per_pix)
+    void render(string outfile, vector<Object *> objs, int rays_per_pix)
     {
 
         // file header
@@ -133,32 +133,16 @@ public:
                     ray.d = (pixel - origin).normalize();
 
                     // check sphere intersections
-                    for (Sphere i : sphere_objs)
+                    for (auto i : objs)
                     {
-                        if (i.Intersect(ray, t1, sur_normal))
+                        if (i->intersect(ray, t1, sur_normal))
                         {
                             if (t1 > 0 && t1 < lowest_t1)
                             {
                                 lowest_t1 = t1;
-                                closest_emission[0] = i.emission[0];
-                                closest_emission[1] = i.emission[1];
-                                closest_emission[2] = i.emission[2];
-                                intersected = true;
-                            }
-                        }
-                    }
-
-                    // check plane intersections
-                    for (Plane i : plane_objs)
-                    {
-                        if (i.Intersect(ray, t1, sur_normal))
-                        {
-                            if (t1 > 0 && t1 < lowest_t1)
-                            {
-                                lowest_t1 = t1;
-                                closest_emission[0] = i.emission[0];
-                                closest_emission[1] = i.emission[1];
-                                closest_emission[2] = i.emission[2];
+                                closest_emission[0] = i->emission[0];
+                                closest_emission[1] = i->emission[1];
+                                closest_emission[2] = i->emission[2];
                                 intersected = true;
                             }
                         }
