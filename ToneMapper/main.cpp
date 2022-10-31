@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     {
         equalization(argv[2], stof(argv[3]));
     }
-        else if (argv[1][1] == 'b')
+    else if (argv[1][1] == 'b')
     {
         equalizationAndCampling(argv[2], stof(argv[3]));
     }
