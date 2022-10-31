@@ -30,10 +30,10 @@ int orange[3] = {239, 190, 125};
 void createRender(string file, int rays)
 {
     Point o(0, 0, -3.5);
-    Direction l(-1, 0, 0);
+    Direction l(1, 0, 0);
     Direction u(0, 1, 0);
     Direction f(0, 0, 3);
-    int size[2] = {256, 256};
+    int size[2] = {1920, 1080};
 
     Camera camera(l, u, f, o, size);
 

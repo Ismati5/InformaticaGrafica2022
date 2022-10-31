@@ -68,16 +68,16 @@ public:
         botLeft = origin - U + L + F;
         botRight = origin - U - L + F;
 
-        // cout << "topLeft: " << topLeft << endl;
-        // cout << "topRight: " << topRight << endl;
-        // cout << "botLeft: " << botLeft << endl;
-        // cout << "botRight: " << botRight << endl;
+        cout << "topLeft: " << topLeft << endl;
+        cout << "topRight: " << topRight << endl;
+        cout << "botLeft: " << botLeft << endl;
+        cout << "botRight: " << botRight << endl;
 
         pixelSize_x = (topLeft - topRight) / size[0];
         pixelSize_y = (topLeft - botLeft) / size[1];
 
-        // cout << "pixelSize_x: " << pixelSize_x << endl;
-        // cout << "pixelSize_y: " << pixelSize_y << endl;
+        cout << "pixelSize_x: " << pixelSize_x << endl;
+        cout << "pixelSize_y: " << pixelSize_y << endl;
     }
 
     /**
@@ -110,9 +110,9 @@ public:
 
         unsigned start = clock();
 
-        for (float i = 0; i < size[0]; i++)
+        for (float i = 0; i < size[1]; i++) // i rows
         {
-            for (float j = 0; j < size[1]; j++)
+            for (float j = 0; j < size[0]; j++) // j columns
             {
                 for (float r = 0; r < rays_per_pix; r++)
                 {
@@ -128,8 +128,8 @@ public:
                     Direction variation_y(ray_x, ray_y, ray_z);
 
                     Point pixel = topLeft - pixelSize_x * j - pixelSize_y * i - pixelSize_x / 2 - pixelSize_y / 2 + variation_x + variation_y;
-                    /*cout << "[" << i << "]"
-                         << "[" << j << "] " << pixel << endl;*/
+
+                    // cout << "[" << i << "]" << "[" << j << "] " << pixel << endl;
                     ray.d = (pixel - origin).normalize();
 
                     // check sphere intersections
