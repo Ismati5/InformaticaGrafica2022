@@ -16,6 +16,7 @@
 #include "sphere.hpp"
 #include "station.hpp"
 #include "camera.hpp"
+#include "light.hpp"
 
 using namespace std;
 
@@ -33,9 +34,15 @@ void createRender(string file, int rays)
     Direction l(1, 0, 0);
     Direction u(0, 1, 0);
     Direction f(0, 0, 3);
-    int size[2] = {1920, 1080};
+    int size[2] = {256, 256};
 
     Camera camera(l, u, f, o, size);
+
+    vector<Light *> lights; 
+    Point l_c1(0, 0.5, 0);
+    float l_p1[3] = {1, 1, 1};
+    Light light1(l_c1, l_p1);
+    lights.push_back(&light1);
 
     vector<Object *> objs;
 
@@ -62,7 +69,7 @@ void createRender(string file, int rays)
     Sphere right_sphere(c1, 0.3, green);
     objs.push_back(&right_sphere);
 
-    camera.render(file, objs, rays);
+    camera.render(file, objs, rays, lights);
 }
 
 int main(int argc, char *argv[])

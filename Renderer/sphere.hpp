@@ -95,5 +95,5 @@ public:
      * @return true
      * @return false
      */
-    bool intersect(Ray ray, float &t, Direction &sur_normal);
+    bool intersect(Ray ray, float &t, Direction &sur_normal, Point &x);
 };

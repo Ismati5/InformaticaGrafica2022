@@ -27,7 +27,6 @@ class Plane : public Object
 {
 
 public:
-    Direction normal;
     float c;
 
     /**
@@ -37,8 +36,10 @@ public:
      * @param c
      * @param emi
      */
-    Plane(Direction normal, float c, int emi[3]) : normal(normal), c(c)
+    Plane(Direction normal, float c, int emi[3]) : c(c)
     {
+
+        normal = normal;
 
         emission[0] = emi[0];
         emission[1] = emi[1];
@@ -54,5 +55,5 @@ public:
      * @return true
      * @return false
      */
-    bool intersect(Ray ray, float &t1, Direction &sur_normal);
+    bool intersect(Ray ray, float &t1, Direction &sur_normal, Point &x);
 };

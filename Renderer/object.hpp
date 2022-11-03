@@ -23,6 +23,7 @@ class Object
 {
 public:
     // emission RGB tuple
+    Direction normal;
     int emission[3];
 
     /**
@@ -34,5 +35,5 @@ public:
      * @return true
      * @return false
      */
-    virtual bool intersect(Ray ray, float &t, Direction &sur_normal) = 0;
+    virtual bool intersect(Ray ray, float &t, Direction &sur_normal, Point &x) = 0;
 };
