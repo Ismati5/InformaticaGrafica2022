@@ -70,6 +70,12 @@ void createRender(string file, int rays)
     Sphere right_sphere(c1, 0.3, green);
     objs.push_back(&right_sphere);
 
+    Point p1(-0.5, -0.7, 0.25);
+    Point p2(0, -0.7, 0.25);
+    Point p3(-0.25, 0, 0.25);
+    Triangle triangle(p1, p2, p3, red);
+    //objs.push_back(&triangle);
+
     camera.render(file, objs, rays, lights);
 }
 

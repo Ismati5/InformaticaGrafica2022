@@ -15,6 +15,7 @@
 #include "direction.hpp"
 #include "sphere.hpp"
 #include "plane.hpp"
+#include "triangle.hpp"
 #include "point.hpp"
 #include "light.hpp"
 #include "ray.hpp"

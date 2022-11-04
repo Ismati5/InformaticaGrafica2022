@@ -11,6 +11,7 @@
 #include <iostream>
 #include "point.hpp"
 #include "direction.hpp"
+#include "triangle.hpp"
 #include "vect4.hpp"
 #include "matrix4.hpp"
 #include "sphere.hpp"
