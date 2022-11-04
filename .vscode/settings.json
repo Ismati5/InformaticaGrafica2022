@@ -59,6 +59,10 @@
         "memory_resource": "cpp",
         "numeric": "cpp",
         "random": "cpp",
-        "sstream": "cpp"
-    }
+        "sstream": "cpp",
+        "chrono": "cpp",
+        "thread": "cpp",
+        "ratio": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "Enabled"
 }

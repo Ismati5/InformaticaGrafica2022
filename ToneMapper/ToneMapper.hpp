@@ -266,7 +266,7 @@ void equalization(string fileName, float value = 0.0)
             s = stoi(num);
             float v = s * m / c;
             v = v * m / value;
-            s = round(v * c / m);
+            s = v * c / m;
             outFile << s;
             count++;
             if (count == 3)

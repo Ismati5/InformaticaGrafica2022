@@ -10,6 +10,7 @@
  */
 #pragma once
 
+#include "vect3.hpp"
 #include "ray.hpp"
 #include "direction.hpp"
 
@@ -24,7 +25,7 @@ class Object
 public:
     // emission RGB tuple
     Direction normal;
-    int emission[3];
+    Vect3 emission;
 
     /**
      * @brief intersect interface

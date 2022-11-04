@@ -37,13 +37,10 @@ public:
      * @param radius
      * @param emi
      */
-    Sphere(Point center, float radius, int emi[3])
+    Sphere(Point center, float radius, Vect3 emi)
         : center(center), radius(radius)
     {
-
-        emission[0] = emi[0];
-        emission[1] = emi[1];
-        emission[2] = emi[2];
+        emission = emi;
     }
 
     /**
@@ -53,7 +50,7 @@ public:
      * @param center
      * @param reference
      */
-    Sphere(Direction axis, Point center, Point reference, int emi[3])
+    Sphere(Direction axis, Point center, Point reference, Vect3 emi)
         : axis(axis), center(center), reference(reference)
     {
         Direction radius1 = axis / 2;
@@ -68,9 +65,7 @@ public:
             radius = radius2.modulus();
         }
 
-        emission[0] = emi[0];
-        emission[1] = emi[1];
-        emission[2] = emi[2];
+        emission = emi;
     }
 
     /**

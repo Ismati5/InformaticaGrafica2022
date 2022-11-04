@@ -36,14 +36,11 @@ public:
      * @param c
      * @param emi
      */
-    Plane(Direction normal, float c, int emi[3]) : c(c)
+    Plane(Direction _normal, float c, Vect3 emi) : c(c)
     {
 
-        normal = normal;
-
-        emission[0] = emi[0];
-        emission[1] = emi[1];
-        emission[2] = emi[2];
+        normal = _normal;
+        emission = emi;
     }
 
     /**
@@ -55,5 +52,5 @@ public:
      * @return true
      * @return false
      */
-    bool intersect(Ray ray, float &t1, Direction &sur_normal, Point &x);
+    bool intersect(Ray ray, float &t, Direction &sur_normal, Point &x);
 };

@@ -12,6 +12,7 @@
 
 #include <iostream>
 
+#include "vect3.hpp"
 #include "point.hpp"
 #include "direction.hpp"
 
@@ -22,12 +23,11 @@ class Light
 
 public:
     Point center;
-    float power[3];
+    Vect3 power;
 
     Light() {}
-    Light(Point c, float p[3]) : center(c) {
-        power[0] = p[0];
-        power[1] = p[1];
-        power[2] = p[2];
+    Light(Point c, Vect3 p) : center(c)
+    {
+        power = p;
     }
 };

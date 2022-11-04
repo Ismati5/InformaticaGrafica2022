@@ -11,6 +11,7 @@
 #include <iostream>
 #include "point.hpp"
 #include "direction.hpp"
+#include "vect3.hpp"
 #include "vect4.hpp"
 #include "matrix4.hpp"
 #include "sphere.hpp"
@@ -20,13 +21,13 @@
 
 using namespace std;
 
-int red[3] = {255, 109, 106};
-int yellow[3] = {233, 236, 107};
-int blue[3] = {139, 211, 230};
-int green[3] = {119, 221, 119};
-int gray[3] = {207, 207, 196};
-int purple[3] = {177, 162, 202};
-int orange[3] = {239, 190, 125};
+Vect3 red = Vect3(255, 109, 106);
+Vect3 yellow = Vect3(233, 236, 107);
+Vect3 blue = Vect3(139, 211, 230);
+Vect3 green = Vect3(119, 221, 119);
+Vect3 gray = Vect3(207, 207, 196);
+Vect3 purple = Vect3(177, 162, 202);
+Vect3 orange = Vect3(239, 190, 125);
 
 void createRender(string file, int rays)
 {
@@ -38,9 +39,9 @@ void createRender(string file, int rays)
 
     Camera camera(l, u, f, o, size);
 
-    vector<Light *> lights; 
+    vector<Light *> lights;
     Point l_c1(0, 0.5, 0);
-    float l_p1[3] = {1, 1, 1};
+    Vect3 l_p1 = Vect3(1, 1, 1);
     Light light1(l_c1, l_p1);
     lights.push_back(&light1);
 

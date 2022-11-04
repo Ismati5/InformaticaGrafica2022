@@ -59,11 +59,9 @@ bool Sphere::intersect(Ray ray, float &t, Direction &sur_normal, Point &x)
     Direction intersection = d * t1;
     x = ray.p + intersection;
 
-    // Gradient f(x,y,z) = (2(c-1)^2 * x, 2(c-1)^2 * y,  2(c-1)^2 * z)
-    sur_normal.x = 2 * (c - 1) * (c - 1) * intersection.x;
-    sur_normal.y = 2 * (c - 1) * (c - 1) * intersection.y;
-    sur_normal.z = 2 * (c - 1) * (c - 1) * intersection.z;
-    sur_normal.normalize();
+    sur_normal = (x - center).normalize();
+
+    normal = sur_normal;
 
     return true;
 }

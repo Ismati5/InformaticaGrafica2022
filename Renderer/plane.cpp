@@ -19,7 +19,7 @@
  * @return true
  * @return false
  */
-bool Plane::intersect(Ray ray, float &t1, Direction &sur_normal, Point &x)
+bool Plane::intersect(Ray ray, float &t, Direction &sur_normal, Point &x)
 {
 
     Direction d = ray.d;
@@ -32,14 +32,14 @@ bool Plane::intersect(Ray ray, float &t1, Direction &sur_normal, Point &x)
     {
 
         float numerator = -(c + (o.x * normal.x + o.y * normal.y + o.z * normal.z));
-        t1 = numerator / denominator;
+        t = numerator / denominator;
         // The normal is equal to the surface normal
         sur_normal = normal;
 
-        Direction intersection = d * t1;
+        Direction intersection = d * t;
         x = ray.p + intersection;
 
-        if (t1 > 0)
+        if (t > 0)
             return true; // the plane is not behind
     }
 

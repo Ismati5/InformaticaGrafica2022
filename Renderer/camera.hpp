@@ -71,70 +71,56 @@ public:
         botLeft = origin - U + L + F;
         botRight = origin - U - L + F;
 
-        //cout << "topLeft: " << topLeft << endl;
-        //cout << "topRight: " << topRight << endl;
-        //cout << "botLeft: " << botLeft << endl;
-        //cout << "botRight: " << botRight << endl;
+        // cout << "topLeft: " << topLeft << endl;
+        // cout << "topRight: " << topRight << endl;
+        // cout << "botLeft: " << botLeft << endl;
+        // cout << "botRight: " << botRight << endl;
 
         pixelSize_x = (topLeft - topRight) / size[0];
         pixelSize_y = (topLeft - botLeft) / size[1];
 
-        //cout << "pixelSize_x: " << pixelSize_x << endl;
-        //cout << "pixelSize_y: " << pixelSize_y << endl;
+        // cout << "pixelSize_x: " << pixelSize_x << endl;
+        // cout << "pixelSize_y: " << pixelSize_y << endl;
     }
 
-    float fr(Point x, Direction wi, Direction w0, float kd){
-
-        return kd/PI;
-
+    Vect3 fr(Point x, Direction wi, Direction w0, Vect3 kd)
+    {
+        return kd / PI;
     }
 
-    void colorValue(float emission[3], Point x, Direction w0, vector<Light*> light_points, Direction n) {
+    void colorValue(Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color)
+    {
 
-        float aux_emission[3];
-        float aux;
-        aux_emission[0] = 0;
-        aux_emission[1] = 0;
-        aux_emission[2] = 0;
+        Vect3 aux_emission;
+        Vect3 aux;
+        float aux2;
+        aux_emission = Vect3(0, 0, 0);
 
-        for (Light* light : light_points) {
+        for (Light *light : light_points)
+        {
 
-            //Left term (Li)
-            aux_emission[0] = light->power[0] / ((x-light->center).modulus() * (x-light->center).modulus());
-            aux_emission[1] = light->power[1] / ((x-light->center).modulus() * (x-light->center).modulus());
-            aux_emission[2] = light->power[2] / ((x-light->center).modulus() * (x-light->center).modulus());
-            //cout << "aux_EMISION_1: [" << aux_emission[0] << ", " << aux_emission[1] << ", " << aux_emission[2] << "]" <<  endl;
+            // Left term (Li)
+            aux_emission = light->power / ((x - light->center).modulus() * (x - light->center).modulus());
+            // cout << "aux_EMISION_1: " << aux_emission << endl;
 
-            //Middle term (fr)
+            // Middle term (fr)
             Direction wi = (light->center - x).normalize();
-            aux = fr(x, wi, w0, 0.3);
-            aux_emission[0] *= aux;
-            aux_emission[1] *= aux;
-            aux_emission[2] *= aux;
-            //cout << aux << endl;
+            aux = fr(x, wi, w0, color);
+            aux_emission *= aux;
+            // cout << "aux_EMISION_2: " << aux_emission << endl;
 
-            //cout << "aux_EMISION_2: [" << aux_emission[0] << ", " << aux_emission[1] << ", " << aux_emission[2] << "]" <<  endl;
+            // Right term
 
-            //Right term
-            aux = abs(n.dotProd((light->center - x).normalize()));
-            aux_emission[0] *= aux;
-            aux_emission[1] *= aux;
-            aux_emission[2] *= aux;
-            //cout << aux << endl; 
+            // cout << "Normal: " << n << endl;
 
-            //cout << "aux_EMISION_3: [" << aux_emission[0] << ", " << aux_emission[1] << ", " << aux_emission[2] << "]" <<  endl;
+            aux2 = abs(n.dotProd((light->center - x).normalize()));
+            aux_emission *= aux2;
+            // cout << "aux_EMISION_3: " << aux_emission << endl;
 
-            emission[0] += aux_emission[0];
-            emission[1] += aux_emission[1];
-            emission[2] += aux_emission[2];
-            
+            emission += aux_emission;
         }
 
-        //cout << "EMISION: [" << emission[0] << ", " << emission[1] << ", " << emission[2] << "]" <<  endl;
-
-        //char a;
-        //cin >> a;
-
+        // cout << "EMISION: " << emission << endl;
     }
 
     /**
@@ -145,7 +131,7 @@ public:
      * @param plane_objs
      * @param rays_per_pix
      */
-    void render(string outfile, vector<Object *> objs, int rays_per_pix, vector<Light*> light_points)
+    void render(string outfile, vector<Object *> objs, int rays_per_pix, vector<Light *> light_points)
     {
 
         // file header
@@ -158,8 +144,8 @@ public:
         Ray ray;
         ray.p = origin;
 
-        float closest_emission[3] = {0, 0, 0};
-        float total_emission[3] = {0, 0, 0};
+        Vect3 closest_emission = Vect3(0, 0, 0);
+        Vect3 total_emission = Vect3(0, 0, 0);
         int intersections = 0;
         bool intersected = false;
         float t1, t2, lowest_t1 = numeric_limits<float>::infinity();
@@ -193,17 +179,18 @@ public:
                     // check sphere intersections
                     for (auto i : objs)
                     {
+
                         if (i->intersect(ray, t1, sur_normal, x))
                         {
+
                             if (t1 > 0 && t1 < lowest_t1)
                             {
                                 lowest_t1 = t1;
 
                                 Direction w0 = (origin - x).normalize();
-                                colorValue(closest_emission, x, w0, light_points, i->normal);
-                                // closest_emission[0] += i->emission[0];
-                                // closest_emission[1] += i->emission[1];
-                                // closest_emission[2] += i->emission[2];
+                                closest_emission = Vect3(0, 0, 0);
+                                colorValue(closest_emission, x, w0, light_points, sur_normal, i->emission);
+                                // closest_emission = i->emission; // Without pathtracing
                                 intersected = true;
                             }
                         }
@@ -212,26 +199,20 @@ public:
                     if (intersected)
                     {
                         intersections++;
-                        total_emission[0] += closest_emission[0];
-                        total_emission[1] += closest_emission[1];
-                        total_emission[2] += closest_emission[2];
+                        total_emission += closest_emission;
                         intersected = false;
                     }
                 }
 
                 if (intersections > 0)
                 {
-                    total_emission[0] /= intersections;
-                    total_emission[1] /= intersections;
-                    total_emission[2] /= intersections;
+                    total_emission /= intersections;
 
-                    file << total_emission[0] << " " << total_emission[1] << " " << total_emission[2] << "    ";
+                    file << total_emission.x << " " << total_emission.y << " " << total_emission.z << "    ";
 
                     intersections = 0;
 
-                    total_emission[0] = 0;
-                    total_emission[1] = 0;
-                    total_emission[2] = 0;
+                    total_emission = Vect3(0, 0, 0);
                     lowest_t1 = numeric_limits<float>::infinity();
                 }
                 else
