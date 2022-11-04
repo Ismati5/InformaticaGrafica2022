@@ -108,6 +108,7 @@ public:
             Direction wi = (light->center - x).normalize();
             aux = fr(x, wi, w0, color);
             aux_emission *= aux;
+            // cout << "aux: " << aux << endl;
             // cout << "aux_EMISION_2: " << aux_emission << endl;
 
             // Right term
@@ -122,6 +123,19 @@ public:
         }
 
         // cout << "EMISION: " << emission << endl;
+
+        if (emission.x > 255)
+        {
+            emission.x = 255;
+        }
+        if (emission.y > 255)
+        {
+            emission.y = 255;
+        }
+        if (emission.z > 255)
+        {
+            emission.z = 255;
+        }
     }
 
     /**

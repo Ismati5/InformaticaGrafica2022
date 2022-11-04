@@ -30,41 +30,43 @@ bool Triangle::intersect(Ray ray, float &t, Direction &sur_normal, Point &x)
 
     float denominator = normal.dotProd(d);
     if (denominator != 0) // ray is not parallel with the triangle
-    { 
+    {
         float numerator = -((normal.x * o.x + normal.y * o.y + normal.z * o.z) + c);
         // t = (normal * o + c) / normal * d
         t = numerator / denominator;
 
-        if (t < 0) return false; //Behind camera
+        if (t < 0)
+            return false; // Behind camera
 
         x = o + d * t;
 
-        Direction C; 
-        
-        //edge 0
+        Direction C;
+
+        // edge 0
         Direction edge0 = p2 - p1;
         Direction v0 = x - p1;
         C = edge0.crossProd(v0);
-        if (normal.dotProd(C) < 0) return false;
+        if (normal.dotProd(C) < 0)
+            return false;
 
-        //edge 1
+        // edge 1
         Direction edge1 = p3 - p2;
         Direction v1 = x - p2;
         C = edge1.crossProd(v1);
-        if (normal.dotProd(C) < 0) return false;
+        if (normal.dotProd(C) < 0)
+            return false;
 
-        //edge 2
+        // edge 2
         Direction edge2 = p1 - p3;
         Direction v2 = x - p3;
         C = edge2.crossProd(v2);
-        if (normal.dotProd(C) < 0) return false;
+        if (normal.dotProd(C) < 0)
+            return false;
 
         sur_normal = normal;
 
         return true;
-
     }
 
     return false;
-
 }

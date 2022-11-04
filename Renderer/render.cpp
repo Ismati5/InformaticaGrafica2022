@@ -35,7 +35,7 @@ void createRender(string file, int rays)
     Direction l(1, 0, 0);
     Direction u(0, 1, 0);
     Direction f(0, 0, 3);
-    int size[2] = {256, 256};
+    int size[2] = {500, 500};
 
     Camera camera(l, u, f, o, size);
 
@@ -74,7 +74,7 @@ void createRender(string file, int rays)
     Point p2(0, -0.7, 0.25);
     Point p3(-0.25, 0, 0.25);
     Triangle triangle(p1, p2, p3, red);
-    //objs.push_back(&triangle);
+    objs.push_back(&triangle);
 
     camera.render(file, objs, rays, lights);
 }

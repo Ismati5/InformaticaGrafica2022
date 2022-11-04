@@ -36,16 +36,16 @@ public:
      */
     Triangle(Point p1, Point p2, Point p3, Vect3 emi)
         : p1(p1), p2(p2), p3(p3)
-        {
-            Direction A = p2 - p1;
-            Direction B = p3 - p1;
-            normal = A.crossProd(B);
-            normal.normalize();
+    {
+        Direction A = p2 - p1;
+        Direction B = p3 - p1;
+        normal = A.crossProd(B);
+        normal.normalize();
 
-            c = -(normal.x * p1.x + normal.y * p1.y + normal.z * p1.z);
+        c = -(normal.x * p1.x + normal.y * p1.y + normal.z * p1.z);
 
-            emission = emi;
-        }
+        emission = emi;
+    }
 
     /**
      * @brief   Returns the number of intersections with a ray.
