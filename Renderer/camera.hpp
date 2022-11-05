@@ -113,10 +113,12 @@ public:
 
             // Right term
 
-            // cout << "Normal: " << n << endl;
+            //  cout << "Normal: " << n << endl;
+            //  cout << "Light center: " << light->center - x << endl;
 
             aux2 = abs(n.dotProd((light->center - x).normalize()));
             aux_emission *= aux2;
+            //  cout << "aux2: " << aux2 << endl << endl;
             // cout << "aux_EMISION_3: " << aux_emission << endl;
 
             emission += aux_emission;

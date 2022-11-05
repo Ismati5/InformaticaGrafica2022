@@ -27,6 +27,8 @@ class Triangle : public Object
 public:
     Point p1, p2, p3;
     float c;
+
+    Triangle(){}
     /**
      * @brief Construct a new Sphere object
      *
@@ -44,6 +46,21 @@ public:
 
         c = -(normal.x * p1.x + normal.y * p1.y + normal.z * p1.z);
 
+        emission = emi;
+    }
+
+    void sertNormal()
+    {
+        Direction A = p2 - p1;
+        Direction B = p3 - p1;
+        normal = A.crossProd(B);
+        normal.normalize();
+
+        c = -(normal.x * p1.x + normal.y * p1.y + normal.z * p1.z);
+    }
+
+    void setEmission(Vect3 emi)
+    {
         emission = emi;
     }
 
