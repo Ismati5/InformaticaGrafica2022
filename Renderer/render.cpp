@@ -25,7 +25,7 @@ using namespace std;
 
 Vect3 red = Vect3(255, 109, 106);
 Vect3 yellow = Vect3(233, 236, 107);
-Vect3 blue = Vect3(139, 211, 230);
+Vect3 blue = Vect3(153, 255, 255);
 Vect3 green = Vect3(119, 221, 119);
 Vect3 gray = Vect3(207, 207, 196);
 Vect3 purple = Vect3(177, 162, 202);
@@ -107,24 +107,24 @@ int loadOBJfile(Triangle triangles[10000], string fileName, Vect3 emi) {
 
 void createRender(string file, int rays)
 {
-    Point o(0, 35, 0);
+    Point o(0, 20, 0);
     Direction l(1, 0, 0);
     Direction u(0, 0, 1);
     Direction f(0, -1, 0);
-    int size[2] = {400, 400};
+    int size[2] = {1000, 1000};
 
     Camera camera(l, u, f, o, size);
 
     vector<Light *> lights;
-    Point l_c1(0, 30, 0);
-    Vect3 l_p1 = Vect3(5000, 5000, 5000);
+    Point l_c1(0, 25, 0);
+    Vect3 l_p1 = Vect3(500, 500, 900);
     Light light1(l_c1, l_p1);
     lights.push_back(&light1);
 
     vector<Object *> objs;
     Triangle triangles[30000];
 
-    int numPolygons = loadOBJfile(triangles, "objs/Sword.obj", red);
+    int numPolygons = loadOBJfile(triangles, "objs/DiamondSword.obj", blue);
 
     for (int i = 0; i < numPolygons; i++)
     {
