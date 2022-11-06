@@ -139,7 +139,7 @@ public:
                 shadow.p = x + i->normal * shadowBias;
                 if (i->intersect(shadow, t1, sur_normal, aux_x))
                 {
-                    if (t1 > 0.00001 && t1 < (light->center - x).modulus())
+                    if (t1 > 0 && t1 < (light->center - x).modulus())
                     {
                         isShadow = true;
                         break;
@@ -238,7 +238,7 @@ public:
                         if (i->intersect(ray, t1, sur_normal, x))
                         {
 
-                            if (t1 > 0.00001 && t1 < lowest_t1)
+                            if (t1 > 0 && t1 < lowest_t1)
                             {
                                 lowest_t1 = t1;
 

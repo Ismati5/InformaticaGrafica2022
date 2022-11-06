@@ -38,6 +38,11 @@ Vect3 yellow_backroom_floor = Vect3(198, 197, 139);
 Vect3 yellow_backroom_wall = Vect3(228, 230, 168);
 Vect3 yellow_backroom_ceiling = Vect3(225, 226, 187);
 
+int Resol_4K[2] = {4096, 2160};
+int Resol_1080[2] = {1920, 1080};
+int Resol_720[2] = {1280, 720};
+int Resol_256[2] = {256, 256};
+
 int loadOBJfile(Triangle triangles[MAX_POLYGON], string fileName, Vect3 emi)
 {
 
@@ -101,74 +106,68 @@ void createRender(string file, int rays)
     vector<Object *> objs;
     vector<Light *> lights;
 
-
     // (Para pruebas con .obj)
-/* 
-    float shadowBias = 1e-4;
+    /*
 
-    Point o(0, 20, 0);
-    Direction l(1, 0, 0);
-    Direction u(0, 0, 1);
-    Direction f(0, -1, 0);
-    int size[2] = {1000, 1000};
+        Point o(0, 20, 0);
+        Direction l(1, 0, 0);
+        Direction u(0, 0, 1);
+        Direction f(0, -1, 0);
+        int size[2] = {1000, 1000};
 
-    Camera camera(l, u, f, o, size);
+        Camera camera(l, u, f, o, size);
 
-    Point l_c1(0, 25, 0);
-    Vect3 l_p1 = Vect3(500, 500, 900);
-    Light light1(l_c1, l_p1);
-    lights.push_back(&light1);
+        Point l_c1(0, 25, 0);
+        Vect3 l_p1 = Vect3(500, 500, 900);
+        Light light1(l_c1, l_p1);
+        lights.push_back(&light1);
 
-    Triangle triangles[MAX_POLYGON];
+        Triangle triangles[MAX_POLYGON];
 
-    int numPolygons = loadOBJfile(triangles, "objs/DiamondSword.obj", blue);
+        int numPolygons = loadOBJfile(triangles, "objs/DiamondSword.obj", blue);
 
-    for (int i = 0; i < numPolygons; i++)
-    {
-        objs.push_back(&triangles[i]);
-        // cout << triangles[i].p3 << endl;
-    }
-*/
-    int size[2] = {1920, 1080};
-    
+        for (int i = 0; i < numPolygons; i++)
+        {
+            objs.push_back(&triangles[i]);
+            // cout << triangles[i].p3 << endl;
+        }
+    */
+    int *size;
+    size = Resol_720;
+
     // The bigger shadowBias is, the bigger the difference from reality is
     float shadowBias = 1e-4;
 
     Point o(0, 0, -3.5);
-    Direction l(-1.7777, 0, 0);
+    Direction l(-1.7777777, 0, 0);
     Direction u(0, 1, 0);
     Direction f(0, 0, 3);
 
     Camera camera(l, u, f, o, size);
 
-    Point l_c1(0, 0.5, 0);
-    Vect3 l_p1 = Vect3(1, 0, 0);
+    Point l_c1(0, 0, 0);
+    Vect3 l_p1 = Vect3(1, 1, 1);
     Light light1(l_c1, l_p1);
     lights.push_back(&light1);
 
-    Point l_c2(-0.5, 0, 0);
-    Vect3 l_p2 = Vect3(0, 1, 0);
-    Light light2(l_c2, l_p2);
-    lights.push_back(&light2);
-
     Direction n(1, 0, 0);
-    Plane left_plane(n, 1, light_grey);
+    Plane left_plane(n, 1, red);
     objs.push_back(&left_plane);
     Direction n1(-1, 0, 0);
-    Plane right_plane(n1, 1, gray);
+    Plane right_plane(n1, 1, green);
     objs.push_back(&right_plane);
     Direction n2(0, 1, 0);
-    Plane floor_plane(n2, 1, purple);
+    Plane floor_plane(n2, 1, light_grey);
     objs.push_back(&floor_plane);
     Direction n3(0, -1, 0);
-    Plane ceiling_plane(n3, 1, red);
+    Plane ceiling_plane(n3, 1, light_grey);
     objs.push_back(&ceiling_plane);
     Direction n4(0, 0, -1);
     Plane back_plane(n4, 1, light_grey);
     objs.push_back(&back_plane);
 
     Point c(-0.5, -0.7, 0.25);
-    Sphere left_sphere(c, 0.3, white);
+    Sphere left_sphere(c, 0.3, purple);
     objs.push_back(&left_sphere);
     Point c1(0.5, -0.7, -0.25);
     Sphere right_sphere(c1, 0.3, blue);
