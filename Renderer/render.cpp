@@ -43,6 +43,15 @@ int Resol_1080[2] = {1920, 1080};
 int Resol_720[2] = {1280, 720};
 int Resol_256[2] = {256, 256};
 
+struct render_config 
+{
+    int *resol;
+    int num_tiles_x;
+    int num_tiles_y;
+    int tile_size;
+
+};
+
 int loadOBJfile(Triangle triangles[MAX_POLYGON], string fileName, Vect3 emi)
 {
 
@@ -105,6 +114,7 @@ void createRender(string file, int rays)
 {
     vector<Object *> objs;
     vector<Light *> lights;
+    render_config config;
 
     // (Para pruebas con .obj)
     /*
@@ -132,8 +142,11 @@ void createRender(string file, int rays)
             // cout << triangles[i].p3 << endl;
         }
     */
-    int *size;
-    size = Resol_720;
+    config.resol = Resol_720;
+    config.tile_size = 32;
+    config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
+    config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
+
 
     // The bigger shadowBias is, the bigger the difference from reality is
     float shadowBias = 1e-4;
@@ -143,7 +156,7 @@ void createRender(string file, int rays)
     Direction u(0, 1, 0);
     Direction f(0, 0, 3);
 
-    Camera camera(l, u, f, o, size);
+    Camera camera(l, u, f, o, config.resol);
 
     Point l_c1(0, 0, 0);
     Vect3 l_p1 = Vect3(1, 1, 1);

@@ -11,6 +11,7 @@
 #pragma once
 
 #include <iostream>
+#include <thread>
 #include <fstream>
 #include "direction.hpp"
 #include "sphere.hpp"
@@ -187,6 +188,8 @@ public:
      */
     void render(string outfile, vector<Object *> objs, int rays_per_pix, vector<Light *> light_points, float shadowBias)
     {
+
+        
 
         // file header
 
