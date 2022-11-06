@@ -111,7 +111,7 @@ public:
      * @param n
      * @param color
      */
-    void colorValue(vector<Object *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color)
+    void colorValue(vector<Object *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias)
     {
 
         Vect3 aux_emission;
@@ -136,6 +136,7 @@ public:
 
             for (auto i : objs)
             {
+                shadow.p = x + i->normal * shadowBias;
                 if (i->intersect(shadow, t1, sur_normal, aux_x))
                 {
                     if (t1 > 0.00001 && t1 < (light->center - x).modulus())
@@ -184,7 +185,7 @@ public:
      * @param plane_objs
      * @param rays_per_pix
      */
-    void render(string outfile, vector<Object *> objs, int rays_per_pix, vector<Light *> light_points)
+    void render(string outfile, vector<Object *> objs, int rays_per_pix, vector<Light *> light_points, float shadowBias)
     {
 
         // file header
@@ -243,7 +244,7 @@ public:
 
                                 Direction w0 = (origin - x).normalize();
                                 closest_emission = Vect3(0, 0, 0);
-                                colorValue(objs, closest_emission, x, w0, light_points, sur_normal, i->emission); // With path tracing
+                                colorValue(objs, closest_emission, x, w0, light_points, sur_normal, i->emission, shadowBias); // With path tracing
                                 // closest_emission = i->emission; // Without path tracing
                                 intersected = true;
                             }

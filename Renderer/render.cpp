@@ -22,6 +22,7 @@
 #include "light.hpp"
 
 using namespace std;
+#define MAX_POLYGON 30000
 
 Vect3 red = Vect3(255, 109, 106);
 Vect3 yellow = Vect3(233, 236, 107);
@@ -37,7 +38,7 @@ Vect3 yellow_backroom_floor = Vect3(198, 197, 139);
 Vect3 yellow_backroom_wall = Vect3(228, 230, 168);
 Vect3 yellow_backroom_ceiling = Vect3(225, 226, 187);
 
-int loadOBJfile(Triangle triangles[10000], string fileName, Vect3 emi)
+int loadOBJfile(Triangle triangles[MAX_POLYGON], string fileName, Vect3 emi)
 {
 
     ifstream file(fileName);
@@ -79,11 +80,6 @@ int loadOBJfile(Triangle triangles[10000], string fileName, Vect3 emi)
         }
     }
 
-    // for (Vect3 i : faces)
-    // {
-    //     cout << i << endl;
-    // }
-
     int e = 0;
     for (Vect3 i : faces)
     {
@@ -92,13 +88,6 @@ int loadOBJfile(Triangle triangles[10000], string fileName, Vect3 emi)
         triangles[e].p3 = vertices.at(i.z - 1);
         triangles[e].setEmission(emi);
         triangles[e].sertNormal();
-        // cout << triangles[e].normal << endl;
-        //  Triangle triangle(
-        //      vertices.at(i.x - 1),
-        //      vertices.at(i.y - 1),
-        //      vertices.at(i.z - 1),
-        //      emi);
-        //  objs.push_back(&triangles[e]);
         e++;
     }
 
@@ -112,7 +101,10 @@ void createRender(string file, int rays)
     vector<Object *> objs;
     vector<Light *> lights;
 
-    /* (Para pruebas con .obj)
+
+    // (Para pruebas con .obj)
+/* 
+    float shadowBias = 1e-4;
 
     Point o(0, 20, 0);
     Direction l(1, 0, 0);
@@ -127,7 +119,7 @@ void createRender(string file, int rays)
     Light light1(l_c1, l_p1);
     lights.push_back(&light1);
 
-    Triangle triangles[30000];
+    Triangle triangles[MAX_POLYGON];
 
     int numPolygons = loadOBJfile(triangles, "objs/DiamondSword.obj", blue);
 
@@ -135,9 +127,12 @@ void createRender(string file, int rays)
     {
         objs.push_back(&triangles[i]);
         // cout << triangles[i].p3 << endl;
-    }*/
-
+    }
+*/
     int size[2] = {1920, 1080};
+    
+    // The bigger shadowBias is, the bigger the difference from reality is
+    float shadowBias = 1e-4;
 
     Point o(0, 0, -3.5);
     Direction l(-1.7777, 0, 0);
@@ -185,7 +180,7 @@ void createRender(string file, int rays)
     Triangle triangle(p1, p2, p3, red);
     // objs.push_back(&triangle);
 
-    camera.render(file, objs, rays, lights);
+    camera.render(file, objs, rays, lights, shadowBias);
 }
 
 int main(int argc, char *argv[])
