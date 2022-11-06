@@ -141,6 +141,7 @@ void createRender(string file, int rays)
             // cout << triangles[i].p3 << endl;
         }
     */
+    
     config.resol = Resol_1080;
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
@@ -188,6 +189,16 @@ void createRender(string file, int rays)
     Point p3(-0.25, 0, 0.25);
     Triangle triangle(p1, p2, p3, red);
     // objs.push_back(&triangle);
+
+    // int num_threads = thread::hardware_concurrency();
+    // atomic<int> tiles_left = config.num_tiles_x * config.num_tiles_y;
+
+    // vector<thread> threads;
+    // for (int i = 0; i < num_threads; i++)
+    //     threads.emplace_back(&Camera::render, camera, file, objs, rays, lights, shadowBias);
+    
+    // for (auto& t : threads) 
+    //     t.join();  
 
     camera.render(file, objs, rays, lights, shadowBias);
 }

@@ -168,6 +168,14 @@ public:
         // cout << "EMISION: " << emission << endl;
     }
 
+    Direction randomDir(Direction pixelSize_x){
+        
+        float ray_x = ((float(rand()) / float(RAND_MAX)) * pixelSize_x.x) - pixelSize_x.x / 2;
+        float ray_y = ((float(rand()) / float(RAND_MAX)) * pixelSize_x.y) - pixelSize_x.y / 2;
+        float ray_z = ((float(rand()) / float(RAND_MAX)) * pixelSize_x.z) - pixelSize_x.z / 2;
+        return Direction (ray_x, ray_y, ray_z);
+    }
+
     /**
      * @brief Renders an scene
      *
@@ -180,54 +188,47 @@ public:
     {
 
         vector<vector<Vect3>> content;
-        int max_emission = 0;
+        int max_emission = 0, intersections = 0;
+        float t1, t2, lowest_t1 = numeric_limits<float>::infinity();
+        bool intersected = false;
 
         Ray ray;
         ray.p = origin;
 
+        Point x;
+        Direction sur_normal;
         Vect3 closest_emission = Vect3(0, 0, 0);
         Vect3 total_emission = Vect3(0, 0, 0);
-        int intersections = 0;
-        bool intersected = false;
-        float t1, t2, lowest_t1 = numeric_limits<float>::infinity();
-        Direction sur_normal;
-        Point x;
+
+        // int tile_y = tile / config.num_tiles_x;
+        // int tile_x = tile - tile_y * config.num_tiles_x;
+        // int x0 = tile_x * config.tile_size;
+        // int x1 = min((tile_x + 1) * config.tile_size, config.resol[0]);
+        // int y0 = tile_y * config.tile_size;
+        // int y1 = min((tile_y + 1) * config.tile_size, config.resol[1]);
 
         unsigned start = clock();
 
         for (float i = 0; i < size[1]; i++) // i rows
         {
             vector<Vect3> content_aux;
-
             for (float j = 0; j < size[0]; j++) // j columns
             {
-
                 for (float r = 0; r < rays_per_pix; r++)
                 {
-
-                    float ray_x = ((float(rand()) / float(RAND_MAX)) * pixelSize_x.x) - pixelSize_x.x / 2;
-                    float ray_y = ((float(rand()) / float(RAND_MAX)) * pixelSize_x.y) - pixelSize_x.y / 2;
-                    float ray_z = ((float(rand()) / float(RAND_MAX)) * pixelSize_x.z) - pixelSize_x.z / 2;
-                    Direction variation_x(ray_x, ray_y, ray_z);
-
-                    float ray2_x = ((float(rand()) / float(RAND_MAX)) * pixelSize_y.x) - pixelSize_y.x / 2;
-                    float ray2_y = ((float(rand()) / float(RAND_MAX)) * pixelSize_y.y) - pixelSize_y.y / 2;
-                    float ray2_z = ((float(rand()) / float(RAND_MAX)) * pixelSize_y.z) - pixelSize_y.z / 2;
-                    Direction variation_y(ray2_x, ray2_y, ray2_z);
+                    Direction variation_x = randomDir(pixelSize_x);
+                    Direction variation_y = randomDir(pixelSize_y);
 
                     Point pixel = topLeft - pixelSize_x * j - pixelSize_y * i - pixelSize_x / 2 - pixelSize_y / 2 + variation_x + variation_y;
-
-                    // cout << "[" << i << "]" << "[" << j << "] " << pixel << endl;
                     ray.d = (pixel - origin).normalize();
+                    // cout << "[" << i << "]" << "[" << j << "] " << pixel << endl;
 
                     // check intersections
                     for (auto i : objs)
                     {
-
                         if (i->intersect(ray, t1, sur_normal, x))
                         {
-
-                            if (t1 > 0 && t1 < lowest_t1)
+                            if (t1 < lowest_t1)
                             {
                                 lowest_t1 = t1;
 
@@ -250,26 +251,20 @@ public:
 
                 if (intersections > 0)
                 {
+
                     total_emission /= intersections;
 
-                    if (max_emission < round(total_emission.x))
-                        max_emission = round(total_emission.x);
-                    if (max_emission < round(total_emission.y))
-                        max_emission = round(total_emission.y);
-                    if (max_emission < round(total_emission.z))
-                        max_emission = round(total_emission.z);
+                    if (max_emission < round(total_emission.x)) max_emission = round(total_emission.x);
+                    if (max_emission < round(total_emission.y)) max_emission = round(total_emission.y);
+                    if (max_emission < round(total_emission.z)) max_emission = round(total_emission.z);
 
                     content_aux.push_back(Vect3(round(total_emission.x), round(total_emission.y), round(total_emission.z)));
 
                     intersections = 0;
-
                     total_emission = Vect3(0, 0, 0);
                     lowest_t1 = numeric_limits<float>::infinity();
                 }
-                else
-                {
-                    content_aux.push_back(Vect3(0, 0, 0));
-                }
+                else content_aux.push_back(Vect3(0, 0, 0));
             }
 
             content.push_back(content_aux);
@@ -277,6 +272,7 @@ public:
             progressBar(i, size[1], start);
         }
 
+        // Saving file
         cout << "> Progress   [|||||||||||||||||||||||||||||||||||||||||] - 100%        (Saving image ...)\r";
         cout.flush();
 
