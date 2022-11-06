@@ -42,7 +42,7 @@ void progressBar(int row, int height, unsigned start)
             }
             bar -= height / 40;
         }
-        cout << "]\t" << percentage << "\%";
+        cout << "] - " << percentage << "\%";
 
         if (estimated < 9999)
         {

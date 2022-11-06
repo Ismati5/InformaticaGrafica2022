@@ -73,19 +73,9 @@ public:
         botLeft = origin - U + L + F;
         botRight = origin - U - L + F;
 
-        // cout << "topLeft: " << topLeft << endl;
-        // cout << "topRight: " << topRight << endl;
-        // cout << "botLeft: " << botLeft << endl;
-        // cout << "botRight: " << botRight << endl;
-
         pixelSize_x = (topLeft - topRight) / size[0];
         pixelSize_y = (topLeft - botLeft) / size[1];
-
-        // cout << "pixelSize_x: " << pixelSize_x << endl;
-        // cout << "pixelSize_y: " << pixelSize_y << endl;
     }
-
-    void foo() {}
 
     /**
      * @brief Returns the color
@@ -189,10 +179,6 @@ public:
     void render(string outfile, vector<Object *> objs, int rays_per_pix, vector<Light *> light_points, float shadowBias)
     {
 
-        
-
-        // file header
-
         vector<vector<Vect3>> content;
         int max_emission = 0;
 
@@ -291,6 +277,9 @@ public:
             progressBar(i, size[1], start);
         }
 
+        cout << "> Progress   [|||||||||||||||||||||||||||||||||||||||||] - 100%        (Saving image ...)\r";
+        cout.flush();
+
         ofstream file("renders/" + outfile);
         file << "P3" << endl;
         file << "#MAX=255" << endl;
@@ -306,10 +295,11 @@ public:
             file << endl;
         }
 
-        cout << "   Progress   [||||||||||||||||||||||||||||||||||||||||]\t100%        (Image rendering completed!)" << endl
-             << "File saved as renders/"
+        file.close();
+        cout << "> Progress   [|||||||||||||||||||||||||||||||||||||||||] - 100%        (Saving completed!)\r" << endl;
+        cout.flush();
+        cout << "> Completed! File saved as renders/"
              << outfile << "." << endl
              << endl;
-        file.close();
     }
 };
