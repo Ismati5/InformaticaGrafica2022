@@ -40,7 +40,16 @@ Vect3 yellow_backroom_floor = Vect3(198, 197, 139);
 Vect3 yellow_backroom_wall = Vect3(228, 230, 168);
 Vect3 yellow_backroom_ceiling = Vect3(225, 226, 187);
 
+//32:9
+int Resol_4K_p[2] = {4096*2, 2160};
+int Resol_1080_p[2] = {1920*2, 1080};
+int Resol_720_p[2] = {1280*2, 720};
+int Resol_480_p[2] = {854*2, 480};
+int Resol_360_p[2] = {640*2, 360};
+int Resol_240_p[2] = {426*2, 240};
+
 // 16:9
+int Resol_8K[2] = {7680, 4320};
 int Resol_4K[2] = {4096, 2160};
 int Resol_1080[2] = {1920, 1080};
 int Resol_720[2] = {1280, 720};
@@ -246,7 +255,8 @@ void createRender(string file, int rays)
     vector<Light *> lights;
     render_config config;
 
-    config.resol = Resol_240;
+    config.resol = Resol_8K;
+    config.aspect_ratio = config.resol[0]/config.resol[1];
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
     config.shadow_bias = 1e-4; // The bigger shadowBias is, the bigger the difference from reality is
@@ -254,7 +264,7 @@ void createRender(string file, int rays)
     config.outfile = file;
 
     Point o(0, 0, -10);
-    Direction l(-1.7777777, 0, 0);
+    Direction l(-config.aspect_ratio, 0, 0);
     Direction u(0, 1, 0);
     Direction f(0, 0, 3);
     Camera camera(l, u, f, o, config.resol);
@@ -263,21 +273,21 @@ void createRender(string file, int rays)
     Vect3 l_p1 = Vect3(1, 1, 1);
     Light light1(l_c1, l_p1);
     lights.push_back(&light1);
-/*
+
     Point l_c2(0, -0.5, -1);
     Vect3 l_p2 = Vect3(1, 1, 1);
     Light light2(l_c2, l_p2);
     lights.push_back(&light2);
-*/
-    Triangle triangles[MAX_POLYGON];
 
-    int numPolygons = loadOBJfile(triangles, "objs/Car.obj", green, Direction(0, -1, 0.2));
+    // Triangle triangles[MAX_POLYGON];
 
-    for (int i = 0; i < numPolygons; i++)
-    {
-        objs.push_back(&triangles[i]);
-        // cout << triangles[i].p3 << endl;
-    }
+    // int numPolygons = loadOBJfile(triangles, "objs/Humanoid.obj", green, Direction(0, -1, 0.2));
+
+    // for (int i = 0; i < numPolygons; i++)
+    // {
+    //     objs.push_back(&triangles[i]);
+    //     // cout << triangles[i].p3 << endl;
+    // }
 
     Direction n(1, 0, 0);
     Plane left_plane(n, 2, purple);
@@ -287,40 +297,40 @@ void createRender(string file, int rays)
     objs.push_back(&right_plane);
     Direction n2(0, 1, 0);
     Plane floor_plane(n2, 2, purple);
-    // objs.push_back(&floor_plane);
+    objs.push_back(&floor_plane);
     Direction n3(0, -1, 0);
     Plane ceiling_plane(n3, 2, purple);
     objs.push_back(&ceiling_plane);
     Direction n4(0, 0, -1);
     Plane back_plane(n4, 3, purple);
     objs.push_back(&back_plane);
-/*
-    Point c(0, -0.5, 0);
-    Sphere left_sphere(c, 0.5, dark_blue);
-    objs.push_back(&left_sphere);
 
-    Point c11(0, -1.63, 0);
-    Sphere left_sphere2(c11, 0.8, dark_blue);
-    objs.push_back(&left_sphere2);
+    // Point c(0, -0.5, 0);
+    // Sphere left_sphere(c, 0.5, dark_blue);
+    // objs.push_back(&left_sphere);
 
-    Point c2(0.2, -0.33, -0.4);
-    Sphere eye_l(c2, 0.1, white);
-    objs.push_back(&eye_l);
-    Point c3(-0.2, -0.33, -0.4);
-    Sphere eye_r(c3, 0.1, white);
-    objs.push_back(&eye_r);
+    // Point c11(0, -1.63, 0);
+    // Sphere left_sphere2(c11, 0.8, dark_blue);
+    // objs.push_back(&left_sphere2);
 
-    Point c4(0.2, -0.33, -0.5);
-    Sphere eye2_l(c4, 0.04, black);
-    objs.push_back(&eye2_l);
-    Point c5(-0.2, -0.33, -0.5);
-    Sphere eye2_r(c5, 0.04, black);
-    objs.push_back(&eye2_r);
+    // Point c2(0.2, -0.33, -0.4);
+    // Sphere eye_l(c2, 0.1, white);
+    // objs.push_back(&eye_l);
+    // Point c3(-0.2, -0.33, -0.4);
+    // Sphere eye_r(c3, 0.1, white);
+    // objs.push_back(&eye_r);
 
-    Point c6(0, -0.46, -0.45);
-    Sphere mouth(c6, 0.1, orange);
-    objs.push_back(&mouth);
-*/
+    // Point c4(0.2, -0.33, -0.5);
+    // Sphere eye2_l(c4, 0.04, black);
+    // objs.push_back(&eye2_l);
+    // Point c5(-0.2, -0.33, -0.5);
+    // Sphere eye2_r(c5, 0.04, black);
+    // objs.push_back(&eye2_r);
+
+    // Point c6(0, -0.46, -0.45);
+    // Sphere mouth(c6, 0.1, orange);
+    // objs.push_back(&mouth);
+
     // Point c(-0.5, -0.7, 0.25);
     // Sphere left_sphere(c, 0.3, purple);
     //  objs.push_back(&left_sphere);

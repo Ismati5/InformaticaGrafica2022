@@ -33,6 +33,7 @@ using namespace std;
 struct render_config
 {
     int *resol;
+    float aspect_ratio;
     int rays;
     int num_tiles_x;
     int num_tiles_y;
