@@ -193,15 +193,14 @@ public:
         return Direction(ray_x, ray_y, ray_z);
     }
 
-    void render_thread(vector<Object *> objs, vector<Light *> lights, render_config config, atomic<int> num_tile)
-    {
+    void render_thread(vector<Object *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission){
 
-        int tile;
-
-        while ((tile = --num_tile) >= 0)
-        {
-
-            int max_emission = 0, intersections = 0;
+        int tile, intersections;
+        //cout << "INICIO" << endl;
+        while ((tile = --num_tile) >= 0) { 
+            //cout << "NUEVO TILE: " << tile << endl;
+            //cout << "Quedan: " << tile << " tiles" << endl;
+            intersections = 0;
             float t1, lowest_t1 = numeric_limits<float>::infinity();
             bool intersected = false;
             Direction sur_normal;
@@ -220,9 +219,106 @@ public:
             int y1 = min((tile_y + 1) * config.tile_size, config.resol[1]);
 
             unsigned start = clock();
+
+            for (float i = y0; i < y1; i++) // i rows
+            {
+                for (float j = x0; j < x1; j++) // j columns
+                {
+                    for (float r = 0; r < config.rays; r++)
+                    {
+                        Direction variation_x = randomDir(pixelSize_x);
+                        Direction variation_y = randomDir(pixelSize_y);
+                        Point pixel = topLeft - pixelSize_x * j - pixelSize_y * i - pixelSize_x / 2 - pixelSize_y / 2 + variation_x + variation_y;
+                        ray.d = (pixel - origin).normalize();
+                        // cout << "[" << i << "]" << "[" << j << "] " << pixel << endl;
+
+                        // check intersections
+                        for (auto i : objs)
+                        {
+                            if (i->intersect(ray, t1, sur_normal, x))
+                            {
+                                if (t1 < lowest_t1)
+                                {
+                                    lowest_t1 = t1;
+
+                                    Direction w0 = (origin - x).normalize();
+                                    closest_emission = Vect3(0, 0, 0);
+                                    colorValue(objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias); // With path tracing
+                                    // closest_emission = i->emission;                                                               // Without path tracing
+                                    intersected = true;
+                                }
+                            }
+                        }
+
+                        if (intersected)
+                        {
+                            intersections++;
+                            total_emission += closest_emission;
+                            intersected = false;
+                        }
+                    }
+
+                    if (intersections > 0)
+                    {
+
+                        total_emission /= intersections;
+
+                        if (max_emission < round(total_emission.x)) 
+                            max_emission = round(total_emission.x);
+                        if (max_emission < round(total_emission.y)) 
+                            max_emission = round(total_emission.y);
+                        if (max_emission < round(total_emission.z)) 
+                            max_emission = round(total_emission.z);
+  
+                        config.content[(int)(i * config.resol[0] + j)] = 
+                            Vect3(round(total_emission.x), round(total_emission.y), round(total_emission.z));
+               
+                        intersections = 0;
+                        total_emission = Vect3(0, 0, 0);
+                        lowest_t1 = numeric_limits<float>::infinity();
+                    }
+                    else
+                        config.content[(int)(i * config.resol[0] + j)] = Vect3(0,0,0);
+
+                }
+                //progressBar(i, config.resol[0], start);
+            }
+            //cout << "TERMINO MI TILE" << endl;
+        }
+
+        if (tile == -1) { 
+            //cout << "ESCRIBO EN FICHERO" << endl;
+            // Saving file
+            cout << "> Progress   [|||||||||||||||||||||||||||||||||||||||||] - 100%        (Saving image ...)\r";
+            cout.flush();
+
+            ofstream file("renders/" + config.outfile);
+            file << "P3" << endl;
+            file << "#MAX=255" << endl;
+            file << config.resol[0] << " " << config.resol[1] << endl;
+            file << max_emission << endl;
+
+            for (float i = 0; i < config.resol[1]; i++) // i rows
+            {
+                for (float j = 0; j < config.resol[0]; j++) // j columns
+                {
+                    file << config.content[(int)((i * config.resol[0] + j))].x << " " << 
+                            config.content[(int)((i * config.resol[0] + j))].y << " " << 
+                            config.content[(int)((i * config.resol[0] + j))].z << "    ";
+                }
+                file << endl;
+            }
+
+            file.close();
+            cout << "> Progress   [|||||||||||||||||||||||||||||||||||||||||] - 100%        (Saving completed!)\r" << endl;
+            cout.flush();
+            cout << "> Completed! File saved as renders/"
+                << config.outfile << "." << endl
+                << endl;
+
+            free(config.content);
         }
     }
-
     /**
      * @brief Renders an scene
      *

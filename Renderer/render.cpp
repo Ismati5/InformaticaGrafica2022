@@ -256,7 +256,7 @@ void createRender(string file, int rays)
     vector<Light *> lights;
     render_config config;
 
-    config.resol = Resol_240;
+    config.resol = Resol_1080;
     config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
@@ -326,7 +326,7 @@ void createRender(string file, int rays)
     Plane back_plane(n4, 15, purple);
     objs.push_back(&back_plane);
 
-    Sphere left_sphere(Point(0, 0, 0), 0.5, green);
+    //Sphere left_sphere(Point(0, 0, 0), 0.5, green);
     // objs.push_back(&left_sphere);
 
     // Point c11(0, -1.63, 0);
@@ -364,18 +364,23 @@ void createRender(string file, int rays)
     // Triangle triangle(p1, p2, p3, red);
     //  objs.push_back(&triangle);
 
-    // int num_threads = thread::hardware_concurrency();
-    // atomic<int> tiles_left = config.num_tiles_x * config.num_tiles_y;
+    int num_threads = thread::hardware_concurrency();
 
-    // vector<thread> threads;
-    // config.content = (Vect3*)malloc(config.resol[0] * config.resol[1] * 3);
-    // for (int i = 0; i < num_threads; i++)
-    //     threads.emplace_back(&Camera::render, camera, file, objs, rays, lights, shadowBias);
+    static atomic<int> tiles_left;
+    tiles_left = config.num_tiles_x * config.num_tiles_y;
 
-    // for (auto& t : threads)
-    //     t.join();
+    static atomic<int> max_emission;
+    max_emission = 0;
 
-    camera.render(objs, lights, config);
+    vector<thread> threads;
+    config.content = (Vect3*)malloc(config.resol[0] * config.resol[1] * sizeof(Vect3) );
+    for (int i = 0; i < num_threads; i++)
+        threads.emplace_back(&Camera::render_thread, camera, objs, lights, ref(config), ref(tiles_left), ref(max_emission));
+
+    for (auto& t : threads)
+        t.join();
+
+    //camera.render(objs, lights, config);
 }
 
 void renderObj(string file, int rays)
