@@ -28,45 +28,48 @@ bool Triangle::intersect(Ray ray, float &t, Direction &sur_normal, Point &x)
     Direction d = ray.d;
     Point o = ray.p;
 
-    float denominator = normal.dotProd(d);
-    if (denominator != 0) // ray is not parallel with the triangle
-    {
-        float numerator = -((normal.x * o.x + normal.y * o.y + normal.z * o.z) + c);
-        // t = (normal * o + c) / normal * d
-        t = numerator / denominator;
+    float denominator = normal.dotProd(normal);
+    float NdotRayDirection = normal.dotProd(d);
 
-        if (t < 0)
-            return false; // Behind camera
+    if (fabs(NdotRayDirection) < 1e-8) // almost 0
+        return false;                  // they are parallel so they don't intersect !
 
-        x = o + d * t;
+    // compute d parameter using equation 2
+    float df = -normal.dotProd(Direction(p1.x, p1.y, p1.z));
 
-        Direction C;
+    // compute t (equation 3)
+    t = -(df + normal.dotProd(Direction(o.x, o.y, o.z))) / NdotRayDirection;
 
-        // edge 0
-        Direction edge0 = p2 - p1;
-        Direction v0 = x - p1;
-        C = edge0.crossProd(v0);
-        if (normal.dotProd(C) < 0)
-            return false;
+    // check if the triangle is in behind the ray
+    if (t < 0)
+        return false; // the triangle is behind
 
-        // edge 1
-        Direction edge1 = p3 - p2;
-        Direction v1 = x - p2;
-        C = edge1.crossProd(v1);
-        if (normal.dotProd(C) < 0)
-            return false;
+    x = o + d * t;
 
-        // edge 2
-        Direction edge2 = p1 - p3;
-        Direction v2 = x - p3;
-        C = edge2.crossProd(v2);
-        if (normal.dotProd(C) < 0)
-            return false;
+    Direction C;
 
-        sur_normal = normal;
+    // edge 0
+    Direction edge0 = p2 - p1;
+    Direction v0 = x - p1;
+    C = edge0.crossProd(v0);
+    if (normal.dotProd(C) < 0)
+        return false;
 
-        return true;
-    }
+    // edge 1
+    Direction edge1 = p3 - p2;
+    Direction v1 = x - p2;
+    C = edge1.crossProd(v1);
+    if (normal.dotProd(C) < 0)
+        return false;
 
-    return false;
+    // edge 2
+    Direction edge2 = p1 - p3;
+    Direction v2 = x - p3;
+    C = edge2.crossProd(v2);
+    if (normal.dotProd(C) < 0)
+        return false;
+
+    sur_normal = normal;
+
+    return true;
 }

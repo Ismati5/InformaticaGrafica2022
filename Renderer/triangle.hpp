@@ -28,9 +28,14 @@ public:
     Point p1, p2, p3;
     float c;
 
-    Triangle() {}
     /**
-     * @brief Construct a new Sphere object
+     * @brief Construct a new Triangle object
+     *
+     */
+    Triangle() {}
+
+    /**
+     * @brief Construct a new Triangle object
      *
      * @param p1
      * @param p2
@@ -59,6 +64,11 @@ public:
         c = -(normal.x * p1.x + normal.y * p1.y + normal.z * p1.z);
     }
 
+    /**
+     * @brief Set the Emission of the object
+     *
+     * @param emi
+     */
     void setEmission(Vect3 emi)
     {
         emission = emi;

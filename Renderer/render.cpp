@@ -11,6 +11,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <ctime>
+
 #include "point.hpp"
 #include "direction.hpp"
 #include "vect3.hpp"
@@ -250,7 +252,13 @@ int loadOBJfile(Triangle triangles[MAX_POLYGON], string fileName, Vect3 emi, Dir
     return faces.size();
 }
 
-void createRender(string file, int rays)
+/**
+ * @brief Create a Render scene
+ *
+ * @param file
+ * @param rays
+ */
+void renderScene(string file, int rays)
 {
     vector<Object *> objs;
     vector<Light *> lights;
@@ -264,6 +272,41 @@ void createRender(string file, int rays)
     config.rays = rays;
     config.outfile = file;
     config.pathtracing = true;
+    config.start = clock();
+    // config.num_threads = 1;
+
+    // Default CORNELL BOX
+    Point o(0, 0, -3.5);
+    Direction l(-config.aspect_ratio, 0, 0);
+    Direction u(0, 1, 0);
+    Direction f(0, 0, 3);
+    Camera camera(l, u, f, o, config.resol);
+
+    Light light(Point(0, 0.5, 0), Vect3(1, 1, 1));
+    lights.push_back(&light);
+
+    Plane left_plane(Direction(1, 0, 0), 1, red);
+    objs.push_back(&left_plane);
+
+    Plane right_plane(Direction(-1, 0, 0), 1, green);
+    objs.push_back(&right_plane);
+
+    Plane floor_plane(Direction(0, 1, 0), 1, light_grey);
+    objs.push_back(&floor_plane);
+
+    Plane ceiling_plane(Direction(0, -1, 0), 1, light_grey);
+    objs.push_back(&ceiling_plane);
+
+    Plane back_plane(Direction(0, 0, -1), 1, light_grey);
+    objs.push_back(&back_plane);
+
+    Sphere left_sphere(Point(-0.5, -0.7, 0.25), 0.3, purple);
+    objs.push_back(&left_sphere);
+
+    Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, blue);
+    objs.push_back(&right_sphere);
+
+    /*  TEST F1
 
     Point o(0, 5, 25);
     Direction l(config.aspect_ratio, 0, 0);
@@ -326,8 +369,8 @@ void createRender(string file, int rays)
     Plane back_plane(n4, 15, purple);
     objs.push_back(&back_plane);
 
-    //Sphere left_sphere(Point(0, 0, 0), 0.5, green);
-    // objs.push_back(&left_sphere);
+    // Sphere left_sphere(Point(0, 0, 0), 0.5, green);
+    //  objs.push_back(&left_sphere);
 
     // Point c11(0, -1.63, 0);
     // Sphere left_sphere2(c11, 0.8, dark_blue);
@@ -362,10 +405,9 @@ void createRender(string file, int rays)
     // Point p2(0, -0.7, 0.25);
     // Point p3(-0.25, 0, 0.25);
     // Triangle triangle(p1, p2, p3, red);
-    //  objs.push_back(&triangle);
+    //  objs.push_back(&triangle); */
 
-    int num_threads = thread::hardware_concurrency();
-
+    // Multi-Threading rendering
     static atomic<int> tiles_left;
     tiles_left = config.num_tiles_x * config.num_tiles_y;
 
@@ -373,16 +415,56 @@ void createRender(string file, int rays)
     max_emission = 0;
 
     vector<thread> threads;
-    config.content = (Vect3*)malloc(config.resol[0] * config.resol[1] * sizeof(Vect3) );
-    for (int i = 0; i < num_threads; i++)
-        threads.emplace_back(&Camera::render_thread, camera, objs, lights, ref(config), ref(tiles_left), ref(max_emission));
+    config.content = (Vect3 *)malloc(config.resol[0] * config.resol[1] * sizeof(Vect3));
+    for (int i = 0; i < config.num_threads; i++)
+        threads.emplace_back(&Camera::render_thread, camera, i, objs, lights, ref(config), ref(tiles_left), ref(max_emission));
 
-    for (auto& t : threads)
+    for (auto &t : threads)
         t.join();
 
-    //camera.render(objs, lights, config);
+    //  Saving file
+    cout << "> Progress   [||||||||||||||||||||||||||||||||||||||||||||||||||] - 100%        (Saving image ...)\r";
+    cout.flush();
+
+    ofstream file_stream("renders/" + config.outfile);
+    file_stream << "P3" << endl;
+    file_stream << "#MAX=255" << endl;
+    file_stream << config.resol[0] << " " << config.resol[1] << endl;
+    file_stream << max_emission << endl;
+
+    for (float i = 0; i < config.resol[1]; i++) // i rows
+    {
+        for (float j = 0; j < config.resol[0]; j++) // j columns
+        {
+            file_stream << config.content[(int)((i * config.resol[0] + j))].x << " " << config.content[(int)((i * config.resol[0] + j))].y << " " << config.content[(int)((i * config.resol[0] + j))].z << "    ";
+        }
+        file_stream << endl;
+    }
+
+    file_stream.close();
+    cout << "> Progress   [||||||||||||||||||||||||||||||||||||||||||||||||||] - 100%         (Saving completed!)\r" << endl;
+    cout.flush();
+
+    if (double(clock() - config.start) / CLOCKS_PER_SEC > 60)
+    {
+        cout << "> Completed in " << int(double(clock() - config.start) / CLOCKS_PER_SEC) / 60 << "min " << int(double(clock() - config.start / CLOCKS_PER_SEC)) % 60 << "s! File saved as renders/" << config.outfile << "." << endl
+             << endl;
+    }
+    else
+    {
+        cout << "> Completed in " << int(double(clock() - config.start) / CLOCKS_PER_SEC) << "s! File saved as renders/" << config.outfile << "." << endl
+             << endl;
+    }
+
+    free(config.content);
 }
 
+/**
+ * @brief Render just an .obj object
+ *
+ * @param file
+ * @param rays
+ */
 void renderObj(string file, int rays)
 {
     // (Para pruebas con .obj)
@@ -420,7 +502,7 @@ void renderObj(string file, int rays)
         // cout << triangles[i].p3 << endl;
     }
 
-    camera.render(objs, lights, config);
+    // camera.render(objs, lights, config);
 }
 
 int main(int argc, char *argv[])
@@ -428,7 +510,7 @@ int main(int argc, char *argv[])
 
     if (argc == 3)
     {
-        createRender(argv[1], stoi(argv[2]));
+        renderScene(argv[1], stoi(argv[2]));
     }
     else
     {
