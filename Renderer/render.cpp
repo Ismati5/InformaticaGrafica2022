@@ -40,13 +40,13 @@ Vect3 yellow_backroom_floor = Vect3(198, 197, 139);
 Vect3 yellow_backroom_wall = Vect3(228, 230, 168);
 Vect3 yellow_backroom_ceiling = Vect3(225, 226, 187);
 
-//32:9
-int Resol_4K_p[2] = {4096*2, 2160};
-int Resol_1080_p[2] = {1920*2, 1080};
-int Resol_720_p[2] = {1280*2, 720};
-int Resol_480_p[2] = {854*2, 480};
-int Resol_360_p[2] = {640*2, 360};
-int Resol_240_p[2] = {426*2, 240};
+// 32:9
+int Resol_4K_p[2] = {4096 * 2, 2160};
+int Resol_1080_p[2] = {1920 * 2, 1080};
+int Resol_720_p[2] = {1280 * 2, 720};
+int Resol_480_p[2] = {854 * 2, 480};
+int Resol_360_p[2] = {640 * 2, 360};
+int Resol_240_p[2] = {426 * 2, 240};
 
 // 16:9
 int Resol_8K[2] = {7680, 4320};
@@ -60,6 +60,7 @@ int Resol_240[2] = {426, 240};
 // 1:1
 int Resol_256[2] = {256, 256};
 int Resol_512[2] = {512, 512};
+int Resol_1024[2] = {1024, 1024};
 
 int loadOBJfile(Triangle triangles[MAX_POLYGON], string fileName, Vect3 emi, float scale)
 {
@@ -255,58 +256,77 @@ void createRender(string file, int rays)
     vector<Light *> lights;
     render_config config;
 
-    config.resol = Resol_8K;
-    config.aspect_ratio = config.resol[0]/config.resol[1];
+    config.resol = Resol_240;
+    config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
     config.shadow_bias = 1e-4; // The bigger shadowBias is, the bigger the difference from reality is
     config.rays = rays;
     config.outfile = file;
+    config.pathtracing = true;
 
-    Point o(0, 0, -10);
-    Direction l(-config.aspect_ratio, 0, 0);
+    Point o(0, 5, 25);
+    Direction l(config.aspect_ratio, 0, 0);
     Direction u(0, 1, 0);
-    Direction f(0, 0, 3);
+    Direction f(0, -0.1, -2);
     Camera camera(l, u, f, o, config.resol);
 
-    Point l_c1(0, 0.5, 0);
+    Point l_c1(0, 0, 0);
     Vect3 l_p1 = Vect3(1, 1, 1);
     Light light1(l_c1, l_p1);
     lights.push_back(&light1);
 
-    Point l_c2(0, -0.5, -1);
-    Vect3 l_p2 = Vect3(1, 1, 1);
-    Light light2(l_c2, l_p2);
+    Light light2(Point(0, 0, 4), Vect3(1, 1, 1));
     lights.push_back(&light2);
 
-    // Triangle triangles[MAX_POLYGON];
+    Light light3(Point(0, 0, -4), Vect3(1, 1, 1));
+    lights.push_back(&light3);
 
-    // int numPolygons = loadOBJfile(triangles, "objs/Humanoid.obj", green, Direction(0, -1, 0.2));
+    Light light4(Point(0, 0, 2), Vect3(1, 1, 1));
+    lights.push_back(&light4);
 
-    // for (int i = 0; i < numPolygons; i++)
-    // {
-    //     objs.push_back(&triangles[i]);
-    //     // cout << triangles[i].p3 << endl;
-    // }
+    Light light5(Point(0, 0, -2), Vect3(1, 1, 1));
+    lights.push_back(&light5);
+
+    Light light6(Point(0, 0, 7), Vect3(1, 1, 1));
+    lights.push_back(&light6);
+
+    Light light7(Point(0, 0, -6), Vect3(1, 1, 1));
+    lights.push_back(&light7);
+
+    Light light8(Point(-0.5, 0, 6.5), Vect3(1, 1, 1));
+    // lights.push_back(&light8);
+
+    Light light9(Point(0.5, 0, 6.5), Vect3(1, 1, 1));
+    // lights.push_back(&light9);
+
+    Triangle triangles[MAX_POLYGON];
+
+    int numPolygons = loadOBJfile(triangles, "objs/F1.obj", red, Direction(0, -1, 0));
+
+    for (int i = 0; i < numPolygons; i++)
+    {
+        objs.push_back(&triangles[i]);
+        //  cout << triangles[i].p3 << endl;
+    }
 
     Direction n(1, 0, 0);
-    Plane left_plane(n, 2, purple);
-    objs.push_back(&left_plane);
+    Plane left_plane(n, 10, purple);
+    // objs.push_back(&left_plane);
     Direction n1(-1, 0, 0);
-    Plane right_plane(n1, 2, purple);
-    objs.push_back(&right_plane);
+    Plane right_plane(n1, 10, purple);
+    // objs.push_back(&right_plane);
     Direction n2(0, 1, 0);
-    Plane floor_plane(n2, 2, purple);
+    Plane floor_plane(n2, 1, purple);
     objs.push_back(&floor_plane);
     Direction n3(0, -1, 0);
-    Plane ceiling_plane(n3, 2, purple);
-    objs.push_back(&ceiling_plane);
-    Direction n4(0, 0, -1);
-    Plane back_plane(n4, 3, purple);
+    Plane ceiling_plane(n3, 1, purple);
+    // objs.push_back(&ceiling_plane);
+    Direction n4(0, 0, 1);
+    Plane back_plane(n4, 15, purple);
     objs.push_back(&back_plane);
 
-    // Point c(0, -0.5, 0);
-    // Sphere left_sphere(c, 0.5, dark_blue);
+    Sphere left_sphere(Point(0, 0, 0), 0.5, green);
     // objs.push_back(&left_sphere);
 
     // Point c11(0, -1.63, 0);
@@ -344,7 +364,6 @@ void createRender(string file, int rays)
     // Triangle triangle(p1, p2, p3, red);
     //  objs.push_back(&triangle);
 
-
     // int num_threads = thread::hardware_concurrency();
     // atomic<int> tiles_left = config.num_tiles_x * config.num_tiles_y;
 
@@ -359,7 +378,8 @@ void createRender(string file, int rays)
     camera.render(objs, lights, config);
 }
 
-void renderObj(string file, int rays) {
+void renderObj(string file, int rays)
+{
     // (Para pruebas con .obj)
     vector<Object *> objs;
     vector<Light *> lights;
@@ -396,7 +416,6 @@ void renderObj(string file, int rays) {
     }
 
     camera.render(objs, lights, config);
-
 }
 
 int main(int argc, char *argv[])

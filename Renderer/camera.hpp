@@ -39,8 +39,9 @@ struct render_config
     int num_tiles_y;
     int tile_size{32};
     float shadow_bias;
-    Vect3 *content; 
+    Vect3 *content;
     string outfile;
+    bool pathtracing;
 };
 
 /**
@@ -147,7 +148,7 @@ public:
                 {
                     if (t1 > 0 && t1 < (light->center - (x + n * shadowBias)).modulus())
                     {
-                        isShadow = true;
+                        // isShadow = true;
                         break;
                     }
                 }
@@ -192,11 +193,13 @@ public:
         return Direction(ray_x, ray_y, ray_z);
     }
 
-    void render_thread(vector<Object *> objs, vector<Light *> lights,render_config config, atomic<int> num_tile){
+    void render_thread(vector<Object *> objs, vector<Light *> lights, render_config config, atomic<int> num_tile)
+    {
 
         int tile;
 
-        while ((tile = --num_tile) >= 0) { 
+        while ((tile = --num_tile) >= 0)
+        {
 
             int max_emission = 0, intersections = 0;
             float t1, lowest_t1 = numeric_limits<float>::infinity();
@@ -218,7 +221,6 @@ public:
 
             unsigned start = clock();
         }
-
     }
 
     /**
@@ -279,9 +281,11 @@ public:
 
                                 Direction w0 = (origin - x).normalize();
                                 closest_emission = Vect3(0, 0, 0);
-                                colorValue(objs, closest_emission, x, w0, light_points, sur_normal, i->emission, config.shadow_bias); // With path tracing
-                                // closest_emission = i->emission;                                                               // Without path tracing
                                 intersected = true;
+                                if (config.pathtracing)
+                                    colorValue(objs, closest_emission, x, w0, light_points, sur_normal, i->emission, config.shadow_bias); // With path tracing
+                                else
+                                    closest_emission = i->emission; // Without path tracing
                             }
                         }
                     }
