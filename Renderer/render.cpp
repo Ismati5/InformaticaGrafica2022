@@ -22,26 +22,35 @@
 #include "light.hpp"
 
 using namespace std;
-#define MAX_POLYGON 30000
+#define MAX_POLYGON 20000
 
 Vect3 red = Vect3(255, 109, 106);
 Vect3 yellow = Vect3(233, 236, 107);
 Vect3 blue = Vect3(153, 255, 255);
+Vect3 dark_blue = Vect3(0, 23, 49);
 Vect3 green = Vect3(119, 221, 119);
 Vect3 gray = Vect3(207, 207, 196);
 Vect3 light_grey = Vect3(238, 238, 238);
 Vect3 purple = Vect3(177, 162, 202);
-Vect3 orange = Vect3(239, 190, 125);
+Vect3 orange = Vect3(255, 153, 51);
 Vect3 white = Vect3(255, 255, 255);
+Vect3 black = Vect3(0, 0, 0);
 
 Vect3 yellow_backroom_floor = Vect3(198, 197, 139);
 Vect3 yellow_backroom_wall = Vect3(228, 230, 168);
 Vect3 yellow_backroom_ceiling = Vect3(225, 226, 187);
 
+// 16:9
 int Resol_4K[2] = {4096, 2160};
 int Resol_1080[2] = {1920, 1080};
 int Resol_720[2] = {1280, 720};
+int Resol_480[2] = {854, 480};
+int Resol_360[2] = {640, 360};
+int Resol_240[2] = {426, 240};
+
+// 1:1
 int Resol_256[2] = {256, 256};
+int Resol_512[2] = {512, 512};
 
 struct render_config
 {
@@ -50,6 +59,74 @@ struct render_config
     int num_tiles_y;
     int tile_size{32};
 };
+
+int loadOBJfile(Triangle triangles[MAX_POLYGON], string fileName, Vect3 emi, float scale)
+{
+
+    ifstream file(fileName);
+
+    if (!file.is_open())
+    {
+        cout << "Error opening de OBJ file" << endl;
+        return -1;
+    }
+
+    vector<Point> vertices;
+    vector<Vect3> faces;
+
+    string line;
+    while (getline(file, line))
+    {
+        if (line.find("v ", 0) == 0) // Vertices
+        {
+            Point p;
+            sscanf(line.c_str(), "v %f %f %f", &p.x, &p.y, &p.z);
+
+            if (scale < 0)
+            {
+                p = p / abs(scale);
+            }
+            else
+            {
+                p = p * scale;
+            }
+
+            vertices.push_back(p);
+        }
+        else if (line.find("f ", 0) == 0) // Faces
+        {
+            Vect3 v;
+            float w;
+            float trash;
+            int matches = sscanf(line.c_str(), "f %f %f %f %f", &v.x, &v.y, &v.z, &w);
+            if (matches == 3)
+            {
+                faces.push_back(v);
+            }
+            else if (matches == 4)
+            {
+                faces.push_back(v);
+                Vect3 v2(v.x, v.z, w);
+                faces.push_back(v2);
+            }
+        }
+    }
+
+    int e = 0;
+    for (Vect3 i : faces)
+    {
+        triangles[e].p1 = vertices.at(i.x - 1);
+        triangles[e].p2 = vertices.at(i.y - 1);
+        triangles[e].p3 = vertices.at(i.z - 1);
+        triangles[e].setEmission(emi);
+        triangles[e].sertNormal();
+        e++;
+    }
+
+    file.close();
+
+    return faces.size();
+}
 
 int loadOBJfile(Triangle triangles[MAX_POLYGON], string fileName, Vect3 emi)
 {
@@ -72,6 +149,68 @@ int loadOBJfile(Triangle triangles[MAX_POLYGON], string fileName, Vect3 emi)
         {
             Point p;
             sscanf(line.c_str(), "v %f %f %f", &p.x, &p.y, &p.z);
+
+            vertices.push_back(p);
+        }
+        else if (line.find("f ", 0) == 0) // Faces
+        {
+            Vect3 v;
+            float w;
+            float trash;
+            int matches = sscanf(line.c_str(), "f %f %f %f %f", &v.x, &v.y, &v.z, &w);
+            if (matches == 3)
+            {
+                faces.push_back(v);
+            }
+            else if (matches == 4)
+            {
+                faces.push_back(v);
+                Vect3 v2(v.x, v.z, w);
+                faces.push_back(v2);
+            }
+        }
+    }
+
+    int e = 0;
+    for (Vect3 i : faces)
+    {
+        triangles[e].p1 = vertices.at(i.x - 1);
+        triangles[e].p2 = vertices.at(i.y - 1);
+        triangles[e].p3 = vertices.at(i.z - 1);
+        triangles[e].setEmission(emi);
+        triangles[e].sertNormal();
+        e++;
+    }
+
+    file.close();
+
+    return faces.size();
+}
+
+int loadOBJfile(Triangle triangles[MAX_POLYGON], string fileName, Vect3 emi, Direction direction)
+{
+
+    ifstream file(fileName);
+
+    if (!file.is_open())
+    {
+        cout << "Error opening de OBJ file" << endl;
+        return -1;
+    }
+
+    vector<Point> vertices;
+    vector<Vect3> faces;
+
+    string line;
+    while (getline(file, line))
+    {
+        if (line.find("v ", 0) == 0) // Vertices
+        {
+            Point p;
+            sscanf(line.c_str(), "v %f %f %f", &p.x, &p.y, &p.z);
+
+            p = p + direction;
+
             vertices.push_back(p);
         }
         else if (line.find("f ", 0) == 0) // Faces
@@ -141,7 +280,7 @@ void createRender(string file, int rays)
             // cout << triangles[i].p3 << endl;
         }
     */
-    
+
     config.resol = Resol_1080;
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
@@ -149,46 +288,87 @@ void createRender(string file, int rays)
     // The bigger shadowBias is, the bigger the difference from reality is
     float shadowBias = 1e-4;
 
-    Point o(0, 0, -3.5);
+    Point o(0, -0.5, -3);
     Direction l(-1.7777777, 0, 0);
     Direction u(0, 1, 0);
     Direction f(0, 0, 3);
 
     Camera camera(l, u, f, o, config.resol);
 
-    Point l_c1(0, 0, 0);
+    Point l_c1(0, 0.5, 0);
     Vect3 l_p1 = Vect3(1, 1, 1);
     Light light1(l_c1, l_p1);
     lights.push_back(&light1);
 
+    Point l_c2(0, -0.5, -1);
+    Vect3 l_p2 = Vect3(1, 1, 1);
+    Light light2(l_c2, l_p2);
+    lights.push_back(&light2);
+
+    Triangle triangles[MAX_POLYGON];
+
+    int numPolygons = 0; // loadOBJfile(triangles, "objs/Car.obj", purple, Direction(0, -1, 0.2));
+
+    for (int i = 0; i < numPolygons; i++)
+    {
+        objs.push_back(&triangles[i]);
+        // cout << triangles[i].p3 << endl;
+    }
+
     Direction n(1, 0, 0);
-    Plane left_plane(n, 1, red);
+    Plane left_plane(n, 1, purple);
     objs.push_back(&left_plane);
     Direction n1(-1, 0, 0);
-    Plane right_plane(n1, 1, green);
+    Plane right_plane(n1, 1, purple);
     objs.push_back(&right_plane);
     Direction n2(0, 1, 0);
-    Plane floor_plane(n2, 1, light_grey);
-    objs.push_back(&floor_plane);
+    Plane floor_plane(n2, 1, purple);
+    // objs.push_back(&floor_plane);
     Direction n3(0, -1, 0);
-    Plane ceiling_plane(n3, 1, light_grey);
+    Plane ceiling_plane(n3, 1, purple);
     objs.push_back(&ceiling_plane);
     Direction n4(0, 0, -1);
-    Plane back_plane(n4, 1, light_grey);
+    Plane back_plane(n4, 1, purple);
     objs.push_back(&back_plane);
 
-    Point c(-0.5, -0.7, 0.25);
-    Sphere left_sphere(c, 0.3, purple);
+    Point c(0, -0.5, 0);
+    Sphere left_sphere(c, 0.5, dark_blue);
     objs.push_back(&left_sphere);
+
+    Point c11(0, -1.63, 0);
+    Sphere left_sphere2(c11, 0.8, dark_blue);
+    objs.push_back(&left_sphere2);
+
+    Point c2(0.2, -0.33, -0.4);
+    Sphere eye_l(c2, 0.1, white);
+    objs.push_back(&eye_l);
+    Point c3(-0.2, -0.33, -0.4);
+    Sphere eye_r(c3, 0.1, white);
+    objs.push_back(&eye_r);
+
+    Point c4(0.2, -0.33, -0.5);
+    Sphere eye2_l(c4, 0.04, black);
+    objs.push_back(&eye2_l);
+    Point c5(-0.2, -0.33, -0.5);
+    Sphere eye2_r(c5, 0.04, black);
+    objs.push_back(&eye2_r);
+
+    Point c6(0, -0.46, -0.45);
+    Sphere mouth(c6, 0.1, orange);
+    objs.push_back(&mouth);
+
+    // Point c(-0.5, -0.7, 0.25);
+    // Sphere left_sphere(c, 0.3, purple);
+    //  objs.push_back(&left_sphere);
     Point c1(0.5, -0.7, -0.25);
     Sphere right_sphere(c1, 0.3, blue);
-    objs.push_back(&right_sphere);
+    // objs.push_back(&right_sphere);
 
     Point p1(-0.5, -0.7, 0.25);
     Point p2(0, -0.7, 0.25);
     Point p3(-0.25, 0, 0.25);
-    Triangle triangle(p1, p2, p3, red);
-    // objs.push_back(&triangle);
+    // Triangle triangle(p1, p2, p3, red);
+    //  objs.push_back(&triangle);
 
     // int num_threads = thread::hardware_concurrency();
     // atomic<int> tiles_left = config.num_tiles_x * config.num_tiles_y;
@@ -196,9 +376,9 @@ void createRender(string file, int rays)
     // vector<thread> threads;
     // for (int i = 0; i < num_threads; i++)
     //     threads.emplace_back(&Camera::render, camera, file, objs, rays, lights, shadowBias);
-    
-    // for (auto& t : threads) 
-    //     t.join();  
+
+    // for (auto& t : threads)
+    //     t.join();
 
     camera.render(file, objs, rays, lights, shadowBias);
 }

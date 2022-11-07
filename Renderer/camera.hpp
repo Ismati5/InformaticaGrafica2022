@@ -120,17 +120,18 @@ public:
         for (Light *light : light_points)
         {
 
+            isShadow = false;
+
             // Check if it's a shadow
-            wi = (light->center - x).normalize();
+            wi = (light->center - (x + n * shadowBias)).normalize();
             shadow.d = wi;
-            shadow.p = x;
+            shadow.p = x + n * shadowBias;
 
             for (auto i : objs)
             {
-                shadow.p = x + i->normal * shadowBias;
                 if (i->intersect(shadow, t1, sur_normal, aux_x))
                 {
-                    if (t1 > 0 && t1 < (light->center - x).modulus())
+                    if (t1 > 0 && t1 < (light->center - (x + n * shadowBias)).modulus())
                     {
                         isShadow = true;
                         break;
@@ -168,12 +169,13 @@ public:
         // cout << "EMISION: " << emission << endl;
     }
 
-    Direction randomDir(Direction pixelSize_x){
-        
+    Direction randomDir(Direction pixelSize_x)
+    {
+
         float ray_x = ((float(rand()) / float(RAND_MAX)) * pixelSize_x.x) - pixelSize_x.x / 2;
         float ray_y = ((float(rand()) / float(RAND_MAX)) * pixelSize_x.y) - pixelSize_x.y / 2;
         float ray_z = ((float(rand()) / float(RAND_MAX)) * pixelSize_x.z) - pixelSize_x.z / 2;
-        return Direction (ray_x, ray_y, ray_z);
+        return Direction(ray_x, ray_y, ray_z);
     }
 
     /**
@@ -235,7 +237,7 @@ public:
                                 Direction w0 = (origin - x).normalize();
                                 closest_emission = Vect3(0, 0, 0);
                                 colorValue(objs, closest_emission, x, w0, light_points, sur_normal, i->emission, shadowBias); // With path tracing
-                                // closest_emission = i->emission; // Without path tracing
+                                // closest_emission = i->emission;                                                               // Without path tracing
                                 intersected = true;
                             }
                         }
@@ -254,9 +256,12 @@ public:
 
                     total_emission /= intersections;
 
-                    if (max_emission < round(total_emission.x)) max_emission = round(total_emission.x);
-                    if (max_emission < round(total_emission.y)) max_emission = round(total_emission.y);
-                    if (max_emission < round(total_emission.z)) max_emission = round(total_emission.z);
+                    if (max_emission < round(total_emission.x))
+                        max_emission = round(total_emission.x);
+                    if (max_emission < round(total_emission.y))
+                        max_emission = round(total_emission.y);
+                    if (max_emission < round(total_emission.z))
+                        max_emission = round(total_emission.z);
 
                     content_aux.push_back(Vect3(round(total_emission.x), round(total_emission.y), round(total_emission.z)));
 
@@ -264,7 +269,8 @@ public:
                     total_emission = Vect3(0, 0, 0);
                     lowest_t1 = numeric_limits<float>::infinity();
                 }
-                else content_aux.push_back(Vect3(0, 0, 0));
+                else
+                    content_aux.push_back(Vect3(0, 0, 0));
             }
 
             content.push_back(content_aux);

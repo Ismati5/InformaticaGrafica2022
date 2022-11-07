@@ -81,6 +81,30 @@ Direction Point::operator-(const Point &p) const
 };
 
 /**
+ * @brief Point = Point * float
+ *
+ * @param p
+ * @return Point
+ */
+Point Point::operator*(const float f) const
+{
+    return Point(x * f,
+                 y * f, z * f);
+};
+
+/**
+ * @brief Point = Point / float
+ *
+ * @param p
+ * @return Point
+ */
+Point Point::operator/(const float f) const
+{
+    return Point(x / f,
+                 y / f, z / f);
+};
+
+/**
  * @brief operator<<
  *
  * @param os

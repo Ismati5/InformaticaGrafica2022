@@ -60,6 +60,22 @@ public:
     Direction operator-(const Point &p) const;
 
     /**
+     * @brief Point = Point * float
+     *
+     * @param p
+     * @return Point
+     */
+    Point operator*(const float f) const;
+
+    /**
+     * @brief Point = Point / float
+     *
+     * @param p
+     * @return Point
+     */
+    Point operator/(const float f) const;
+
+    /**
      * @brief operator<<
      *
      * @param os
