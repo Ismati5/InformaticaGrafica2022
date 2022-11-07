@@ -11,6 +11,7 @@
 #pragma once
 
 #include <iostream>
+#include <atomic>
 #include <thread>
 #include <fstream>
 #include "direction.hpp"
@@ -28,6 +29,18 @@
 #define PI (3.14159265358979323846264338327950288)
 
 using namespace std;
+
+struct render_config
+{
+    int *resol;
+    int rays;
+    int num_tiles_x;
+    int num_tiles_y;
+    int tile_size{32};
+    float shadow_bias;
+    Vect3 *content; 
+    string outfile;
+};
 
 /**
  * @brief Generates a progress bar
@@ -178,6 +191,35 @@ public:
         return Direction(ray_x, ray_y, ray_z);
     }
 
+    void render_thread(vector<Object *> objs, vector<Light *> lights,render_config config, atomic<int> num_tile){
+
+        int tile;
+
+        while ((tile = --num_tile) >= 0) { 
+
+            int max_emission = 0, intersections = 0;
+            float t1, lowest_t1 = numeric_limits<float>::infinity();
+            bool intersected = false;
+            Direction sur_normal;
+            Vect3 closest_emission = Vect3(0, 0, 0);
+            Vect3 total_emission = Vect3(0, 0, 0);
+            Point x;
+
+            Ray ray;
+            ray.p = origin;
+
+            int tile_y = tile / config.num_tiles_x;
+            int tile_x = tile - tile_y * config.num_tiles_x;
+            int x0 = tile_x * config.tile_size;
+            int x1 = min((tile_x + 1) * config.tile_size, config.resol[0]);
+            int y0 = tile_y * config.tile_size;
+            int y1 = min((tile_y + 1) * config.tile_size, config.resol[1]);
+
+            unsigned start = clock();
+        }
+
+    }
+
     /**
      * @brief Renders an scene
      *
@@ -186,12 +228,12 @@ public:
      * @param plane_objs
      * @param rays_per_pix
      */
-    void render(string outfile, vector<Object *> objs, int rays_per_pix, vector<Light *> light_points, float shadowBias)
+    void render(vector<Object *> objs, vector<Light *> light_points, render_config config)
     {
 
         vector<vector<Vect3>> content;
         int max_emission = 0, intersections = 0;
-        float t1, t2, lowest_t1 = numeric_limits<float>::infinity();
+        float t1, lowest_t1 = numeric_limits<float>::infinity();
         bool intersected = false;
 
         Ray ray;
@@ -216,7 +258,7 @@ public:
             vector<Vect3> content_aux;
             for (float j = 0; j < size[0]; j++) // j columns
             {
-                for (float r = 0; r < rays_per_pix; r++)
+                for (float r = 0; r < config.rays; r++)
                 {
                     Direction variation_x = randomDir(pixelSize_x);
                     Direction variation_y = randomDir(pixelSize_y);
@@ -236,7 +278,7 @@ public:
 
                                 Direction w0 = (origin - x).normalize();
                                 closest_emission = Vect3(0, 0, 0);
-                                colorValue(objs, closest_emission, x, w0, light_points, sur_normal, i->emission, shadowBias); // With path tracing
+                                colorValue(objs, closest_emission, x, w0, light_points, sur_normal, i->emission, config.shadow_bias); // With path tracing
                                 // closest_emission = i->emission;                                                               // Without path tracing
                                 intersected = true;
                             }
@@ -282,7 +324,7 @@ public:
         cout << "> Progress   [|||||||||||||||||||||||||||||||||||||||||] - 100%        (Saving image ...)\r";
         cout.flush();
 
-        ofstream file("renders/" + outfile);
+        ofstream file("renders/" + config.outfile);
         file << "P3" << endl;
         file << "#MAX=255" << endl;
         file << size[0] << " " << size[1] << endl;
@@ -301,7 +343,7 @@ public:
         cout << "> Progress   [|||||||||||||||||||||||||||||||||||||||||] - 100%        (Saving completed!)\r" << endl;
         cout.flush();
         cout << "> Completed! File saved as renders/"
-             << outfile << "." << endl
+             << config.outfile << "." << endl
              << endl;
     }
 };

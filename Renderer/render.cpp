@@ -52,14 +52,6 @@ int Resol_240[2] = {426, 240};
 int Resol_256[2] = {256, 256};
 int Resol_512[2] = {512, 512};
 
-struct render_config
-{
-    int *resol{Resol_256};
-    int num_tiles_x;
-    int num_tiles_y;
-    int tile_size{32};
-};
-
 int loadOBJfile(Triangle triangles[MAX_POLYGON], string fileName, Vect3 emi, float scale)
 {
 
@@ -254,60 +246,32 @@ void createRender(string file, int rays)
     vector<Light *> lights;
     render_config config;
 
-    // (Para pruebas con .obj)
-    /*
-
-        Point o(0, 20, 0);
-        Direction l(1, 0, 0);
-        Direction u(0, 0, 1);
-        Direction f(0, -1, 0);
-        int size[2] = {1000, 1000};
-
-        Camera camera(l, u, f, o, size);
-
-        Point l_c1(0, 25, 0);
-        Vect3 l_p1 = Vect3(500, 500, 900);
-        Light light1(l_c1, l_p1);
-        lights.push_back(&light1);
-
-        Triangle triangles[MAX_POLYGON];
-
-        int numPolygons = loadOBJfile(triangles, "objs/DiamondSword.obj", blue);
-
-        for (int i = 0; i < numPolygons; i++)
-        {
-            objs.push_back(&triangles[i]);
-            // cout << triangles[i].p3 << endl;
-        }
-    */
-
-    config.resol = Resol_1080;
+    config.resol = Resol_240;
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
+    config.shadow_bias = 1e-4; // The bigger shadowBias is, the bigger the difference from reality is
+    config.rays = rays;
+    config.outfile = file;
 
-    // The bigger shadowBias is, the bigger the difference from reality is
-    float shadowBias = 1e-4;
-
-    Point o(0, -0.5, -3);
+    Point o(0, 0, -10);
     Direction l(-1.7777777, 0, 0);
     Direction u(0, 1, 0);
     Direction f(0, 0, 3);
-
     Camera camera(l, u, f, o, config.resol);
 
     Point l_c1(0, 0.5, 0);
     Vect3 l_p1 = Vect3(1, 1, 1);
     Light light1(l_c1, l_p1);
     lights.push_back(&light1);
-
+/*
     Point l_c2(0, -0.5, -1);
     Vect3 l_p2 = Vect3(1, 1, 1);
     Light light2(l_c2, l_p2);
     lights.push_back(&light2);
-
+*/
     Triangle triangles[MAX_POLYGON];
 
-    int numPolygons = 0; // loadOBJfile(triangles, "objs/Car.obj", purple, Direction(0, -1, 0.2));
+    int numPolygons = loadOBJfile(triangles, "objs/Car.obj", green, Direction(0, -1, 0.2));
 
     for (int i = 0; i < numPolygons; i++)
     {
@@ -316,21 +280,21 @@ void createRender(string file, int rays)
     }
 
     Direction n(1, 0, 0);
-    Plane left_plane(n, 1, purple);
+    Plane left_plane(n, 2, purple);
     objs.push_back(&left_plane);
     Direction n1(-1, 0, 0);
-    Plane right_plane(n1, 1, purple);
+    Plane right_plane(n1, 2, purple);
     objs.push_back(&right_plane);
     Direction n2(0, 1, 0);
-    Plane floor_plane(n2, 1, purple);
+    Plane floor_plane(n2, 2, purple);
     // objs.push_back(&floor_plane);
     Direction n3(0, -1, 0);
-    Plane ceiling_plane(n3, 1, purple);
+    Plane ceiling_plane(n3, 2, purple);
     objs.push_back(&ceiling_plane);
     Direction n4(0, 0, -1);
-    Plane back_plane(n4, 1, purple);
+    Plane back_plane(n4, 3, purple);
     objs.push_back(&back_plane);
-
+/*
     Point c(0, -0.5, 0);
     Sphere left_sphere(c, 0.5, dark_blue);
     objs.push_back(&left_sphere);
@@ -356,31 +320,73 @@ void createRender(string file, int rays)
     Point c6(0, -0.46, -0.45);
     Sphere mouth(c6, 0.1, orange);
     objs.push_back(&mouth);
-
+*/
     // Point c(-0.5, -0.7, 0.25);
     // Sphere left_sphere(c, 0.3, purple);
     //  objs.push_back(&left_sphere);
-    Point c1(0.5, -0.7, -0.25);
-    Sphere right_sphere(c1, 0.3, blue);
+    // Point c1(0.5, -0.7, -0.25);
+    // Sphere right_sphere(c1, 0.3, blue);
     // objs.push_back(&right_sphere);
 
-    Point p1(-0.5, -0.7, 0.25);
-    Point p2(0, -0.7, 0.25);
-    Point p3(-0.25, 0, 0.25);
+    // Point p1(-0.5, -0.7, 0.25);
+    // Point p2(0, -0.7, 0.25);
+    // Point p3(-0.25, 0, 0.25);
     // Triangle triangle(p1, p2, p3, red);
     //  objs.push_back(&triangle);
+
 
     // int num_threads = thread::hardware_concurrency();
     // atomic<int> tiles_left = config.num_tiles_x * config.num_tiles_y;
 
     // vector<thread> threads;
+    // config.content = (Vect3*)malloc(config.resol[0] * config.resol[1] * 3);
     // for (int i = 0; i < num_threads; i++)
     //     threads.emplace_back(&Camera::render, camera, file, objs, rays, lights, shadowBias);
 
     // for (auto& t : threads)
     //     t.join();
 
-    camera.render(file, objs, rays, lights, shadowBias);
+    camera.render(objs, lights, config);
+}
+
+void renderObj(string file, int rays) {
+    // (Para pruebas con .obj)
+    vector<Object *> objs;
+    vector<Light *> lights;
+    render_config config;
+
+    config.resol = Resol_240;
+    config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
+    config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
+    config.shadow_bias = 1e-4; // The bigger shadowBias is, the bigger the difference from reality is
+    config.rays = rays;
+    config.outfile = file;
+
+    Point o(0, 20, 0);
+    Direction l(1, 0, 0);
+    Direction u(0, 0, 1);
+    Direction f(0, -1, 0);
+    int size[2] = {1000, 1000};
+
+    Camera camera(l, u, f, o, size);
+
+    Point l_c1(0, 25, 0);
+    Vect3 l_p1 = Vect3(500, 500, 900);
+    Light light1(l_c1, l_p1);
+    lights.push_back(&light1);
+
+    Triangle triangles[MAX_POLYGON];
+
+    int numPolygons = loadOBJfile(triangles, "objs/DiamondSword.obj", blue);
+
+    for (int i = 0; i < numPolygons; i++)
+    {
+        objs.push_back(&triangles[i]);
+        // cout << triangles[i].p3 << endl;
+    }
+
+    camera.render(objs, lights, config);
+
 }
 
 int main(int argc, char *argv[])
