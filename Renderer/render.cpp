@@ -26,7 +26,7 @@
 
 using namespace std;
 
-Vect3 red = Vect3(255, 109, 106);
+Vect3 red = Vect3(250, 35, 43);
 Vect3 yellow = Vect3(233, 236, 107);
 Vect3 blue = Vect3(153, 255, 255);
 Vect3 dark_blue = Vect3(0, 23, 49);
@@ -77,7 +77,7 @@ void renderScene(string file, int rays)
     vector<Light *> lights;
     render_config config;
 
-    config.resol = Resol_50;
+    config.resol = Resol_1080;
     config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
@@ -86,7 +86,7 @@ void renderScene(string file, int rays)
     config.outfile = file;
     config.pathtracing = true;
     config.start = clock();
-    config.num_threads = 8;
+    // config.num_threads = 8;
 
     // Default CORNELL BOX
     /*Point o(0, 0, -3.5);
@@ -124,32 +124,32 @@ void renderScene(string file, int rays)
 
     // TEST F1
 
-    Point o(0, 5, 25);
-    Direction l(config.aspect_ratio, 0, 0);
+    Point o(-0.5, 6, 25);
+    Direction l(-config.aspect_ratio, 0, 0);
     Direction u(0, 1, 0);
-    Direction f(0, -0.1, -3);
+    Direction f(0, 0, -3);
     Camera camera(l, u, f, o, config.resol);
 
-    Light light1(Point(0, 6, 0), Vect3(1, 1, 1));
+    Light light1(Point(12, 30, 20), Vect3(5000, 5000, 5000));
     lights.push_back(&light1);
 
-    Light light2(Point(0, 5, 6), Vect3(1, 1, 1));
-    lights.push_back(&light2);
+    Light light2(Point(0, 5, 6), Vect3(100, 100, 100));
+    // lights.push_back(&light2);
 
-    Light light3(Point(0, 5, -5), Vect3(1, 1, 1));
-    lights.push_back(&light3);
+    Light light3(Point(0, 5, -5), Vect3(100, 100, 100));
+    // lights.push_back(&light3);
 
-    Light light4(Point(-3, 5, 3), Vect3(1, 1, 1));
-    lights.push_back(&light4);
+    Light light4(Point(-3, 5, 3), Vect3(100, 100, 100));
+    // lights.push_back(&light4);
 
-    Light light5(Point(3, 5, 3), Vect3(1, 1, 1));
-    lights.push_back(&light5);
+    Light light5(Point(3, 5, 3), Vect3(100, 100, 100));
+    // lights.push_back(&light5);
 
-    Light light6(Point(-3, 5, -3), Vect3(1, 1, 1));
-    lights.push_back(&light6);
+    Light light6(Point(-3, 5, -3), Vect3(100, 100, 100));
+    // lights.push_back(&light6);
 
-    Light light7(Point(3, 5, -3), Vect3(1, 1, 1));
-    lights.push_back(&light7);
+    Light light7(Point(3, 5, -3), Vect3(100, 100, 100));
+    // lights.push_back(&light7);
 
     Sphere test1(Point(0, 5, 0), 0.3, green);
     // objs.push_back(&test1);
@@ -172,27 +172,31 @@ void renderScene(string file, int rays)
     Sphere test7(Point(3, 5, -3), 0.3, green);
     // objs.push_back(&test7);
 
-    Plane floor_plane(Direction(0, 1, 0), 1, light_grey);
+    Plane floor_plane(Direction(0, 1, 0), 1, green);
     objs.push_back(&floor_plane);
 
     Plane ceiling_plane(Direction(0, -1, 0), 10, light_grey);
-    objs.push_back(&ceiling_plane);
+    // objs.push_back(&ceiling_plane);
 
-    Plane back_plane(Direction(0, 0, 1), 15, light_grey);
+    Plane back_plane(Direction(0, 0, 1), 50, blue);
     objs.push_back(&back_plane);
 
     Plane left_plane(Direction(1, 0, 0), 8, light_grey);
-    objs.push_back(&left_plane);
+    // objs.push_back(&left_plane);
 
     Plane right_plane(Direction(-1, 0, 0), 8, light_grey);
-    objs.push_back(&right_plane);
+    // objs.push_back(&right_plane);
 
-    Object F1("F1", "objs/F1.obj", blue);
-    F1.translate(Direction(0, -1, -0.5));
+    // Object F1("F1", "objs/F1.obj", red);
+    // F1.translate(Direction(0, -1, -0.5));
 
-    for (int i = 0; i < F1.getPolygons(); i++)
+    Object Tree("Tree", "objs/tree.obj", purple);
+    Tree.scale(-2);
+    Tree.translate(Direction(0, -1, 0));
+
+    for (int i = 0; i < Tree.getPolygons(); i++)
     {
-        objs.push_back(&F1.getTriangles()[i]);
+        objs.push_back(&Tree.getTriangles()[i]);
     }
 
     // Multi-Threading rendering
