@@ -49,6 +49,7 @@ struct render_config
     bool pathtracing;
     unsigned start;
 
+    float max_distance = 99;
     int num_threads = thread::hardware_concurrency();
 };
 

@@ -264,7 +264,7 @@ void renderScene(string file, int rays)
     vector<Light *> lights;
     render_config config;
 
-    config.resol = Resol_1080;
+    config.resol = Resol_720;
     config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
@@ -276,7 +276,7 @@ void renderScene(string file, int rays)
     // config.num_threads = 1;
 
     // Default CORNELL BOX
-    Point o(0, 0, -3.5);
+    /*Point o(0, 0, -3.5);
     Direction l(-config.aspect_ratio, 0, 0);
     Direction u(0, 1, 0);
     Direction f(0, 0, 3);
@@ -306,42 +306,73 @@ void renderScene(string file, int rays)
     Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, blue);
     objs.push_back(&right_sphere);
 
-    /*  TEST F1
+    Triangle triangle_top(Point(0.507443, 0.662495, 2.225192), Point(1.007443, 0.452080, -2.174808), Point(0.952443, 0.356765, -2.274808), red);
+    // objs.push_back(&triangle_top);*/
+
+    // TEST F1
 
     Point o(0, 5, 25);
     Direction l(config.aspect_ratio, 0, 0);
     Direction u(0, 1, 0);
-    Direction f(0, -0.1, -2);
+    Direction f(0, -0.1, -3);
     Camera camera(l, u, f, o, config.resol);
 
-    Point l_c1(0, 0, 0);
-    Vect3 l_p1 = Vect3(1, 1, 1);
-    Light light1(l_c1, l_p1);
+    Light light1(Point(0, 6, 0), Vect3(1, 1, 1));
     lights.push_back(&light1);
 
-    Light light2(Point(0, 0, 4), Vect3(1, 1, 1));
+    Light light2(Point(0, 5, 6), Vect3(1, 1, 1));
     lights.push_back(&light2);
 
-    Light light3(Point(0, 0, -4), Vect3(1, 1, 1));
+    Light light3(Point(0, 5, -5), Vect3(1, 1, 1));
     lights.push_back(&light3);
 
-    Light light4(Point(0, 0, 2), Vect3(1, 1, 1));
+    Light light4(Point(-3, 5, 3), Vect3(1, 1, 1));
     lights.push_back(&light4);
 
-    Light light5(Point(0, 0, -2), Vect3(1, 1, 1));
+    Light light5(Point(3, 5, 3), Vect3(1, 1, 1));
     lights.push_back(&light5);
 
-    Light light6(Point(0, 0, 7), Vect3(1, 1, 1));
+    Light light6(Point(-3, 5, -3), Vect3(1, 1, 1));
     lights.push_back(&light6);
 
-    Light light7(Point(0, 0, -6), Vect3(1, 1, 1));
+    Light light7(Point(3, 5, -3), Vect3(1, 1, 1));
     lights.push_back(&light7);
 
-    Light light8(Point(-0.5, 0, 6.5), Vect3(1, 1, 1));
-    // lights.push_back(&light8);
+    Sphere test1(Point(0, 5, 0), 0.3, green);
+    // objs.push_back(&test1);
 
-    Light light9(Point(0.5, 0, 6.5), Vect3(1, 1, 1));
-    // lights.push_back(&light9);
+    Sphere test2(Point(0, 5, 6), 0.3, green);
+    // objs.push_back(&test2);
+
+    Sphere test3(Point(0, 5, -5), 0.3, green);
+    // objs.push_back(&test3);
+
+    Sphere test4(Point(-3, 5, 3), 0.3, green);
+    // objs.push_back(&test4);
+
+    Sphere test5(Point(3, 5, 3), 0.3, green);
+    // objs.push_back(&test5);
+
+    Sphere test6(Point(-3, 5, -3), 0.3, green);
+    // objs.push_back(&test6);
+
+    Sphere test7(Point(3, 5, -3), 0.3, green);
+    // objs.push_back(&test7);
+
+    Plane floor_plane(Direction(0, 1, 0), 1, light_grey);
+    objs.push_back(&floor_plane);
+
+    Plane ceiling_plane(Direction(0, -1, 0), 10, light_grey);
+    objs.push_back(&ceiling_plane);
+
+    Plane back_plane(Direction(0, 0, 1), 15, light_grey);
+    objs.push_back(&back_plane);
+
+    Plane left_plane(Direction(1, 0, 0), 8, light_grey);
+    objs.push_back(&left_plane);
+
+    Plane right_plane(Direction(-1, 0, 0), 8, light_grey);
+    objs.push_back(&right_plane);
 
     Triangle triangles[MAX_POLYGON];
 
@@ -353,62 +384,9 @@ void renderScene(string file, int rays)
         //  cout << triangles[i].p3 << endl;
     }
 
-    Direction n(1, 0, 0);
-    Plane left_plane(n, 10, purple);
-    // objs.push_back(&left_plane);
-    Direction n1(-1, 0, 0);
-    Plane right_plane(n1, 10, purple);
-    // objs.push_back(&right_plane);
-    Direction n2(0, 1, 0);
-    Plane floor_plane(n2, 1, purple);
-    objs.push_back(&floor_plane);
-    Direction n3(0, -1, 0);
-    Plane ceiling_plane(n3, 1, purple);
-    // objs.push_back(&ceiling_plane);
-    Direction n4(0, 0, 1);
-    Plane back_plane(n4, 15, purple);
-    objs.push_back(&back_plane);
-
-    // Sphere left_sphere(Point(0, 0, 0), 0.5, green);
-    //  objs.push_back(&left_sphere);
-
-    // Point c11(0, -1.63, 0);
-    // Sphere left_sphere2(c11, 0.8, dark_blue);
-    // objs.push_back(&left_sphere2);
-
-    // Point c2(0.2, -0.33, -0.4);
-    // Sphere eye_l(c2, 0.1, white);
-    // objs.push_back(&eye_l);
-    // Point c3(-0.2, -0.33, -0.4);
-    // Sphere eye_r(c3, 0.1, white);
-    // objs.push_back(&eye_r);
-
-    // Point c4(0.2, -0.33, -0.5);
-    // Sphere eye2_l(c4, 0.04, black);
-    // objs.push_back(&eye2_l);
-    // Point c5(-0.2, -0.33, -0.5);
-    // Sphere eye2_r(c5, 0.04, black);
-    // objs.push_back(&eye2_r);
-
-    // Point c6(0, -0.46, -0.45);
-    // Sphere mouth(c6, 0.1, orange);
-    // objs.push_back(&mouth);
-
-    // Point c(-0.5, -0.7, 0.25);
-    // Sphere left_sphere(c, 0.3, purple);
-    //  objs.push_back(&left_sphere);
-    // Point c1(0.5, -0.7, -0.25);
-    // Sphere right_sphere(c1, 0.3, blue);
-    // objs.push_back(&right_sphere);
-
-    // Point p1(-0.5, -0.7, 0.25);
-    // Point p2(0, -0.7, 0.25);
-    // Point p3(-0.25, 0, 0.25);
-    // Triangle triangle(p1, p2, p3, red);
-    //  objs.push_back(&triangle); */
-
     // Multi-Threading rendering
-    static atomic<int> tiles_left;
+    static atomic<int>
+        tiles_left;
     tiles_left = config.num_tiles_x * config.num_tiles_y;
 
     static atomic<int> max_emission;
