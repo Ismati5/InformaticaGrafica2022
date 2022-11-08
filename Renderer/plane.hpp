@@ -11,11 +11,8 @@
 #pragma once
 
 #include <iostream>
-#include "direction.hpp"
-#include "point.hpp"
-#include "ray.hpp"
-#include "object.hpp"
-#include <cmath>
+
+#include "primitive.hpp"
 
 using namespace std;
 
@@ -23,7 +20,7 @@ using namespace std;
  * @brief Plane represents a 3D plane
  *
  */
-class Plane : public Object
+class Plane : public Primitive
 {
 
 public:

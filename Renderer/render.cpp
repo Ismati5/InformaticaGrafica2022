@@ -22,9 +22,9 @@
 #include "station.hpp"
 #include "camera.hpp"
 #include "light.hpp"
+#include "object.hpp"
 
 using namespace std;
-#define MAX_POLYGON 20000
 
 Vect3 red = Vect3(255, 109, 106);
 Vect3 yellow = Vect3(233, 236, 107);
@@ -60,197 +60,10 @@ int Resol_360[2] = {640, 360};
 int Resol_240[2] = {426, 240};
 
 // 1:1
+int Resol_50[2] = {50, 50};
 int Resol_256[2] = {256, 256};
 int Resol_512[2] = {512, 512};
 int Resol_1024[2] = {1024, 1024};
-
-int loadOBJfile(Triangle triangles[MAX_POLYGON], string fileName, Vect3 emi, float scale)
-{
-
-    ifstream file(fileName);
-
-    if (!file.is_open())
-    {
-        cout << "Error opening de OBJ file" << endl;
-        return -1;
-    }
-
-    vector<Point> vertices;
-    vector<Vect3> faces;
-
-    string line;
-    while (getline(file, line))
-    {
-        if (line.find("v ", 0) == 0) // Vertices
-        {
-            Point p;
-            sscanf(line.c_str(), "v %f %f %f", &p.x, &p.y, &p.z);
-
-            if (scale < 0)
-            {
-                p = p / abs(scale);
-            }
-            else
-            {
-                p = p * scale;
-            }
-
-            vertices.push_back(p);
-        }
-        else if (line.find("f ", 0) == 0) // Faces
-        {
-            Vect3 v;
-            float w;
-            float trash;
-            int matches = sscanf(line.c_str(), "f %f %f %f %f", &v.x, &v.y, &v.z, &w);
-            if (matches == 3)
-            {
-                faces.push_back(v);
-            }
-            else if (matches == 4)
-            {
-                faces.push_back(v);
-                Vect3 v2(v.x, v.z, w);
-                faces.push_back(v2);
-            }
-        }
-    }
-
-    int e = 0;
-    for (Vect3 i : faces)
-    {
-        triangles[e].p1 = vertices.at(i.x - 1);
-        triangles[e].p2 = vertices.at(i.y - 1);
-        triangles[e].p3 = vertices.at(i.z - 1);
-        triangles[e].setEmission(emi);
-        triangles[e].sertNormal();
-        e++;
-    }
-
-    file.close();
-
-    return faces.size();
-}
-
-int loadOBJfile(Triangle triangles[MAX_POLYGON], string fileName, Vect3 emi)
-{
-
-    ifstream file(fileName);
-
-    if (!file.is_open())
-    {
-        cout << "Error opening de OBJ file" << endl;
-        return -1;
-    }
-
-    vector<Point> vertices;
-    vector<Vect3> faces;
-
-    string line;
-    while (getline(file, line))
-    {
-        if (line.find("v ", 0) == 0) // Vertices
-        {
-            Point p;
-            sscanf(line.c_str(), "v %f %f %f", &p.x, &p.y, &p.z);
-
-            vertices.push_back(p);
-        }
-        else if (line.find("f ", 0) == 0) // Faces
-        {
-            Vect3 v;
-            float w;
-            float trash;
-            int matches = sscanf(line.c_str(), "f %f %f %f %f", &v.x, &v.y, &v.z, &w);
-            if (matches == 3)
-            {
-                faces.push_back(v);
-            }
-            else if (matches == 4)
-            {
-                faces.push_back(v);
-                Vect3 v2(v.x, v.z, w);
-                faces.push_back(v2);
-            }
-        }
-    }
-
-    int e = 0;
-    for (Vect3 i : faces)
-    {
-        triangles[e].p1 = vertices.at(i.x - 1);
-        triangles[e].p2 = vertices.at(i.y - 1);
-        triangles[e].p3 = vertices.at(i.z - 1);
-        triangles[e].setEmission(emi);
-        triangles[e].sertNormal();
-        e++;
-    }
-
-    file.close();
-
-    return faces.size();
-}
-
-int loadOBJfile(Triangle triangles[MAX_POLYGON], string fileName, Vect3 emi, Direction direction)
-{
-
-    ifstream file(fileName);
-
-    if (!file.is_open())
-    {
-        cout << "Error opening de OBJ file" << endl;
-        return -1;
-    }
-
-    vector<Point> vertices;
-    vector<Vect3> faces;
-
-    string line;
-    while (getline(file, line))
-    {
-        if (line.find("v ", 0) == 0) // Vertices
-        {
-            Point p;
-            sscanf(line.c_str(), "v %f %f %f", &p.x, &p.y, &p.z);
-
-            p = p + direction;
-
-            vertices.push_back(p);
-        }
-        else if (line.find("f ", 0) == 0) // Faces
-        {
-            Vect3 v;
-            float w;
-            float trash;
-            int matches = sscanf(line.c_str(), "f %f %f %f %f", &v.x, &v.y, &v.z, &w);
-            if (matches == 3)
-            {
-                faces.push_back(v);
-            }
-            else if (matches == 4)
-            {
-                faces.push_back(v);
-                Vect3 v2(v.x, v.z, w);
-                faces.push_back(v2);
-            }
-        }
-    }
-
-    int e = 0;
-    for (Vect3 i : faces)
-    {
-        triangles[e].p1 = vertices.at(i.x - 1);
-        triangles[e].p2 = vertices.at(i.y - 1);
-        triangles[e].p3 = vertices.at(i.z - 1);
-        triangles[e].setEmission(emi);
-        triangles[e].sertNormal();
-        e++;
-    }
-
-    file.close();
-
-    return faces.size();
-}
 
 /**
  * @brief Create a Render scene
@@ -260,11 +73,11 @@ int loadOBJfile(Triangle triangles[MAX_POLYGON], string fileName, Vect3 emi, Dir
  */
 void renderScene(string file, int rays)
 {
-    vector<Object *> objs;
+    vector<Primitive *> objs;
     vector<Light *> lights;
     render_config config;
 
-    config.resol = Resol_720;
+    config.resol = Resol_50;
     config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
@@ -273,7 +86,7 @@ void renderScene(string file, int rays)
     config.outfile = file;
     config.pathtracing = true;
     config.start = clock();
-    // config.num_threads = 1;
+    config.num_threads = 8;
 
     // Default CORNELL BOX
     /*Point o(0, 0, -3.5);
@@ -374,14 +187,12 @@ void renderScene(string file, int rays)
     Plane right_plane(Direction(-1, 0, 0), 8, light_grey);
     objs.push_back(&right_plane);
 
-    Triangle triangles[MAX_POLYGON];
+    Object F1("F1", "objs/F1.obj", blue);
+    F1.translate(Direction(0, -1, -0.5));
 
-    int numPolygons = loadOBJfile(triangles, "objs/F1.obj", red, Direction(0, -1, 0));
-
-    for (int i = 0; i < numPolygons; i++)
+    for (int i = 0; i < F1.getPolygons(); i++)
     {
-        objs.push_back(&triangles[i]);
-        //  cout << triangles[i].p3 << endl;
+        objs.push_back(&F1.getTriangles()[i]);
     }
 
     // Multi-Threading rendering
@@ -435,52 +246,6 @@ void renderScene(string file, int rays)
     }
 
     free(config.content);
-}
-
-/**
- * @brief Render just an .obj object
- *
- * @param file
- * @param rays
- */
-void renderObj(string file, int rays)
-{
-    // (Para pruebas con .obj)
-    vector<Object *> objs;
-    vector<Light *> lights;
-    render_config config;
-
-    config.resol = Resol_240;
-    config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
-    config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
-    config.shadow_bias = 1e-4; // The bigger shadowBias is, the bigger the difference from reality is
-    config.rays = rays;
-    config.outfile = file;
-
-    Point o(0, 20, 0);
-    Direction l(1, 0, 0);
-    Direction u(0, 0, 1);
-    Direction f(0, -1, 0);
-    int size[2] = {1000, 1000};
-
-    Camera camera(l, u, f, o, size);
-
-    Point l_c1(0, 25, 0);
-    Vect3 l_p1 = Vect3(500, 500, 900);
-    Light light1(l_c1, l_p1);
-    lights.push_back(&light1);
-
-    Triangle triangles[MAX_POLYGON];
-
-    int numPolygons = loadOBJfile(triangles, "objs/DiamondSword.obj", blue);
-
-    for (int i = 0; i < numPolygons; i++)
-    {
-        objs.push_back(&triangles[i]);
-        // cout << triangles[i].p3 << endl;
-    }
-
-    // camera.render(objs, lights, config);
 }
 
 int main(int argc, char *argv[])

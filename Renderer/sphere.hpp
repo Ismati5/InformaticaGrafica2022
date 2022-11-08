@@ -10,11 +10,8 @@
  *
  */
 #include <iostream>
-#include "direction.hpp"
-#include "point.hpp"
-#include "ray.hpp"
-#include "object.hpp"
-#include <cmath>
+
+#include "primitive.hpp"
 
 using namespace std;
 
@@ -22,7 +19,7 @@ using namespace std;
  * @brief Sphere represents a 3D sphere
  *
  */
-class Sphere : public Object
+class Sphere : public Primitive
 {
 
 public:

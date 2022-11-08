@@ -89,7 +89,7 @@ Direction Camera::randomDir(Direction pixelSize)
  * @param n
  * @param color
  */
-void Camera::colorValue(vector<Object *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias)
+void Camera::colorValue(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias)
 {
 
     Vect3 aux_emission;
@@ -154,7 +154,7 @@ void Camera::colorValue(vector<Object *> objs, Vect3 &emission, Point x, Directi
  * @param num_tile
  * @param max_emission
  */
-void Camera::render_thread(int id, vector<Object *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission)
+void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission)
 {
 
     int tile, intersections;

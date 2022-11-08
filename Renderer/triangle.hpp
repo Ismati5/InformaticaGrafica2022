@@ -13,7 +13,7 @@
 #include "direction.hpp"
 #include "point.hpp"
 #include "ray.hpp"
-#include "object.hpp"
+#include "primitive.hpp"
 
 using namespace std;
 
@@ -21,7 +21,7 @@ using namespace std;
  * @brief Sphere represents a 3D sphere
  *
  */
-class Triangle : public Object
+class Triangle : public Primitive
 {
 
 public:
