@@ -145,52 +145,77 @@ void Camera::colorValue_next_event(vector<Primitive *> objs, Vect3 &emission, Po
     }
 }
 
-void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias){
+void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias)
+{
 
     Vect3 ld, lx;
     colorValue_next_event(objs, ld, x, w0, light_points, n, color, shadowBias);
 
-    emission = ld;
+    emission = ld; //???
 
-    //Calcular vector aleatorio
+    // Calcular vector aleatorio
     float theta = (float)(rand()) / (float)(RAND_MAX);
     float phi = (float)(rand()) / (float)(RAND_MAX);
 
-    theta = acos(sqrt(1-theta));
+    theta = acos(sqrt(1 - theta));
     phi = 2 * PI * phi;
 
-    //la z a 0, x = y; y = -x
-    Vect3 axis2 = Vect3(n.y, -n.x, 0); // garantizado por Jorge A.
+    // Local coordinate system
+    Direction axis_z = n.normalize();
+    Direction axis_x(axis_z.y, -axis_z.x, 0); // garantizado por Jorge A.               NO VA XDDDDDDDDDDDD, si la normal es ej (0,0,1), x sera (0,0,0)
+    Direction axis_y = axis_z.crossProd(axis_x);
 
-    // Crear matrix T
+    // Local to global transform matrix T
+    Matrix4 T = TM_changeBase(axis_x, axis_y, axis_z, x);
+
+    // Local direction ωi'
+    Direction wi(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
+
+    Vect4 wi_aux(wi);
+
+    // Change to global coordinates:
+    wi_aux = inverse(T) * wi_aux;
+
+    wi = wi_aux.toDirecton();
 
     Ray ray;
 
-    if (bounces_left == 0) return;
+    ray.p = x;
+    ray.d = wi;
+
+    if (bounces_left == 0)
+        return;
 
     float t1, lowest_t1 = numeric_limits<float>::infinity();
     Direction sur_normal;
     bool intersected = false;
-    for (Primitive *obj : objs) {
+    for (Primitive *obj : objs)
+    {
 
-        if (obj->intersect(ray, t1, sur_normal, x)){
-    
-            if (obj->isLight()) return;
+        if (obj->intersect(ray, t1, sur_normal, x))
+        {
+
+            if (obj->isLight())
+                return;
 
             intersected = true;
-            if (t1 < lowest_t1) lowest_t1 = t1;
+            if (t1 < lowest_t1)
+            {
+                lowest_t1 = t1;
+                colorValue_sample(bounces_left - 1, objs, emission, x, wi, light_points, sur_normal, obj->emission, shadowBias);
 
-
+                Vect3 aux = fr(x, wi, w0, color);
+                lx *= aux;
+                emission += ld + (lx * abs(n.dotProd(wi.normalize())));
+            }
         }
     }
 
+    if (!intersected)
+        return;
 
-    if (!intersected) return;
-    
-
-
-    //colorValue_next_event(objs, lx, x, w0, light_points, n, color, shadowBias);
-    //emission = ld + (lx * fr() * abs(n.dotProd(w0.normalize())));
+    // colorValue_next_event(objs, lx, x, w0, light_points, n, color, shadowBias);
+    // emission = ld + (lx * fr() * abs(n.dotProd(w0.normalize())));
 }
 
 /**
@@ -250,7 +275,8 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                                 closest_emission = Vect3(0, 0, 0);
 
                                 if (config.pathtracing)
-                                    colorValue_next_event(objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias); // With path tracing
+                                    colorValue_sample(10, objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias);
+                                // colorValue_next_event(objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias); // With path tracing
                                 else
                                     closest_emission = i->emission; // Without path tracing
                                 intersected = true;

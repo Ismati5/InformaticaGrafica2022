@@ -86,7 +86,7 @@ void renderScene(string file, int rays)
     config.outfile = file;
     config.pathtracing = true;
     config.start = clock();
-    // config.num_threads = 8;
+    config.num_threads = 1;
 
     // Default CORNELL BOX
     Point o(0, 0, -3.5);

@@ -123,7 +123,6 @@ Matrix4 inverse(Matrix4 m1)
 {
 
     float det = determinant(m1, 4);
-    cout << det << endl;
     Matrix4 adj;
 
     for (int i = 0; i < 4; i++)

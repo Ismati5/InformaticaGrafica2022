@@ -58,11 +58,19 @@ public:
      */
     Point toPoint()
     {
-        Point p;
-        p.x = v[0];
-        p.y = v[1];
-        p.z = v[2];
+        Point p(v[0], v[1], v[2]);
         return p;
+    }
+
+    /**
+     * @brief From Vect4 to Direction
+     *
+     * @return Direction
+     */
+    Direction toDirecton()
+    {
+        Direction d(v[0], v[1], v[2]);
+        return d;
     }
 
     /**
