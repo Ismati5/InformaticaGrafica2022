@@ -126,7 +126,10 @@ public:
      * @param n
      * @param color
      */
-    void colorValue(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias);
+    void colorValue_next_event(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias);
+
+
+    void colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias);
 
     /**
      * @brief Creates a random Direction

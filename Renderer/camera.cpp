@@ -89,7 +89,7 @@ Direction Camera::randomDir(Direction pixelSize)
  * @param n
  * @param color
  */
-void Camera::colorValue(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias)
+void Camera::colorValue_next_event(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias)
 {
 
     Vect3 aux_emission;
@@ -143,6 +143,54 @@ void Camera::colorValue(vector<Primitive *> objs, Vect3 &emission, Point x, Dire
             emission += aux_emission;
         }
     }
+}
+
+void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias){
+
+    Vect3 ld, lx;
+    colorValue_next_event(objs, ld, x, w0, light_points, n, color, shadowBias);
+
+    emission = ld;
+
+    //Calcular vector aleatorio
+    float theta = (float)(rand()) / (float)(RAND_MAX);
+    float phi = (float)(rand()) / (float)(RAND_MAX);
+
+    theta = acos(sqrt(1-theta));
+    phi = 2 * PI * phi;
+
+    //la z a 0, x = y; y = -x
+    Vect3 axis2 = Vect3(n.y, -n.x, 0); // garantizado por Jorge A.
+
+    // Crear matrix T
+
+    Ray ray;
+
+    if (bounces_left == 0) return;
+
+    float t1, lowest_t1 = numeric_limits<float>::infinity();
+    Direction sur_normal;
+    bool intersected = false;
+    for (Primitive *obj : objs) {
+
+        if (obj->intersect(ray, t1, sur_normal, x)){
+    
+            if (obj->isLight()) return;
+
+            intersected = true;
+            if (t1 < lowest_t1) lowest_t1 = t1;
+
+
+        }
+    }
+
+
+    if (!intersected) return;
+    
+
+
+    //colorValue_next_event(objs, lx, x, w0, light_points, n, color, shadowBias);
+    //emission = ld + (lx * fr() * abs(n.dotProd(w0.normalize())));
 }
 
 /**
@@ -202,7 +250,7 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                                 closest_emission = Vect3(0, 0, 0);
 
                                 if (config.pathtracing)
-                                    colorValue(objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias); // With path tracing
+                                    colorValue_next_event(objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias); // With path tracing
                                 else
                                     closest_emission = i->emission; // Without path tracing
                                 intersected = true;

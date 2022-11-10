@@ -25,6 +25,8 @@ public:
     // emission RGB tuple
     Direction normal;
     Vect3 emission;
+    bool is_light = false;
+    Vect3 p;
 
     /**
      * @brief intersect interface
@@ -36,4 +38,14 @@ public:
      * @return false
      */
     virtual bool intersect(Ray ray, float &t, Direction &sur_normal, Point &x) = 0;
+
+    bool isLight(){
+        return is_light;
+    }
+
+    void setPower(Vect3 p){
+        p = p;
+        is_light = true;
+    }
+
 };
