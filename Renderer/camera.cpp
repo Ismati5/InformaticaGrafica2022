@@ -151,9 +151,9 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
     Vect3 ld, lx;
     colorValue_next_event(objs, ld, x, w0, light_points, n, color, shadowBias);
 
-    emission = ld; //???
+    emission = ld;
 
-    // Calcular vector aleatorio
+    // Calculate random vector
     float theta = (float)(rand()) / (float)(RAND_MAX);
     float phi = (float)(rand()) / (float)(RAND_MAX);
 
@@ -188,13 +188,12 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
 
     float t1, lowest_t1 = numeric_limits<float>::infinity();
     Direction sur_normal;
+    Primitive *closest_obj;
     bool intersected = false;
     for (Primitive *obj : objs)
     {
-
         if (obj->intersect(ray, t1, sur_normal, x))
         {
-
             if (obj->isLight())
                 return;
 
@@ -202,11 +201,7 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
             if (t1 < lowest_t1)
             {
                 lowest_t1 = t1;
-                colorValue_sample(bounces_left - 1, objs, emission, x, wi, light_points, sur_normal, obj->emission, shadowBias);
-
-                Vect3 aux = fr(x, wi, w0, color);
-                lx *= aux;
-                emission += ld + (lx * abs(n.dotProd(wi.normalize())));
+                closest_obj = obj;
             }
         }
     }
@@ -214,8 +209,11 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
     if (!intersected)
         return;
 
-    // colorValue_next_event(objs, lx, x, w0, light_points, n, color, shadowBias);
-    // emission = ld + (lx * fr() * abs(n.dotProd(w0.normalize())));
+    colorValue_sample(bounces_left - 1, objs, lx, x, wi, light_points, sur_normal, closest_obj->emission, shadowBias);
+
+    lx *= fr(x, wi, w0, color);
+    emission += (lx * abs(n.dotProd(wi.normalize()))); //ld already added
+
 }
 
 /**
@@ -275,7 +273,7 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                                 closest_emission = Vect3(0, 0, 0);
 
                                 if (config.pathtracing)
-                                    colorValue_sample(10, objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias);
+                                colorValue_sample(config.bounces, objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias);
                                 // colorValue_next_event(objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias); // With path tracing
                                 else
                                     closest_emission = i->emission; // Without path tracing

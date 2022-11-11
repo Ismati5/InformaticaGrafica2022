@@ -50,6 +50,7 @@ struct render_config
     string outfile;
     bool pathtracing;
     unsigned start;
+    int bounces;
 
     float max_distance = 99;
     int num_threads = thread::hardware_concurrency();
