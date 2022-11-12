@@ -148,10 +148,14 @@ void Camera::colorValue_next_event(vector<Primitive *> objs, Vect3 &emission, Po
 void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias)
 {
 
-    Vect3 ld, lx;
+    Vect3 ld(0, 0, 0), lx(0, 0, 0);
+
     colorValue_next_event(objs, ld, x, w0, light_points, n, color, shadowBias);
 
     emission = ld;
+
+    if (bounces_left == 0)
+        return;
 
     // Calculate random vector
     float theta = (float)(rand()) / (float)(RAND_MAX);
@@ -189,18 +193,10 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
 
     wi = wi_aux.toDirecton().normalize();
 
-    // cout << wi << endl;
-
-    char a;
-    // cin >> a;
-
     Ray ray;
 
     ray.p = x;
     ray.d = wi;
-
-    if (bounces_left == 0)
-        return;
 
     float t1, lowest_t1 = numeric_limits<float>::infinity();
     Direction sur_normal;
@@ -209,6 +205,7 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
     Point closest_point;
     Direction closest_normal;
     bool intersected = false;
+
     for (Primitive *obj : objs)
     {
         if (obj->intersect(ray, t1, sur_normal, hit))
@@ -232,7 +229,11 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
     colorValue_sample(bounces_left - 1, objs, lx, closest_point, wi, light_points, closest_normal, closest_emisson, shadowBias);
 
     lx *= fr(x, wi, w0, color);
+
     emission += (lx * abs(n.dotProd(wi.normalize()))); // ld already added
+
+    cout << "Bounces left: " << bounces_left << endl;
+    cout << "emission: " << bounces_left << endl;
 }
 
 /**
