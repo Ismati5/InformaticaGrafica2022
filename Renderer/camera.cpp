@@ -162,7 +162,18 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
 
     // Local coordinate system
     Direction axis_z = n.normalize();
-    Direction axis_x(axis_z.y, -axis_z.x, 0); // garantizado por Jorge A.               NO VA XDDDDDDDDDDDD, si la normal es ej (0,0,1), x sera (0,0,0)
+
+    Direction axis_x;
+
+    if (axis_z.x == 0 && axis_z.y == 0)
+    {
+        axis_x = Direction(axis_z.y, -axis_z.z, 0); // garantizado por Jorge A.
+    }
+    else
+    {
+        axis_x = Direction(axis_z.y, -axis_z.x, 0); // garantizado por Jorge A.
+    }
+
     Direction axis_y = axis_z.crossProd(axis_x);
 
     // Local to global transform matrix T
@@ -174,9 +185,14 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
     Vect4 wi_aux(wi);
 
     // Change to global coordinates:
-    wi_aux = inverse(T) * wi_aux;
+    wi_aux = T * wi_aux;
 
-    wi = wi_aux.toDirecton();
+    wi = wi_aux.toDirecton().normalize();
+
+    // cout << wi << endl;
+
+    char a;
+    // cin >> a;
 
     Ray ray;
 
@@ -188,20 +204,24 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
 
     float t1, lowest_t1 = numeric_limits<float>::infinity();
     Direction sur_normal;
-    Primitive *closest_obj;
+    Vect3 closest_emisson;
+    Point hit;
+    Point closest_point;
+    Direction closest_normal;
     bool intersected = false;
     for (Primitive *obj : objs)
     {
-        if (obj->intersect(ray, t1, sur_normal, x))
+        if (obj->intersect(ray, t1, sur_normal, hit))
         {
             if (obj->isLight())
                 return;
-
             intersected = true;
             if (t1 < lowest_t1)
             {
                 lowest_t1 = t1;
-                closest_obj = obj;
+                closest_point = hit;
+                closest_normal = sur_normal;
+                closest_emisson = obj->emission;
             }
         }
     }
@@ -209,11 +229,10 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
     if (!intersected)
         return;
 
-    colorValue_sample(bounces_left - 1, objs, lx, x, wi, light_points, sur_normal, closest_obj->emission, shadowBias);
+    colorValue_sample(bounces_left - 1, objs, lx, closest_point, wi, light_points, closest_normal, closest_emisson, shadowBias);
 
     lx *= fr(x, wi, w0, color);
-    emission += (lx * abs(n.dotProd(wi.normalize()))); //ld already added
-
+    emission += (lx * abs(n.dotProd(wi.normalize()))); // ld already added
 }
 
 /**
@@ -273,7 +292,7 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                                 closest_emission = Vect3(0, 0, 0);
 
                                 if (config.pathtracing)
-                                colorValue_sample(config.bounces, objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias);
+                                    colorValue_sample(config.bounces, objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias);
                                 // colorValue_next_event(objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias); // With path tracing
                                 else
                                     closest_emission = i->emission; // Without path tracing
