@@ -78,7 +78,7 @@ void renderScene(string file, int rays)
     vector<Light *> lights;
     render_config config;
 
-    config.resol = Resol_5;
+    config.resol = Resol_720;
     config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
@@ -88,7 +88,7 @@ void renderScene(string file, int rays)
     config.pathtracing = true;
     config.start = clock();
     config.num_threads = 1;
-    config.bounces = 1;
+    config.bounces = 4;
 
     // Default CORNELL BOX
     Point o(0, 0, -3.5);
@@ -116,10 +116,10 @@ void renderScene(string file, int rays)
     objs.push_back(&back_plane);
 
     Sphere left_sphere(Point(-0.5, -0.7, 0.25), 0.3, purple);
-    // objs.push_back(&left_sphere);
+    objs.push_back(&left_sphere);
 
     Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, blue);
-    // objs.push_back(&right_sphere);
+    objs.push_back(&right_sphere);
 
     // TEST F1 y Tree
 
