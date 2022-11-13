@@ -160,48 +160,49 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
     // Calculate random vector
     float theta = (float)(rand()) / (float)(RAND_MAX);
     float phi = (float)(rand()) / (float)(RAND_MAX);
-    float r = (float)(rand()) / (float)(RAND_MAX);
+    // float r = (float)(rand()) / (float)(RAND_MAX);
 
-    // theta = acos(sqrt(1 - theta));
-    // phi = 2 * PI * phi;
-    theta = 2 * PI * theta;
-    phi = acos(2 * phi - 1);
+    theta = acos(sqrt(1 - theta));
+    phi = 2 * PI * phi;
+    // theta = 2 * PI * theta;
+    //  phi = acos(2 * phi - 1);
 
     // Local coordinate system
-    // Direction axis_z = n.normalize();
+    Direction axis_z = n.normalize();
 
-    // Direction axis_x;
+    Direction axis_x;
 
-    // if (axis_z.x == 0 && axis_z.y == 0)
-    // {
-    //     axis_x = Direction(axis_z.y, -axis_z.z, 0); // garantizado por Jorge A.
-    // }
-    // else
-    // {
-    //     axis_x = Direction(axis_z.y, -axis_z.x, 0); // garantizado por Jorge A.
-    // }
+    if (axis_z.x == 0 && axis_z.y == 0)
+    {
+        axis_x = Direction(axis_z.y, -axis_z.z, 0); // garantizado por Jorge A.
+    }
+    else
+    {
+        axis_x = Direction(axis_z.y, -axis_z.x, 0); // garantizado por Jorge A.
+    }
 
-    // Direction axis_y = axis_z.crossProd(axis_x);
+    Direction axis_y = axis_z.crossProd(axis_x);
 
-    // // Local to global transform matrix T
-    // Matrix4 T = TM_changeBase(axis_x, axis_y, axis_z, x);
+    // Local to global transform matrix T
+    Matrix4 T = TM_changeBase(axis_x, axis_y, axis_z, x);
 
-    // // Local direction ωi'
-    // Direction wi(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
+    // Local direction ωi'
+    Direction wi(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
 
-    // Vect4 wi_aux(wi);
+    Vect4 wi_aux(wi);
 
-    // // Change to global coordinates:
-    // wi_aux = T * wi_aux;
+    // Change to global coordinates:
+    wi_aux = T * wi_aux;
 
-    // wi = wi_aux.toDirecton().normalize();
+    wi = wi_aux.toDirecton().normalize();
 
     Ray ray;
-    Point aux;
+    /*Point aux;
     aux.x = sin(phi) * cos(theta);
     aux.y = sin(phi) * sin(theta);
     aux.z = cos(phi);
-    Direction wi = (aux - x).normalize();;
+    Direction wi = (aux - x).normalize();
+    ;*/
 
     ray.p = x;
     ray.d = wi;
@@ -239,9 +240,6 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
     lx *= fr(x, wi, w0, color);
 
     emission += (lx * abs(n.dotProd(wi))); // ld already added
-
-    // cout << "Bounces left: " << bounces_left << endl;
-    // cout << "emission: " << emission << endl;
 }
 
 /**
@@ -300,7 +298,8 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                                 Direction w0 = (origin - x).normalize();
                                 closest_emission = Vect3(0, 0, 0);
 
-                                if (config.pathtracing){
+                                if (config.pathtracing)
+                                {
                                     colorValue_sample(config.bounces, objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias);
                                     // closest_emission /= config.bounces;
                                 }

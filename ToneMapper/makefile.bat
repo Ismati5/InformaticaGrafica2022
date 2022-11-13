@@ -1,0 +1,1 @@
+g++ toneMapper.cpp -o toneMapper -std=c++17
