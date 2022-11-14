@@ -237,7 +237,7 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
 
     colorValue_sample(bounces_left - 1, objs, lx, closest_point, wi, light_points, closest_normal, closest_emisson, shadowBias);
 
-    lx *= fr(x, wi, w0, color);
+    // lx *= fr(x, wi, w0, color);
 
     emission += (lx * abs(n.dotProd(wi))); // ld already added
 }
