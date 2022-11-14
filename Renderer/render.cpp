@@ -26,14 +26,21 @@
 
 using namespace std;
 
-Vect3 red = Vect3(250, 35, 43);
+Vect3 red_p = Vect3(250, 35, 43);
+Vect3 blue_p = Vect3(153, 255, 255);
+Vect3 green_p = Vect3(119, 221, 119);
+Vect3 purple_p = Vect3(177, 162, 202);
+Vect3 light_grey_p = Vect3(238, 238, 238);
+
+Vect3 red = Vect3(254, 0, 0);
+Vect3 blue = Vect3(141, 255, 255);
+Vect3 green = Vect3(0, 255, 1);
+Vect3 purple = Vect3(228, 170, 255);
+Vect3 light_grey = Vect3(199, 199, 199);
+
 Vect3 yellow = Vect3(233, 236, 107);
-Vect3 blue = Vect3(153, 255, 255);
 Vect3 dark_blue = Vect3(0, 23, 49);
-Vect3 green = Vect3(119, 221, 119);
 Vect3 gray = Vect3(207, 207, 196);
-Vect3 light_grey = Vect3(238, 238, 238);
-Vect3 purple = Vect3(177, 162, 202);
 Vect3 orange = Vect3(255, 153, 51);
 Vect3 white = Vect3(255, 255, 255);
 Vect3 black = Vect3(0, 0, 0);
@@ -65,6 +72,7 @@ int Resol_50[2] = {50, 50};
 int Resol_256[2] = {256, 256};
 int Resol_512[2] = {512, 512};
 int Resol_1024[2] = {1024, 1024};
+int Resol_2048[2] = {2048, 2048};
 
 /**
  * @brief Create a Render scene
@@ -78,7 +86,7 @@ void renderScene(string file, int rays)
     vector<Light *> lights;
     render_config config;
 
-    config.resol = Resol_720;
+    config.resol = Resol_1024;
     config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
@@ -88,7 +96,7 @@ void renderScene(string file, int rays)
     config.pathtracing = true;
     config.start = clock();
     // config.num_threads = 10;
-    config.bounces = 4;
+    config.bounces = 8;
 
     // Default CORNELL BOX
     Point o(0, 0, -3.5);

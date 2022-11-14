@@ -145,6 +145,19 @@ void Camera::colorValue_next_event(vector<Primitive *> objs, Vect3 &emission, Po
     }
 }
 
+/**
+ * @brief Recursive light function
+ *
+ * @param bounces_left
+ * @param objs
+ * @param emission
+ * @param x
+ * @param w0
+ * @param light_points
+ * @param n
+ * @param color
+ * @param shadowBias
+ */
 void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias)
 {
 
@@ -160,12 +173,9 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
     // Calculate random vector
     float theta = (float)(rand()) / (float)(RAND_MAX);
     float phi = (float)(rand()) / (float)(RAND_MAX);
-    // float r = (float)(rand()) / (float)(RAND_MAX);
 
     theta = acos(sqrt(1 - theta));
     phi = 2 * PI * phi;
-    // theta = 2 * PI * theta;
-    //  phi = acos(2 * phi - 1);
 
     // Local coordinate system
     Direction axis_z = n.normalize();
@@ -197,12 +207,6 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
     wi = wi_aux.toDirecton().normalize();
 
     Ray ray;
-    /*Point aux;
-    aux.x = sin(phi) * cos(theta);
-    aux.y = sin(phi) * sin(theta);
-    aux.z = cos(phi);
-    Direction wi = (aux - x).normalize();
-    ;*/
 
     ray.p = x;
     ray.d = wi;
@@ -301,7 +305,6 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                                 if (config.pathtracing)
                                 {
                                     colorValue_sample(config.bounces, objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias);
-                                    // closest_emission /= config.bounces;
                                 }
                                 // colorValue_next_event(objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias); // With path tracing
                                 else
