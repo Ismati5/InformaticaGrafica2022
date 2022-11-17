@@ -115,7 +115,8 @@ public:
      */
     Vect3 fr(Point x, Direction wi, Direction w0, Vect3 kd)
     {
-        return kd / PI;
+
+        return (kd / 255.0) / PI;
     }
 
     /**

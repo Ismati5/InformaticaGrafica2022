@@ -60,6 +60,14 @@ public:
     Vect3 operator*(const float s) const;
 
     /**
+     * @brief Vect3 = Vect3 * Vect3
+     *
+     * @param Vect3
+     * @return Vect3
+     */
+    Vect3 operator*(const Vect3 &d) const;
+
+    /**
      * @brief Vect3 = Vect3 / scalar
      *
      * @param s

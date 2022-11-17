@@ -54,6 +54,17 @@ Vect3 Vect3::operator*(const float s) const
     return Vect3(x * s,
                  y * s, z * s);
 }
+/**
+ * @brief Vect3 = Vect3 * Vect3
+ *
+ * @param Vect3
+ * @return Vect3
+ */
+Vect3 Vect3::operator*(const Vect3 &d) const
+{
+    return Vect3(x * d.x,
+                 y * d.y, z * d.z);
+}
 
 /**
  * @brief Vect3 = Vect3 / scalar

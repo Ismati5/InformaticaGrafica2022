@@ -165,11 +165,6 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
 
     colorValue_next_event(objs, ld, x, w0, light_points, n, color, shadowBias);
 
-    emission = ld;
-
-    if (bounces_left == 0)
-        return;
-
     // Calculate random vector
     float theta = (float)(rand()) / (float)(RAND_MAX);
     float phi = (float)(rand()) / (float)(RAND_MAX);
@@ -184,14 +179,14 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
 
     if (axis_z.x == 0 && axis_z.y == 0)
     {
-        axis_x = Direction(axis_z.y, -axis_z.z, 0); // garantizado por Jorge A.
+        axis_x = Direction(axis_z.y, -axis_z.z, axis_z.x).normalize();
     }
     else
     {
-        axis_x = Direction(axis_z.y, -axis_z.x, 0); // garantizado por Jorge A.
+        axis_x = Direction(axis_z.y, -axis_z.x, axis_z.z).normalize();
     }
 
-    Direction axis_y = axis_z.crossProd(axis_x);
+    Direction axis_y = axis_z.crossProd(axis_x).normalize();
 
     // Local to global transform matrix T
     Matrix4 T = TM_changeBase(axis_x, axis_y, axis_z, x);
@@ -206,17 +201,17 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
 
     wi = wi_aux.toDirecton().normalize();
 
-    Ray ray;
+    emission = ld;
 
-    ray.p = x;
-    ray.d = wi;
+    if (bounces_left == 0)
+        return;
+
+    Ray ray(wi, x);
 
     float t1, lowest_t1 = numeric_limits<float>::infinity();
-    Direction sur_normal;
     Vect3 closest_emisson;
-    Point hit;
-    Point closest_point;
-    Direction closest_normal;
+    Direction sur_normal, closest_normal;
+    Point hit, closest_point;
     bool intersected = false;
 
     for (Primitive *obj : objs)
@@ -241,9 +236,7 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
 
     colorValue_sample(bounces_left - 1, objs, lx, closest_point, wi, light_points, closest_normal, closest_emisson, shadowBias);
 
-    // lx *= fr(x, wi, w0, color);
-
-    emission += (lx * abs(n.dotProd(wi))); // ld already added
+    emission = ld * lx;
 }
 
 /**
