@@ -147,7 +147,7 @@ public:
      * @param color
      * @param shadowBias
      */
-    void light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Vect3 &brdfAnt,
+    void light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Vect3 brdfAnt,
                      Point x, Direction w0, vector<Light *> light_points, Direction n,
                      Vect3 color, float shadowBias);
 
