@@ -89,7 +89,9 @@ Direction Camera::randomDir(Direction pixelSize)
  * @param n
  * @param color
  */
-void Camera::colorValue_next_event(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias)
+void Camera::direct_light(vector<Primitive *> objs, Vect3 &emission,
+                          Point x, Direction w0, vector<Light *> light_points,
+                          Direction n, Vect3 color, float shadowBias, bool lastBounce)
 {
 
     Vect3 aux_emission;
@@ -132,13 +134,16 @@ void Camera::colorValue_next_event(vector<Primitive *> objs, Vect3 &emission, Po
             // Left term (Li)
             aux_emission = light->power / ((x - light->center).modulus() * (x - light->center).modulus());
 
-            // Middle term (fr)
-            aux = fr(x, wi, w0, color);
-            aux_emission *= aux;
+            if (lastBounce)
+            {
+                // Middle term (fr)
+                aux = fr(x, wi, w0, color);
+                aux_emission *= aux;
 
-            // Right term
-            aux2 = abs(n.dotProd((light->center - x).normalize()));
-            aux_emission *= aux2;
+                // Right term
+                aux2 = abs(n.dotProd((light->center - x).normalize()));
+                aux_emission *= aux2;
+            }
 
             emission += aux_emission;
         }
@@ -158,12 +163,10 @@ void Camera::colorValue_next_event(vector<Primitive *> objs, Vect3 &emission, Po
  * @param color
  * @param shadowBias
  */
-void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias)
+void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias)
 {
 
-    Vect3 ld(0, 0, 0), lx(0, 0, 0);
-
-    colorValue_next_event(objs, ld, x, w0, light_points, n, color, shadowBias);
+    Vect3 ld(0, 0, 0);
 
     // Calculate random vector
     float theta = (float)(rand()) / (float)(RAND_MAX);
@@ -201,10 +204,11 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
 
     wi = wi_aux.toDirecton().normalize();
 
-    emission = ld;
-
     if (bounces_left == 0)
+    {
+        direct_light(objs, emission, x, w0, light_points, n, color, shadowBias, true);
         return;
+    }
 
     Ray ray(wi, x);
 
@@ -234,9 +238,11 @@ void Camera::colorValue_sample(int bounces_left, vector<Primitive *> objs, Vect3
     if (!intersected)
         return;
 
-    colorValue_sample(bounces_left - 1, objs, lx, closest_point, wi, light_points, closest_normal, closest_emisson, shadowBias);
+    Vect3 lx(0, 0, 0);
+    direct_light(objs, ld, x, w0, light_points, n, color, shadowBias, true);
+    light_value(bounces_left - 1, objs, lx, closest_point, wi, light_points, closest_normal, closest_emisson, shadowBias);
 
-    emission = ld * lx;
+    emission = ld + (lx * fr(x, wi, w0, color) * abs(n.dotProd(w0.normalize())));
 }
 
 /**
@@ -297,7 +303,7 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
 
                                 if (config.pathtracing)
                                 {
-                                    colorValue_sample(config.bounces, objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias);
+                                    light_value(config.bounces, objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias);
                                 }
                                 // colorValue_next_event(objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias); // With path tracing
                                 else

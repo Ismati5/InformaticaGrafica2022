@@ -105,7 +105,7 @@ void renderScene(string file, int rays)
     Direction f(0, 0, 3);
     Camera camera(l, u, f, o, config.resol);
 
-    Light light(Point(0, 0.5, 0), Vect3(1, 1, 1));
+    Light light(Point(0, 0.5, 0), Vect3(255, 255, 255));
     lights.push_back(&light);
 
     Plane left_plane(Direction(1, 0, 0), 1, red);
