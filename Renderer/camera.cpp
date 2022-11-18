@@ -91,7 +91,7 @@ Direction Camera::randomDir(Direction pixelSize)
  */
 void Camera::direct_light(vector<Primitive *> objs, Vect3 &emission,
                           Point x, Direction w0, vector<Light *> light_points,
-                          Direction n, Vect3 color, float shadowBias, bool lastBounce)
+                          Direction n, Vect3 color, float shadowBias)
 {
 
     Vect3 aux_emission;
@@ -134,16 +134,13 @@ void Camera::direct_light(vector<Primitive *> objs, Vect3 &emission,
             // Left term (Li)
             aux_emission = light->power / ((x - light->center).modulus() * (x - light->center).modulus());
 
-            if (lastBounce)
-            {
-                // Middle term (fr)
-                aux = fr(x, wi, w0, color);
-                aux_emission *= aux;
+            // Middle term (fr)
+            aux = fr(x, wi, w0, color);
+            aux_emission *= aux;
 
-                // Right term
-                aux2 = abs(n.dotProd((light->center - x).normalize()));
-                aux_emission *= aux2;
-            }
+            // Right term
+            aux2 = abs(n.dotProd((light->center - x).normalize()));
+            aux_emission *= aux2;
 
             emission += aux_emission;
         }
@@ -163,7 +160,7 @@ void Camera::direct_light(vector<Primitive *> objs, Vect3 &emission,
  * @param color
  * @param shadowBias
  */
-void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias)
+void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Vect3 &brdfAnt, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias)
 {
 
     Vect3 ld(0, 0, 0);
@@ -204,9 +201,12 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
 
     wi = wi_aux.toDirecton().normalize();
 
+    brdfAnt *= (fr(x, wi, w0, color) * abs(n.dotProd(w0.normalize())));
+
     if (bounces_left == 0)
     {
-        direct_light(objs, emission, x, w0, light_points, n, color, shadowBias, true);
+        direct_light(objs, ld, x, w0, light_points, n, color, shadowBias);
+        emission = ld * brdfAnt;
         return;
     }
 
@@ -239,10 +239,11 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
         return;
 
     Vect3 lx(0, 0, 0);
-    direct_light(objs, ld, x, w0, light_points, n, color, shadowBias, true);
-    light_value(bounces_left - 1, objs, lx, closest_point, wi, light_points, closest_normal, closest_emisson, shadowBias);
 
-    emission = ld + (lx * fr(x, wi, w0, color) * abs(n.dotProd(w0.normalize())));
+    direct_light(objs, ld, x, w0, light_points, n, color, shadowBias);
+    light_value(bounces_left - 1, objs, lx, brdfAnt, closest_point, wi, light_points, closest_normal, closest_emisson, shadowBias);
+
+    emission = lx + ld * brdfAnt;
 }
 
 /**
@@ -265,6 +266,7 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
         bool intersected = false;
         Direction sur_normal;
         Vect3 closest_emission = Vect3(0, 0, 0);
+        Vect3 brdfAnt = Vect3(1, 1, 1);
         Vect3 total_emission = Vect3(0, 0, 0);
         Point x;
 
@@ -303,7 +305,7 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
 
                                 if (config.pathtracing)
                                 {
-                                    light_value(config.bounces, objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias);
+                                    light_value(config.bounces, objs, closest_emission, brdfAnt, x, w0, lights, sur_normal, i->emission, config.shadow_bias);
                                 }
                                 // colorValue_next_event(objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias); // With path tracing
                                 else

@@ -132,7 +132,7 @@ public:
      */
     void direct_light(vector<Primitive *> objs, Vect3 &emission,
                       Point x, Direction w0, vector<Light *> light_points,
-                      Direction n, Vect3 color, float shadowBias, bool lastBounce);
+                      Direction n, Vect3 color, float shadowBias);
 
     /**
      * @brief Light value emission
@@ -147,7 +147,7 @@ public:
      * @param color
      * @param shadowBias
      */
-    void light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emission,
+    void light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Vect3 &brdfAnt,
                      Point x, Direction w0, vector<Light *> light_points, Direction n,
                      Vect3 color, float shadowBias);
 
