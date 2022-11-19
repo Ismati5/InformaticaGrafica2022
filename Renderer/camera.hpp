@@ -50,7 +50,7 @@ struct render_config
     string outfile;
     bool pathtracing;
     unsigned start;
-    int bounces;
+    int bounces = 50;
 
     float max_distance = 99;
     int num_threads = thread::hardware_concurrency();
@@ -116,7 +116,7 @@ public:
     Vect3 fr(Point x, Direction wi, Direction w0, Vect3 kd)
     {
 
-        return (kd / 255.0) / PI;
+        return kd / 255.0;
     }
 
     /**
