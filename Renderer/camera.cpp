@@ -201,14 +201,15 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
 
     wi = wi_aux.toDirecton().normalize();
 
-    Vect3 newBrdfAnt = brdfAnt * (fr(x, wi, w0, color) * abs(n.dotProd(w0.normalize())));
+    Vect3 newBrdfAnt = brdfAnt * (fr(x, wi, w0, color) * abs(n.dotProd(wi.normalize())));
+
+    // In case of any return
+    direct_light(objs, ld, x, w0, light_points, n, color, shadowBias);
+    emission = ld * brdfAnt;
 
     if (bounces_left == 0)
-    {
-        direct_light(objs, ld, x, w0, light_points, n, color, shadowBias);
-        emission = ld * brdfAnt;
         return;
-    }
+
 
     Ray ray(wi, x);
 
@@ -239,11 +240,15 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
         return;
 
     Vect3 lx(0, 0, 0);
+    float pdf = 1 / (2 * PI);
 
     direct_light(objs, ld, x, w0, light_points, n, color, shadowBias);
     light_value(bounces_left - 1, objs, lx, newBrdfAnt, closest_point, wi, light_points, closest_normal, closest_emisson, shadowBias);
+    // lx /= pdf;
 
-    emission = lx + ld * brdfAnt;
+    // emission = ld + lx * brdfAnt;
+    // emission = (ld + lx) * brdfAnt;
+    emission = (ld / PI + lx * 2) * brdfAnt;
 }
 
 /**
