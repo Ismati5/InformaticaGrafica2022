@@ -27,6 +27,7 @@ public:
     Vect3 emission;
     bool is_light = false;
     Vect3 p;
+    int type;
 
     /**
      * @brief intersect interface

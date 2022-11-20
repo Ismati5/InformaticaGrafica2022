@@ -32,7 +32,10 @@ public:
      * @brief Construct a new Triangle object
      *
      */
-    Triangle() {}
+    Triangle() 
+    {
+        type = 2;
+    }
 
     /**
      * @brief Construct a new Triangle object
@@ -44,6 +47,7 @@ public:
     Triangle(Point p1, Point p2, Point p3, Vect3 emi)
         : p1(p1), p2(p2), p3(p3)
     {
+        type = 2;
         Direction A = p2 - p1;
         Direction B = p3 - p1;
         normal = A.crossProd(B);

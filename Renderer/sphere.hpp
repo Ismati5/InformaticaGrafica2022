@@ -37,6 +37,7 @@ public:
     Sphere(Point center, float radius, Vect3 emi)
         : center(center), radius(radius)
     {
+        type = 1;
         emission = emi;
     }
 

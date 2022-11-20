@@ -35,7 +35,7 @@ public:
      */
     Plane(Direction _normal, float c, Vect3 emi) : c(c)
     {
-
+        type = 0;
         normal = _normal;
         emission = emi;
     }

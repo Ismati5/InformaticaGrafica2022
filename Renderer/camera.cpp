@@ -145,6 +145,68 @@ void Camera::direct_light(vector<Primitive *> objs, Vect3 &emission,
             emission += aux_emission;
         }
     }
+
+    //AREA LIGHTS
+    // for (Primitive *obj : objs)
+    // {
+    //     if (!obj->isLight()) continue;
+    //     isShadow = false;
+
+    //     for (int i = 0; i < config.AreaLightRays; i++)
+    //     {
+
+    //         // Generate random point in obj
+    //         switch (obj->type)
+    //         {
+    //         case 0: // Plane
+
+    //             break;
+    //         case 1: // Sphere
+
+    //             break;
+    //         case 2: // Triangle
+
+    //             break;
+    //         }
+
+    //         // Check if it's a shadow
+    //         wi = (point - (x + n * shadowBias)).normalize();
+    //         shadow.d = wi;
+    //         shadow.p = x + n * shadowBias;
+
+    //         for (auto i : objs)
+    //         {
+    //             if (i->intersect(shadow, t1, sur_normal, aux_x))
+    //             {
+    //                 if (t1 > 0 && t1 < (light->center - (x + n * shadowBias)).modulus())
+    //                 {
+    //                     isShadow = true;
+    //                     break;
+    //                 }
+    //             }
+    //         }
+
+    //         // If it's not a shadow
+    //         if (!isShadow)
+    //         {
+    //             // Left term (Li)
+    //             aux_emission = light->power / ((x - light->center).modulus() * (x - light->center).modulus());
+
+    //             // Middle term (fr)
+    //             aux = fr(x, wi, w0, color);
+    //             aux_emission *= aux;
+
+    //             // Right term
+    //             aux2 = abs(n.dotProd((light->center - x).normalize()));
+    //             aux_emission *= aux2;
+
+    //             emission += aux_emission;
+    //         }           
+    //     }
+
+
+    // }
+
 }
 
 /**
@@ -162,9 +224,6 @@ void Camera::direct_light(vector<Primitive *> objs, Vect3 &emission,
  */
 void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Vect3 brdfAnt, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias)
 {
-
-    Vect3 ld(0, 0, 0);
-
     // Calculate random vector
     float theta = (float)(rand()) / (float)(RAND_MAX);
     float phi = (float)(rand()) / (float)(RAND_MAX);
@@ -176,15 +235,10 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
     Direction axis_z = n.normalize();
 
     Direction axis_x;
-
     if (axis_z.x == 0 && axis_z.y == 0)
-    {
         axis_x = Direction(axis_z.y, -axis_z.z, axis_z.x).normalize();
-    }
     else
-    {
         axis_x = Direction(axis_z.y, -axis_z.x, axis_z.z).normalize();
-    }
 
     Direction axis_y = axis_z.crossProd(axis_x).normalize();
 
@@ -201,17 +255,16 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
 
     wi = wi_aux.toDirecton().normalize();
 
-    // In case of any return
+    // newBRDF =  BRDF/cosine terms at previous
     Vect3 newBrdfAnt = brdfAnt * (fr(x, wi, w0, color) * abs(n.dotProd(wi.normalize())));
 
+    Vect3 ld(0, 0, 0);
     if (bounces_left == 0)
     {
         direct_light(objs, ld, x, w0, light_points, n, color, shadowBias);
-        emission = ld * brdfAnt;
+        emission = ld * newBrdfAnt;
         return;
     }
-
-    Ray ray(wi, x);
 
     float t1, lowest_t1 = numeric_limits<float>::infinity();
     Vect3 closest_emisson;
@@ -219,12 +272,18 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
     Point hit, closest_point;
     bool intersected = false;
 
+    Ray ray(wi, x);
     for (Primitive *obj : objs)
     {
         if (obj->intersect(ray, t1, sur_normal, hit))
         {
-            if (obj->isLight())
+            if (obj->isLight()) 
+            {
+                direct_light(objs, ld, x, w0, light_points, n, color, shadowBias);
+                emission = ld;
                 return;
+            }
+
             intersected = true;
             if (t1 < lowest_t1)
             {
@@ -237,10 +296,12 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
     }
 
     if (!intersected)
+    {
+        emission = (0,0,0);
         return;
+    }
 
     Vect3 lx(0, 0, 0);
-
     direct_light(objs, ld, x, w0, light_points, n, color, shadowBias);
     light_value(bounces_left - 1, objs, lx, newBrdfAnt, closest_point, wi, light_points, closest_normal, closest_emisson, shadowBias);
 

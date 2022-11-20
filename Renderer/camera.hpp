@@ -116,6 +116,27 @@ public:
     Vect3 fr(Point x, Direction wi, Direction w0, Vect3 kd)
     {
 
+        // int absortion = 1 - (pd + ps + pt);
+        // ps += pd;
+        // pt += ps;
+
+        // int type = (float)(rand()) / (float)(RAND_MAX);
+        // switch (type)
+        // {
+        // case type <= pd: // Diffuse
+        //     return kd / 255.0;
+
+        // case type <= ps: // Specular
+        //     return ks * ();
+
+        // case type <= pt: // Reflection
+            
+
+        // default:        // Absortion
+        //     absorbed = true;
+        //     return;
+        // }
+
         return kd / 255.0;
     }
 
