@@ -70,6 +70,7 @@ int Resol_240[2] = {426, 240};
 int Resol_5[2] = {5, 5};
 int Resol_50[2] = {50, 50};
 int Resol_256[2] = {256, 256};
+int Resol_400[2] = {400, 400};
 int Resol_512[2] = {512, 512};
 int Resol_1024[2] = {1024, 1024};
 int Resol_2048[2] = {2048, 2048};
@@ -86,7 +87,7 @@ void renderScene(string file, int rays)
     vector<Light *> lights;
     render_config config;
 
-    config.resol = Resol_512;
+    config.resol = Resol_400;
     config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
@@ -96,7 +97,7 @@ void renderScene(string file, int rays)
     config.pathtracing = true;
     config.start = clock();
     // config.num_threads = 1;
-    config.bounces = 7;
+    config.bounces = 4;
 
     // Default CORNELL BOX
     Point o(0, 0, -3.5);
@@ -105,7 +106,7 @@ void renderScene(string file, int rays)
     Direction f(0, 0, 3);
     Camera camera(l, u, f, o, config.resol);
 
-    Light light(Point(0, 0.5, 0), Vect3(255, 255, 255));
+    Light light(Point(0, 0.5, 0), Vect3(500, 500, 500));
     lights.push_back(&light);
 
     Plane left_plane(Direction(1, 0, 0), 1, red);
@@ -118,7 +119,7 @@ void renderScene(string file, int rays)
     objs.push_back(&floor_plane);
 
     Plane ceiling_plane(Direction(0, -1, 0), 1, light_grey);
-    // ceiling_plane.setPower(Vect3(1, 1, 1));
+    // ceiling_plane.setPower(Vect3(500, 500, 500));
     objs.push_back(&ceiling_plane);
 
     Plane back_plane(Direction(0, 0, -1), 1, light_grey);

@@ -52,7 +52,7 @@ struct render_config
     unsigned start;
     int bounces = 50;
 
-    float max_distance = 99;
+    float max_distance = 9999;
     int num_threads = thread::hardware_concurrency();
 };
 
@@ -130,7 +130,6 @@ public:
         //     return ks * ();
 
         // case type <= pt: // Reflection
-            
 
         // default:        // Absortion
         //     absorbed = true;

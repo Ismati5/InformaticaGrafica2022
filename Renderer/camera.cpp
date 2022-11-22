@@ -72,9 +72,9 @@ void progressBar(int tile, int total_tiles, unsigned start)
 Direction Camera::randomDir(Direction pixelSize)
 {
 
-    float ray_x = ((float(rand()) / float(RAND_MAX)) * pixelSize.x) - pixelSize.x / 2;
-    float ray_y = ((float(rand()) / float(RAND_MAX)) * pixelSize.y) - pixelSize.y / 2;
-    float ray_z = ((float(rand()) / float(RAND_MAX)) * pixelSize.z) - pixelSize.z / 2;
+    float ray_x = ((float(rand()) / float(RAND_MAX)) * pixelSize.x) - pixelSize.x;
+    float ray_y = ((float(rand()) / float(RAND_MAX)) * pixelSize.y) - pixelSize.y;
+    float ray_z = ((float(rand()) / float(RAND_MAX)) * pixelSize.z) - pixelSize.z;
     return Direction(ray_x, ray_y, ray_z);
 }
 
@@ -146,11 +146,11 @@ void Camera::direct_light(vector<Primitive *> objs, Vect3 &emission,
         }
     }
 
-    //AREA LIGHTS
-    // for (Primitive *obj : objs)
-    // {
-    //     if (!obj->isLight()) continue;
-    //     isShadow = false;
+    // AREA LIGHTS
+    //  for (Primitive *obj : objs)
+    //  {
+    //      if (!obj->isLight()) continue;
+    //      isShadow = false;
 
     //     for (int i = 0; i < config.AreaLightRays; i++)
     //     {
@@ -201,12 +201,10 @@ void Camera::direct_light(vector<Primitive *> objs, Vect3 &emission,
     //             aux_emission *= aux2;
 
     //             emission += aux_emission;
-    //         }           
+    //         }
     //     }
 
-
     // }
-
 }
 
 /**
@@ -232,21 +230,15 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
     phi = 2 * PI * phi;
 
     // Local coordinate system
-    Direction axis_z = n.normalize();
-
-    Direction axis_x;
-    if (axis_z.x == 0 && axis_z.y == 0)
-        axis_x = Direction(axis_z.y, -axis_z.z, axis_z.x).normalize();
-    else
-        axis_x = Direction(axis_z.y, -axis_z.x, axis_z.z).normalize();
-
-    Direction axis_y = axis_z.crossProd(axis_x).normalize();
+    Direction axis_y = n.normalize();
+    Direction axis_x = w0.crossProd(axis_y).normalize();
+    Direction axis_z = axis_y.crossProd(axis_x).normalize();
 
     // Local to global transform matrix T
     Matrix4 T = TM_changeBase(axis_x, axis_y, axis_z, x);
 
     // Local direction ωi'
-    Direction wi(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
+    Direction wi(sin(theta) * sin(phi), cos(theta), sin(theta) * cos(phi));
 
     Vect4 wi_aux(wi);
 
@@ -256,13 +248,13 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
     wi = wi_aux.toDirecton().normalize();
 
     // newBRDF =  BRDF/cosine terms at previous
-    Vect3 newBrdfAnt = brdfAnt * (fr(x, wi, w0, color) * abs(n.dotProd(wi.normalize())));
+    Vect3 newBrdfAnt = brdfAnt;
 
     Vect3 ld(0, 0, 0);
     if (bounces_left == 0)
     {
         direct_light(objs, ld, x, w0, light_points, n, color, shadowBias);
-        emission = ld * newBrdfAnt;
+        emission = ld;
         return;
     }
 
@@ -273,14 +265,20 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
     bool intersected = false;
 
     Ray ray(wi, x);
+
     for (Primitive *obj : objs)
     {
         if (obj->intersect(ray, t1, sur_normal, hit))
         {
-            if (obj->isLight()) 
+            if (obj->isLight())
             {
-                direct_light(objs, ld, x, w0, light_points, n, color, shadowBias);
-                emission = ld;
+                emission = obj->p / (wi.modulus() * wi.modulus());
+
+                // Middle term (fr)
+                emission *= fr(hit, wi, w0, color);
+
+                // Right term
+                emission *= abs(sur_normal.dotProd(wi.normalize()));
                 return;
             }
 
@@ -297,15 +295,15 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
 
     if (!intersected)
     {
-        emission = (0,0,0);
         return;
     }
 
     Vect3 lx(0, 0, 0);
+
     direct_light(objs, ld, x, w0, light_points, n, color, shadowBias);
     light_value(bounces_left - 1, objs, lx, newBrdfAnt, closest_point, wi, light_points, closest_normal, closest_emisson, shadowBias);
 
-    emission = lx + ld * brdfAnt;
+    emission = ld + lx * fr(x, wi, w0, color);
 }
 
 /**
