@@ -220,7 +220,7 @@ void Camera::direct_light(vector<Primitive *> objs, Vect3 &emission,
  * @param color
  * @param shadowBias
  */
-void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Vect3 brdfAnt, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias)
+void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias)
 {
     // Calculate random vector
     float theta = (float)(rand()) / (float)(RAND_MAX);
@@ -246,9 +246,6 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
     wi_aux = T * wi_aux;
 
     wi = wi_aux.toDirecton().normalize();
-
-    // newBRDF =  BRDF/cosine terms at previous
-    Vect3 newBrdfAnt = brdfAnt;
 
     Vect3 ld(0, 0, 0);
     if (bounces_left == 0)
@@ -294,14 +291,12 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
     }
 
     if (!intersected)
-    {
         return;
-    }
 
     Vect3 lx(0, 0, 0);
 
     direct_light(objs, ld, x, w0, light_points, n, color, shadowBias);
-    light_value(bounces_left - 1, objs, lx, newBrdfAnt, closest_point, wi, light_points, closest_normal, closest_emisson, shadowBias);
+    light_value(bounces_left - 1, objs, lx, closest_point, wi, light_points, closest_normal, closest_emisson, shadowBias);
 
     emission = ld + lx * fr(x, wi, w0, color);
 }
@@ -326,7 +321,6 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
         bool intersected = false;
         Direction sur_normal;
         Vect3 closest_emission = Vect3(0, 0, 0);
-        Vect3 brdfAnt = Vect3(1, 1, 1);
         Vect3 total_emission = Vect3(0, 0, 0);
         Point x;
 
@@ -365,7 +359,7 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
 
                                 if (config.pathtracing)
                                 {
-                                    light_value(config.bounces, objs, closest_emission, brdfAnt, x, w0, lights, sur_normal, i->emission, config.shadow_bias);
+                                    light_value(config.bounces, objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias);
                                 }
                                 // colorValue_next_event(objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias); // With path tracing
                                 else
