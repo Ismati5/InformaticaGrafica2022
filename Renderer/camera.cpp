@@ -72,9 +72,10 @@ void progressBar(int tile, int total_tiles, unsigned start)
 Direction Camera::randomDir(Direction pixelSize)
 {
 
-    float ray_x = ((float(rand()) / float(RAND_MAX)) * pixelSize.x) - pixelSize.x;
-    float ray_y = ((float(rand()) / float(RAND_MAX)) * pixelSize.y) - pixelSize.y;
-    float ray_z = ((float(rand()) / float(RAND_MAX)) * pixelSize.z) - pixelSize.z;
+    float ray_x = ((float(rand()) / float(RAND_MAX)) * 2 * pixelSize.x) - pixelSize.x;
+    float ray_y = ((float(rand()) / float(RAND_MAX)) * 2 * pixelSize.y) - pixelSize.y;
+    float ray_z = ((float(rand()) / float(RAND_MAX)) * 2 * pixelSize.z) - pixelSize.z;
+
     return Direction(ray_x, ray_y, ray_z);
 }
 
@@ -257,14 +258,16 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
     Ray ray(wi, x);
     Vect3 lx(0, 0, 0);
 
-    int intersected = closestObj(objs, ray, closest_normal, closest_point, closest_emission, w0, color);
-    if (intersected == 0) return; // no intersection
-    else if (intersected == 2)    // intersection with light
+    intersectionType intersected = closestObj(objs, ray, closest_normal, closest_point, closest_emission, w0, color);
+    if (intersected == NONE) // no intersection
+        return;
+    else if (intersected == LIGHT) // intersection with light
     {
         emission = closest_emission;
         return;
     }
 
+    // intersection with object
     light_value(bounces_left - 1, objs, lx, closest_point, wi, light_points, closest_normal, closest_emission, shadowBias);
     emission = ld + lx * fr(x, wi, w0, color);
 }
@@ -312,11 +315,13 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                 {
                     Direction variation_x = randomDir(pixelSize_x);
                     Direction variation_y = randomDir(pixelSize_y);
-                    Point pixel = topLeft - pixelSize_x * j - pixelSize_y * i - pixelSize_x / 2 - pixelSize_y / 2 + variation_x + variation_y;
+
+                    Point pixel = topLeft + pixelSize_x * j - pixelSize_y * i + pixelSize_x / 2 - pixelSize_y / 2 + variation_x + variation_y;
+
                     ray.d = (pixel - origin).normalize();
 
                     // check intersections
-                    for (auto i : objs)
+                    for (Primitive *i : objs)
                     {
                         if (i->intersect(ray, t1, sur_normal, x))
                         {
@@ -328,10 +333,7 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                                 closest_emission = Vect3(0, 0, 0);
 
                                 if (config.pathtracing)
-                                {
                                     light_value(config.bounces, objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias);
-                                }
-                                // colorValue_next_event(objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias); // With path tracing
                                 else
                                     closest_emission = i->emission; // Without path tracing
                                 intersected = true;

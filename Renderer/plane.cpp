@@ -37,7 +37,7 @@ bool Plane::intersect(Ray ray, float &t, Direction &sur_normal, Point &x)
         sur_normal = normal;
 
         Direction intersection = d * t;
-        x = ray.p + intersection;
+        x = o + intersection;
 
         if (t > 0)
             return true; // the plane is not behind

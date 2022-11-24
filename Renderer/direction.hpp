@@ -115,6 +115,13 @@ public:
     Direction crossProd(const Direction &d) const;
 
     /**
+     * @brief Direction = abs(Direction)
+     *
+     * @return Direction
+     */
+    Direction absolute() const;
+
+    /**
      * @brief operator<<
      *
      * @param os

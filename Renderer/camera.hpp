@@ -37,11 +37,18 @@ using namespace std;
  * @brief Render configuration
  *
  */
+
+enum intersectionType
+{
+    NONE,
+    OBJECT,
+    LIGHT,
+};
 struct render_config
 {
     int *resol;
     float aspect_ratio;
-    int rays;
+    int rays = 100;
     int num_tiles_x;
     int num_tiles_y;
     int tile_size{32};
@@ -100,12 +107,19 @@ public:
         botLeft = origin - U + L + F;
         botRight = origin - U - L + F;
 
-        pixelSize_x = (topLeft - topRight) / size[0];
-        pixelSize_y = (topLeft - botLeft) / size[1];
+        pixelSize_x = (topLeft - topRight).absolute() / size[0];
+        pixelSize_y = (topLeft - botLeft).absolute() / size[1];
+
+        cout << "topLeft: " << topLeft << endl;
+        cout << "topRight: " << topRight << endl;
+        cout << "botLeft: " << botLeft << endl;
+        cout << "botRight: " << botRight << endl;
+
+        cout << "pixelSize_x: " << pixelSize_x << endl;
+        cout << "pixelSize_y: " << pixelSize_y << endl;
     }
 
-    // Returns 1 if ray intersects an object, 2 if ray intersects light, 0 if ray does not intersect
-    int closestObj(vector<Primitive *> objs, Ray ray, Direction &closest_normal, Point &closest_point, Vect3 &closest_emission, Direction w0, Vect3 color) 
+    intersectionType closestObj(vector<Primitive *> objs, Ray ray, Direction &closest_normal, Point &closest_point, Vect3 &closest_emission, Direction w0, Vect3 color)
     {
         float t1, lowest_t1 = numeric_limits<float>::infinity();
         Vect3 emission;
@@ -121,7 +135,7 @@ public:
                 {
                     // ray.d = wi
                     emission = obj->p * fr(point, ray.d, w0, color);
-                    return 2;
+                    return LIGHT;
                 }
 
                 intersected = true;
@@ -135,8 +149,9 @@ public:
             }
         }
 
-        if (intersected) return 1;
-        return 0;
+        if (intersected)
+            return OBJECT;
+        return NONE;
     }
 
     /**

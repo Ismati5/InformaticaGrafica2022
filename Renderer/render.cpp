@@ -101,7 +101,7 @@ void renderScene(string file, int rays)
 
     // Default CORNELL BOX
     Point o(0, 0, -3.5);
-    Direction l(-config.aspect_ratio, 0, 0);
+    Direction l(config.aspect_ratio, 0, 0);
     Direction u(0, 1, 0);
     Direction f(0, 0, 3);
     Camera camera(l, u, f, o, config.resol);

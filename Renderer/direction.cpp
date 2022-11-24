@@ -142,6 +142,16 @@ Direction Direction::crossProd(const Direction &d) const
 }
 
 /**
+ * @brief Direction = abs(Direction)
+ *
+ * @return Direction
+ */
+Direction Direction::absolute() const
+{
+    return Direction(abs(x), abs(y), abs(z));
+}
+
+/**
  * @brief operator<<
  *
  * @param os
