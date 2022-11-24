@@ -136,7 +136,7 @@ public:
         //     return;
         // }
 
-        return kd / 255.0;
+        return (kd / 255.0);
     }
 
     /**

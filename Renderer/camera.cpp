@@ -135,12 +135,10 @@ void Camera::direct_light(vector<Primitive *> objs, Vect3 &emission,
             aux_emission = light->power / ((x - light->center).modulus() * (x - light->center).modulus());
 
             // Middle term (fr)
-            aux = fr(x, wi, w0, color);
-            aux_emission *= aux;
+            aux_emission *= (fr(x, wi, w0, color) / PI);
 
             // Right term
-            aux2 = abs(n.dotProd((light->center - x).normalize()));
-            aux_emission *= aux2;
+            aux_emission *= abs(n.dotProd((light->center - x).normalize()));
 
             emission += aux_emission;
         }
@@ -235,10 +233,10 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
     Direction axis_z = axis_y.crossProd(axis_x).normalize();
 
     // Local to global transform matrix T
-    Matrix4 T = TM_changeBase(axis_x, axis_y, axis_z, x);
+    Matrix4 T = TM_changeBase(axis_x, axis_z, axis_y, x);
 
     // Local direction ωi'
-    Direction wi(sin(theta) * sin(phi), cos(theta), sin(theta) * cos(phi));
+    Direction wi(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
 
     Vect4 wi_aux(wi);
 
@@ -269,13 +267,10 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
         {
             if (obj->isLight())
             {
-                emission = obj->p / (wi.modulus() * wi.modulus());
+                emission = obj->p;
 
                 // Middle term (fr)
                 emission *= fr(hit, wi, w0, color);
-
-                // Right term
-                emission *= abs(sur_normal.dotProd(wi.normalize()));
                 return;
             }
 
@@ -290,10 +285,10 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
         }
     }
 
+    Vect3 lx(0, 0, 0);
+
     if (!intersected)
         return;
-
-    Vect3 lx(0, 0, 0);
 
     direct_light(objs, ld, x, w0, light_points, n, color, shadowBias);
     light_value(bounces_left - 1, objs, lx, closest_point, wi, light_points, closest_normal, closest_emisson, shadowBias);
@@ -312,6 +307,8 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
  */
 void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission)
 {
+
+    srand(time(NULL));
 
     int tile, intersections;
     while ((tile = --num_tile) >= 0)
