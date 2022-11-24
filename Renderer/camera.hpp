@@ -104,6 +104,41 @@ public:
         pixelSize_y = (topLeft - botLeft) / size[1];
     }
 
+    // Returns 1 if ray intersects an object, 2 if ray intersects light, 0 if ray does not intersect
+    int closestObj(vector<Primitive *> objs, Ray ray, Direction &closest_normal, Point &closest_point, Vect3 &closest_emission, Direction w0, Vect3 color) 
+    {
+        float t1, lowest_t1 = numeric_limits<float>::infinity();
+        Vect3 emission;
+        Direction normal;
+        Point point;
+        bool intersected = false;
+
+        for (Primitive *obj : objs)
+        {
+            if (obj->intersect(ray, t1, normal, point))
+            {
+                if (obj->isLight())
+                {
+                    // ray.d = wi
+                    emission = obj->p * fr(point, ray.d, w0, color);
+                    return 2;
+                }
+
+                intersected = true;
+                if (t1 < lowest_t1)
+                {
+                    lowest_t1 = t1;
+                    closest_point = point;
+                    closest_normal = normal;
+                    closest_emission = obj->emission;
+                }
+            }
+        }
+
+        if (intersected) return 1;
+        return 0;
+    }
+
     /**
      * @brief Returns the color
      *

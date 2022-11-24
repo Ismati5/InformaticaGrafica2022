@@ -220,6 +220,14 @@ void Camera::direct_light(vector<Primitive *> objs, Vect3 &emission,
  */
 void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias)
 {
+    Vect3 ld(0, 0, 0);
+    direct_light(objs, ld, x, w0, light_points, n, color, shadowBias);
+    if (bounces_left == 0)
+    {
+        emission = ld;
+        return;
+    }
+
     // Calculate random vector
     float theta = (float)(rand()) / (float)(RAND_MAX);
     float phi = (float)(rand()) / (float)(RAND_MAX);
@@ -238,61 +246,26 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
     // Local direction ωi'
     Direction wi(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
 
+    // Change to global coordinates
     Vect4 wi_aux(wi);
+    wi = (T * wi_aux).toDirecton().normalize();
 
-    // Change to global coordinates:
-    wi_aux = T * wi_aux;
-
-    wi = wi_aux.toDirecton().normalize();
-
-    Vect3 ld(0, 0, 0);
-    if (bounces_left == 0)
-    {
-        direct_light(objs, ld, x, w0, light_points, n, color, shadowBias);
-        emission = ld;
-        return;
-    }
-
-    float t1, lowest_t1 = numeric_limits<float>::infinity();
-    Vect3 closest_emisson;
-    Direction sur_normal, closest_normal;
-    Point hit, closest_point;
-    bool intersected = false;
+    Point closest_point;
+    Vect3 closest_emission;
+    Direction closest_normal;
 
     Ray ray(wi, x);
-
-    for (Primitive *obj : objs)
-    {
-        if (obj->intersect(ray, t1, sur_normal, hit))
-        {
-            if (obj->isLight())
-            {
-                emission = obj->p;
-
-                // Middle term (fr)
-                emission *= fr(hit, wi, w0, color);
-                return;
-            }
-
-            intersected = true;
-            if (t1 < lowest_t1)
-            {
-                lowest_t1 = t1;
-                closest_point = hit;
-                closest_normal = sur_normal;
-                closest_emisson = obj->emission;
-            }
-        }
-    }
-
     Vect3 lx(0, 0, 0);
 
-    if (!intersected)
+    int intersected = closestObj(objs, ray, closest_normal, closest_point, closest_emission, w0, color);
+    if (intersected == 0) return; // no intersection
+    else if (intersected == 2)    // intersection with light
+    {
+        emission = closest_emission;
         return;
+    }
 
-    direct_light(objs, ld, x, w0, light_points, n, color, shadowBias);
-    light_value(bounces_left - 1, objs, lx, closest_point, wi, light_points, closest_normal, closest_emisson, shadowBias);
-
+    light_value(bounces_left - 1, objs, lx, closest_point, wi, light_points, closest_normal, closest_emission, shadowBias);
     emission = ld + lx * fr(x, wi, w0, color);
 }
 
