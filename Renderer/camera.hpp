@@ -111,6 +111,19 @@ public:
         pixelSize_y = (topLeft - botLeft) / size[1];
     }
 
+    /**
+     * @brief Intersects ray with scene
+     *
+     * @param objs
+     * @param ray
+     * @param closest_normal
+     * @param closest_point
+     * @param closest_emission
+     * @param w0
+     * @param color
+     * @param name
+     * @return intersectionType
+     */
     intersectionType closestObj(vector<Primitive *> objs, Ray ray, Direction &closest_normal,
                                 Point &closest_point, Vect3 &closest_emission, Direction w0, Vect3 color, string &name);
 

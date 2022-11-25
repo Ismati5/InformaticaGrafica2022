@@ -32,11 +32,11 @@ Vect3 green_p = Vect3(119, 221, 119);
 Vect3 purple_p = Vect3(177, 162, 202);
 Vect3 light_grey_p = Vect3(238, 238, 238);
 
-Vect3 red = Vect3(254, 0, 0);
-Vect3 blue = Vect3(141, 255, 255);
-Vect3 green = Vect3(0, 255, 1);
-Vect3 purple = Vect3(228, 170, 255);
-Vect3 light_grey = Vect3(250, 250, 250);
+Vect3 red = Vect3(204, 0, 0);
+Vect3 blue = Vect3(143, 255, 255);
+Vect3 green = Vect3(0, 255, 0);
+Vect3 purple = Vect3(228, 172, 255);
+Vect3 light_grey = Vect3(231, 230, 230);
 
 Vect3 yellow = Vect3(233, 236, 107);
 Vect3 dark_blue = Vect3(0, 23, 49);
@@ -87,7 +87,7 @@ void renderScene(string file, int rays)
     vector<Light *> lights;
     render_config config;
 
-    config.resol = Resol_256;
+    config.resol = Resol_400;
     config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
@@ -97,7 +97,7 @@ void renderScene(string file, int rays)
     config.pathtracing = true;
     config.start = clock();
     config.num_threads = 12;
-    config.bounces = 5;
+    config.bounces = 4;
 
     // Default CORNELL BOX
     Point o(0, 0, -3.5);
@@ -107,7 +107,7 @@ void renderScene(string file, int rays)
     Camera camera(l, u, f, o, config.resol);
 
     Light light(Point(0, 0.5, 0), Vect3(500, 500, 500));
-    // lights.push_back(&light);
+    lights.push_back(&light);
 
     Plane left_plane(Direction(1, 0, 0), 1, red, "red_plane");
     objs.push_back(&left_plane);
@@ -119,7 +119,7 @@ void renderScene(string file, int rays)
     objs.push_back(&floor_plane);
 
     Plane ceiling_plane(Direction(0, -1, 0), 1, light_grey, "ceiling_plane");
-    ceiling_plane.setPower(Vect3(500, 500, 500));
+    // ceiling_plane.setPower(Vect3(255, 255, 255));
     objs.push_back(&ceiling_plane);
 
     Plane back_plane(Direction(0, 0, -1), 1, light_grey, "back_plane");

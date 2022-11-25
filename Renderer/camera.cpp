@@ -78,6 +78,19 @@ Direction Camera::randomDir(Direction pixelSize)
     return Direction(ray_x, ray_y, ray_z);
 }
 
+/**
+ * @brief Intersects ray with scene
+ *
+ * @param objs
+ * @param ray
+ * @param closest_normal
+ * @param closest_point
+ * @param closest_emission
+ * @param w0
+ * @param color
+ * @param name
+ * @return intersectionType
+ */
 intersectionType Camera::closestObj(vector<Primitive *> objs, Ray ray, Direction &closest_normal, Point &closest_point,
                                     Vect3 &closest_emission, Direction w0, Vect3 color, string &name)
 {
@@ -87,19 +100,12 @@ intersectionType Camera::closestObj(vector<Primitive *> objs, Ray ray, Direction
     Point point;
     bool intersected = false;
 
+    intersectionType closest_type;
+
     for (Primitive *obj : objs)
     {
         if (obj->intersect(ray, t1, normal, point))
         {
-            if (obj->isLight())
-            {
-                closest_point = point;
-                closest_normal = normal;
-                name = obj->name;
-                closest_emission = obj->p * fr(closest_point, ray.d, w0, color);
-                return LIGHT;
-            }
-
             intersected = true;
 
             if (t1 < lowest_t1)
@@ -109,12 +115,22 @@ intersectionType Camera::closestObj(vector<Primitive *> objs, Ray ray, Direction
                 closest_normal = normal;
                 closest_emission = obj->emission;
                 name = obj->name;
+
+                if (obj->isLight())
+                {
+                    closest_type = LIGHT;
+                    closest_emission = obj->p * fr(closest_point, ray.d, w0, color);
+                }
+
+                else
+                    closest_type = OBJECT;
             }
         }
     }
 
     if (intersected)
-        return OBJECT;
+        return closest_type;
+
     return NONE;
 }
 
@@ -201,8 +217,6 @@ void Camera::direct_light(vector<Primitive *> objs, Vect3 &emission,
 void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0,
                          vector<Light *> light_points, Direction n, Vect3 color, float shadowBias, string name)
 {
-    Vect3 ld(0, 0, 0);
-    direct_light(objs, ld, x, w0, light_points, n, color, shadowBias);
 
     // Calculate random vector
     float theta = (float)(rand()) / (float)(RAND_MAX);
@@ -232,7 +246,11 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
     string closest_name;
 
     Ray ray(wi, x);
-    Vect3 lx(0, 0, 0);
+
+    Vect3 ld(0, 0, 0), lx(0, 0, 0);
+
+    // Light from point sources
+    direct_light(objs, ld, x, w0, light_points, n, color, shadowBias);
 
     /*cout << "x: " << x << endl;
     cout << "n: " << n << endl;
@@ -240,7 +258,7 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
     cout << "bounces left: " << bounces_left << endl;
     cout << "wi: " << wi << endl;*/
 
-    if (bounces_left == 0)
+    if (bounces_left == 0) // If it's last bounce
     {
         emission = ld;
         // cout << "F - Emission from: " << name << " = " << emission << " (ld = " << ld << ")" << endl;
@@ -249,12 +267,12 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
 
     intersectionType intersected = closestObj(objs, ray, closest_normal, closest_point, closest_emission, w0, color, closest_name);
 
-    if (intersected == NONE) // no intersection
+    if (intersected == NONE) // No intersection with scene
     {
         emission = Vect3(0, 0, 0);
         return;
     }
-    else if (intersected == LIGHT) // intersection with light
+    else if (intersected == LIGHT) // Intersection with area light
     {
         emission = closest_emission;
         return;
@@ -319,6 +337,8 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                     string closest_name;
                     Point closest_x;
                     Vect3 closest_color;
+                    bool closestLight = false;
+                    Vect3 closestPower;
 
                     closest_emission = Vect3(0, 0, 0);
 
@@ -329,6 +349,14 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                             if (t1 < lowest_t1)
                             {
                                 lowest_t1 = t1;
+
+                                if (i->isLight())
+                                {
+                                    closestLight = true;
+                                    closestPower = i->p;
+                                }
+                                else
+                                    closestLight = false;
 
                                 closest_color = i->emission;
                                 closest_name = i->name;
@@ -349,7 +377,10 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                         if (config.pathtracing)
                         {
 
-                            light_value(config.bounces, objs, closest_emission, closest_x, w0, lights, closest_normal, closest_color, config.shadow_bias, closest_name);
+                            if (!closestLight)
+                                light_value(config.bounces, objs, closest_emission, closest_x, w0, lights, closest_normal, closest_color, config.shadow_bias, closest_name);
+                            else
+                                closest_emission = (closestPower / 1.0) * fr(closest_x, ray.d, w0, closest_color);
 
                             /*cout << "Hit with " << closest_name << endl;
                             cout << "Total emission: " << closest_emission << " from ray " << r << endl
