@@ -221,7 +221,7 @@ void Camera::direct_light(vector<Primitive *> objs, Vect3 &emission,
  * @param color
  * @param shadowBias
  */
-void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0,
+void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0,
                          vector<Light *> light_points, Direction n, Vect3 color, float shadowBias, string name, Material material)
 {
 
@@ -256,11 +256,6 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
 
     Vect3 ld(0, 0, 0), lx(0, 0, 0);
 
-    /*cout << "x: " << x << endl;
-    cout << "n: " << n << endl;
-    cout << "name: " << name << endl;
-    cout << "wi: " << wi << endl;*/
-
     materialType material_type;
     Vect3 brdf = fr(x, wi, w0, material, material_type);
 
@@ -271,18 +266,17 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
     }
     else if (material_type == SPECULAR)
     {
-        wi = (w0 - n * 2 * (w0.dotProd(n))).normalize();
+        wi = (w0 - n * 2 * (w0.dotProd(n))).normalize(); // No se por que no va
     }
+
+    /*cout << "x: " << x << endl;
+    cout << "n: " << n << endl;
+    cout << "name: " << name << endl;
+    cout << "w0: " << w0 << endl;
+    cout << "wi: " << wi << endl;*/
 
     // Light from point sources
     direct_light(objs, ld, x, w0, light_points, n, color, shadowBias, material);
-
-    /*if (bounces_left == 0) // If it's last bounce
-    {
-        emission = ld;
-        // cout << "F - Emission from: " << name << " = " << emission << " (ld = " << ld << ")" << endl;
-        return;
-    }*/
 
     Material material_aux;
 
@@ -299,7 +293,7 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
         return;
     }
 
-    light_value(bounces_left, objs, lx, closest_point, wi, light_points, closest_normal, closest_emission, shadowBias, closest_name, material_aux);
+    light_value(objs, lx, closest_point, wi, light_points, closest_normal, closest_emission, shadowBias, closest_name, material_aux);
 
     emission = ld + lx * brdf;
     // cout << "B - Emission from: " << name << " = " << emission << " (ld = " << ld << ", fr = " << brdf << ", lx = " << lx << ")" << endl;
@@ -402,7 +396,7 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                         {
 
                             if (!closest_light)
-                                light_value(config.bounces, objs, closest_emission, closest_x, w0, lights, closest_normal, closest_material.kd, config.shadow_bias, closest_name, closest_material);
+                                light_value(objs, closest_emission, closest_x, w0, lights, closest_normal, closest_material.kd, config.shadow_bias, closest_name, closest_material);
                             else
                                 closest_emission = closest_power * fr(closest_x, ray.d, w0, closest_material, material_type);
 

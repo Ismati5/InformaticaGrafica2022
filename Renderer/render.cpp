@@ -26,6 +26,7 @@
 
 using namespace std;
 
+// Colors
 Vect3 red_p = Vect3(250, 35, 43);
 Vect3 blue_p = Vect3(153, 255, 255);
 Vect3 green_p = Vect3(119, 221, 119);
@@ -45,16 +46,12 @@ Vect3 orange = Vect3(255, 153, 51);
 Vect3 white = Vect3(255, 255, 255);
 Vect3 black = Vect3(0, 0, 0);
 
-Vect3 yellow_backroom_floor = Vect3(198, 197, 139);
-Vect3 yellow_backroom_wall = Vect3(228, 230, 168);
-Vect3 yellow_backroom_ceiling = Vect3(225, 226, 187);
-
-// Textures
+// Materials
 Material diff_red(red, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
 Material diff_blue(blue, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
 Material diff_green(green, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
 Material diff_light_grey(light_grey, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
-Material diff_spec_blue(blue, blue, Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
+Material diff_spec_blue(blue, white, Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
 Material spec_refr(Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 1.5, 0.2);
 
 // 32:9
@@ -104,8 +101,7 @@ void renderScene(string file, int rays)
     config.outfile = file;
     config.pathtracing = true;
     config.start = clock();
-    config.num_threads = 12;
-    config.bounces = 4;
+    config.num_threads = 1;
 
     // Default CORNELL BOX
     Point o(0, 0, -3.5);
@@ -133,11 +129,11 @@ void renderScene(string file, int rays)
     Plane back_plane(Direction(0, 0, -1), 1, "back_plane", diff_light_grey);
     objs.push_back(&back_plane);
 
-    Sphere left_sphere(Point(-0.5, -0.7, 0.25), 0.3, "purple_sphere", diff_spec_blue);
-    // objs.push_back(&left_sphere);
+    Sphere left_sphere(Point(-0.5, -0.7, 0.25), 0.3, "blue_plastic_sphere", diff_spec_blue);
+    objs.push_back(&left_sphere);
 
-    Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "blue_sphere", spec_refr);
-    objs.push_back(&right_sphere);
+    Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "refractin_sphere", spec_refr);
+    // objs.push_back(&right_sphere);
 
     // TEST F1 y Tree
 

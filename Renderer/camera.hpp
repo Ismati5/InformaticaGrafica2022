@@ -57,7 +57,6 @@ struct render_config
     string outfile;
     bool pathtracing;
     unsigned start;
-    int bounces = 50;
 
     float max_distance = 9999;
     int num_threads = thread::hardware_concurrency();
@@ -195,7 +194,7 @@ public:
      * @param color
      * @param shadowBias
      */
-    void light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emission,
+    void light_value(vector<Primitive *> objs, Vect3 &emission,
                      Point x, Direction w0, vector<Light *> light_points, Direction n,
                      Vect3 color, float shadowBias, string name, Material material);
 
