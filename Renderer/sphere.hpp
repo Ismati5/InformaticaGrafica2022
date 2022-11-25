@@ -34,11 +34,12 @@ public:
      * @param radius
      * @param emi
      */
-    Sphere(Point center, float radius, Vect3 emi)
+    Sphere(Point center, float radius, Vect3 emi, string id)
         : center(center), radius(radius)
     {
         type = 1;
         emission = emi;
+        name = id;
     }
 
     /**

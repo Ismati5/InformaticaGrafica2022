@@ -33,11 +33,12 @@ public:
      * @param c
      * @param emi
      */
-    Plane(Direction _normal, float c, Vect3 emi) : c(c)
+    Plane(Direction _normal, float c, Vect3 emi, string id) : c(c)
     {
         type = 0;
         normal = _normal;
         emission = emi;
+        name = id;
     }
 
     /**

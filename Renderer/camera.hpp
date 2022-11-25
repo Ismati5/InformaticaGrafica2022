@@ -105,7 +105,7 @@ public:
     }
 
     // Returns 1 if ray intersects an object, 2 if ray intersects light, 0 if ray does not intersect
-    int closestObj(vector<Primitive *> objs, Ray ray, Direction &closest_normal, Point &closest_point, Vect3 &closest_emission, Direction w0, Vect3 color) 
+    int closestObj(vector<Primitive *> objs, Ray ray, Direction &closest_normal, Point &closest_point, Vect3 &closest_emission, Direction w0, Vect3 color, string &name)
     {
         float t1, lowest_t1 = numeric_limits<float>::infinity();
         Vect3 emission;
@@ -131,11 +131,13 @@ public:
                     closest_point = point;
                     closest_normal = normal;
                     closest_emission = obj->emission;
+                    name = obj->name;
                 }
             }
         }
 
-        if (intersected) return 1;
+        if (intersected)
+            return 1;
         return 0;
     }
 
@@ -204,7 +206,7 @@ public:
      */
     void light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emission,
                      Point x, Direction w0, vector<Light *> light_points, Direction n,
-                     Vect3 color, float shadowBias);
+                     Vect3 color, float shadowBias, string name);
 
     /**
      * @brief Creates a random Direction

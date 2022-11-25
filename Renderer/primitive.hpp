@@ -29,6 +29,8 @@ public:
     Vect3 p;
     int type;
 
+    string name = "none";
+
     /**
      * @brief intersect interface
      *
@@ -40,13 +42,14 @@ public:
      */
     virtual bool intersect(Ray ray, float &t, Direction &sur_normal, Point &x) = 0;
 
-    bool isLight(){
+    bool isLight()
+    {
         return is_light;
     }
 
-    void setPower(Vect3 p){
+    void setPower(Vect3 p)
+    {
         p = p;
         is_light = true;
     }
-
 };

@@ -218,15 +218,11 @@ void Camera::direct_light(vector<Primitive *> objs, Vect3 &emission,
  * @param color
  * @param shadowBias
  */
-void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0, vector<Light *> light_points, Direction n, Vect3 color, float shadowBias)
+void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0,
+                         vector<Light *> light_points, Direction n, Vect3 color, float shadowBias, string name)
 {
     Vect3 ld(0, 0, 0);
     direct_light(objs, ld, x, w0, light_points, n, color, shadowBias);
-    if (bounces_left == 0)
-    {
-        emission = ld;
-        return;
-    }
 
     // Calculate random vector
     float theta = (float)(rand()) / (float)(RAND_MAX);
@@ -236,12 +232,12 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
     phi = 2 * PI * phi;
 
     // Local coordinate system
-    Direction axis_y = n.normalize();
-    Direction axis_x = w0.crossProd(axis_y).normalize();
-    Direction axis_z = axis_y.crossProd(axis_x).normalize();
+    Direction axis_z = n.normalize();
+    Direction axis_x = w0.crossProd(n).normalize();
+    Direction axis_y = axis_z.crossProd(axis_x).normalize();
 
     // Local to global transform matrix T
-    Matrix4 T = TM_changeBase(axis_x, axis_z, axis_y, x);
+    Matrix4 T = TM_changeBase(axis_x, axis_y, axis_z, x);
 
     // Local direction ωi'
     Direction wi(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
@@ -253,20 +249,41 @@ void Camera::light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emis
     Point closest_point;
     Vect3 closest_emission;
     Direction closest_normal;
+    string closest_name;
 
     Ray ray(wi, x);
     Vect3 lx(0, 0, 0);
 
-    int intersected = closestObj(objs, ray, closest_normal, closest_point, closest_emission, w0, color);
-    if (intersected == 0) return; // no intersection
-    else if (intersected == 2)    // intersection with light
+    /*cout << "x: " << x << endl;
+    cout << "n: " << n << endl;
+    cout << "name: " << name << endl;
+    cout << "bounces left: " << bounces_left << endl;
+    cout << "wi: " << wi << endl;*/
+
+    if (bounces_left == 0)
+    {
+        emission = ld;
+        cout << "F - Emission from: " << name << " = " << emission << " (ld = " << ld << ")" << endl;
+        return;
+    }
+
+    int intersected = closestObj(objs, ray, closest_normal, closest_point, closest_emission, w0, color, closest_name);
+
+    if (intersected == 0) // no intersection
+    {
+        emission = Vect3(0, 0, 0);
+        return;
+    }
+    else if (intersected == 2) // intersection with light
     {
         emission = closest_emission;
         return;
     }
 
-    light_value(bounces_left - 1, objs, lx, closest_point, wi, light_points, closest_normal, closest_emission, shadowBias);
+    light_value(bounces_left - 1, objs, lx, closest_point, wi, light_points, closest_normal, closest_emission, shadowBias, closest_name);
     emission = ld + lx * fr(x, wi, w0, color);
+
+    cout << "B - Emission from: " << name << " = " << emission << " (ld = " << ld << ", fr = " << fr(x, wi, w0, color) << ", lx = " << lx << ")" << endl;
 }
 
 /**
@@ -316,7 +333,16 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                     ray.d = (pixel - origin).normalize();
 
                     // check intersections
-                    for (auto i : objs)
+
+                    Direction w0;
+                    Direction closest_normal;
+                    string closest_name;
+                    Point closest_x;
+                    Vect3 closest_color;
+
+                    closest_emission = Vect3(0, 0, 0);
+
+                    for (Primitive *i : objs)
                     {
                         if (i->intersect(ray, t1, sur_normal, x))
                         {
@@ -324,16 +350,12 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                             {
                                 lowest_t1 = t1;
 
-                                Direction w0 = (origin - x).normalize();
-                                closest_emission = Vect3(0, 0, 0);
+                                closest_color = i->emission;
+                                closest_name = i->name;
+                                closest_normal = sur_normal;
+                                closest_x = x;
 
-                                if (config.pathtracing)
-                                {
-                                    light_value(config.bounces, objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias);
-                                }
-                                // colorValue_next_event(objs, closest_emission, x, w0, lights, sur_normal, i->emission, config.shadow_bias); // With path tracing
-                                else
-                                    closest_emission = i->emission; // Without path tracing
+                                w0 = (origin - x).normalize();
                                 intersected = true;
                             }
                         }
@@ -341,6 +363,22 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
 
                     if (intersected)
                     {
+
+                        if (config.pathtracing)
+                        {
+
+                            light_value(config.bounces, objs, closest_emission, closest_x, w0, lights, closest_normal, closest_color, config.shadow_bias, closest_name);
+
+                            cout << "Hit with " << closest_name << endl;
+                            cout << "Total emission: " << closest_emission << " from ray " << r << endl
+                                 << endl
+                                 << endl;
+                            char a;
+                            cin >> a;
+                        }
+                        else
+                            closest_emission = closest_color; // Without path tracing
+
                         intersections++;
                         total_emission += closest_emission;
                         intersected = false;
@@ -350,7 +388,12 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                 if (intersections > 0)
                 {
 
-                    total_emission /= intersections;
+                    cout << endl
+                         << "@@@ Final TOTAL: "
+                         << total_emission << " from " << intersections << " intersections. @@@" << endl
+                         << endl;
+
+                    total_emission /= (float)intersections;
 
                     if (max_emission < round(total_emission.x))
                         max_emission = round(total_emission.x);
