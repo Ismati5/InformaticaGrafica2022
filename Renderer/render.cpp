@@ -87,7 +87,7 @@ void renderScene(string file, int rays)
     vector<Light *> lights;
     render_config config;
 
-    config.resol = Resol_50;
+    config.resol = Resol_256;
     config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
@@ -96,8 +96,8 @@ void renderScene(string file, int rays)
     config.outfile = file;
     config.pathtracing = true;
     config.start = clock();
-    config.num_threads = 1;
-    config.bounces = 1;
+    config.num_threads = 12;
+    config.bounces = 5;
 
     // Default CORNELL BOX
     Point o(0, 0, -3.5);
@@ -107,7 +107,7 @@ void renderScene(string file, int rays)
     Camera camera(l, u, f, o, config.resol);
 
     Light light(Point(0, 0.5, 0), Vect3(500, 500, 500));
-    lights.push_back(&light);
+    // lights.push_back(&light);
 
     Plane left_plane(Direction(1, 0, 0), 1, red, "red_plane");
     objs.push_back(&left_plane);
@@ -119,17 +119,17 @@ void renderScene(string file, int rays)
     objs.push_back(&floor_plane);
 
     Plane ceiling_plane(Direction(0, -1, 0), 1, light_grey, "ceiling_plane");
-    // ceiling_plane.setPower(Vect3(500, 500, 500));
+    ceiling_plane.setPower(Vect3(500, 500, 500));
     objs.push_back(&ceiling_plane);
 
     Plane back_plane(Direction(0, 0, -1), 1, light_grey, "back_plane");
     objs.push_back(&back_plane);
 
     Sphere left_sphere(Point(-0.5, -0.7, 0.25), 0.3, purple, "purple_sphere");
-    // objs.push_back(&left_sphere);
+    objs.push_back(&left_sphere);
 
     Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, blue, "blue_sphere");
-    // objs.push_back(&right_sphere);
+    objs.push_back(&right_sphere);
 
     // TEST F1 y Tree
 

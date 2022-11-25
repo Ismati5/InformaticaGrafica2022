@@ -47,9 +47,9 @@ public:
         return is_light;
     }
 
-    void setPower(Vect3 p)
+    void setPower(Vect3 _p)
     {
-        p = p;
+        p = _p;
         is_light = true;
     }
 };

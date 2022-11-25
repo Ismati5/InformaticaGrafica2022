@@ -115,13 +115,21 @@ public:
     Direction crossProd(const Direction &d) const;
 
     /**
+     * @brief Direction = abs(Direction)
+     *
+     * @return Direction
+     */
+    Direction absolute() const;
+
+    /**
      * @brief operator<<
      *
      * @param os
      * @param d
      * @return std::ostream&
      */
-    friend std::ostream &operator<<(std::ostream &os, const Direction &d);
+    friend std::ostream &
+    operator<<(std::ostream &os, const Direction &d);
 };
 
 std::ostream &operator<<(std::ostream &os, const Direction &d);
