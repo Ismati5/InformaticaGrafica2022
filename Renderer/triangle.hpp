@@ -44,9 +44,10 @@ public:
      * @param p2
      * @param p3
      */
-    Triangle(Point p1, Point p2, Point p3, Vect3 emi)
+    Triangle(Point p1, Point p2, Point p3, Texture texture_)
         : p1(p1), p2(p2), p3(p3)
     {
+        setTexture(texture_);
         type = 2;
         Direction A = p2 - p1;
         Direction B = p3 - p1;
@@ -54,8 +55,6 @@ public:
         normal.normalize();
 
         c = -(normal.x * p1.x + normal.y * p1.y + normal.z * p1.z);
-
-        emission = emi;
     }
 
     void sertNormal()
@@ -66,16 +65,6 @@ public:
         normal.normalize();
 
         c = -(normal.x * p1.x + normal.y * p1.y + normal.z * p1.z);
-    }
-
-    /**
-     * @brief Set the Emission of the object
-     *
-     * @param emi
-     */
-    void setEmission(Vect3 emi)
-    {
-        emission = emi;
     }
 
     /**

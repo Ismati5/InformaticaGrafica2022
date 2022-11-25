@@ -49,6 +49,14 @@ Vect3 yellow_backroom_floor = Vect3(198, 197, 139);
 Vect3 yellow_backroom_wall = Vect3(228, 230, 168);
 Vect3 yellow_backroom_ceiling = Vect3(225, 226, 187);
 
+
+// Textures
+Texture diff_red(red, Vect3(0,0,0), Vect3(0,0,0), Vect3(0,0,0), Vect3(1, 0, 0), 0);
+Texture diff_green(green, Vect3(0,0,0), Vect3(0,0,0), Vect3(0,0,0), Vect3(1, 0, 0), 0);
+Texture diff_white(white, Vect3(0,0,0), Vect3(0,0,0), Vect3(0,0,0), Vect3(1, 0, 0), 0);
+Texture diff_spec_blue(blue, Vect3(0,0,0), Vect3(0,0,0), Vect3(0,0,0), Vect3(0.5, 0.5, 0), 0);
+Texture spec_refr(Vect3(0,0,0), Vect3(0,0,0), Vect3(0,0,0), Vect3(0,0,0), Vect3(0, 0.5, 0.5), 1.5);
+
 // 32:9
 int Resol_4K_p[2] = {4096 * 2, 2160};
 int Resol_1080_p[2] = {1920 * 2, 1080};
@@ -109,26 +117,26 @@ void renderScene(string file, int rays)
     Light light(Point(0, 0.5, 0), Vect3(500, 500, 500));
     lights.push_back(&light);
 
-    Plane left_plane(Direction(1, 0, 0), 1, red, "red_plane");
+    Plane left_plane(Direction(1, 0, 0), 1, "red_plane", diff_red);
     objs.push_back(&left_plane);
 
-    Plane right_plane(Direction(-1, 0, 0), 1, green, "green_plane");
+    Plane right_plane(Direction(-1, 0, 0), 1, "green_plane", diff_green);
     objs.push_back(&right_plane);
 
-    Plane floor_plane(Direction(0, 1, 0), 1, light_grey, "floor_plane");
+    Plane floor_plane(Direction(0, 1, 0), 1, "floor_plane", diff_white);
     objs.push_back(&floor_plane);
 
-    Plane ceiling_plane(Direction(0, -1, 0), 1, light_grey, "ceiling_plane");
+    Plane ceiling_plane(Direction(0, -1, 0), 1, "ceiling_plane", diff_white);
     // ceiling_plane.setPower(Vect3(255, 255, 255));
     objs.push_back(&ceiling_plane);
 
-    Plane back_plane(Direction(0, 0, -1), 1, light_grey, "back_plane");
+    Plane back_plane(Direction(0, 0, -1), 1, "back_plane", diff_white);
     objs.push_back(&back_plane);
 
-    Sphere left_sphere(Point(-0.5, -0.7, 0.25), 0.3, purple, "purple_sphere");
+    Sphere left_sphere(Point(-0.5, -0.7, 0.25), 0.3, "purple_sphere", diff_spec_blue);
     objs.push_back(&left_sphere);
 
-    Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, blue, "blue_sphere");
+    Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "blue_sphere", spec_refr);
     objs.push_back(&right_sphere);
 
     // TEST F1 y Tree

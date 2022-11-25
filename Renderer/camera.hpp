@@ -125,7 +125,7 @@ public:
      * @return intersectionType
      */
     intersectionType closestObj(vector<Primitive *> objs, Ray ray, Direction &closest_normal,
-                                Point &closest_point, Vect3 &closest_emission, Direction w0, Vect3 color, string &name);
+                                Point &closest_point, Vect3 &closest_emission, Direction w0, Vect3 color, string &name, Texture texture);
 
     /**
      * @brief Returns the color
@@ -136,30 +136,29 @@ public:
      * @param kd
      * @return Vect3
      */
-    Vect3 fr(Point x, Direction wi, Direction w0, Vect3 kd)
+    Vect3 fr(Point x, Direction wi, Direction w0, Texture texture, bool &absorbed)
     {
 
-        // int absortion = 1 - (pd + ps + pt);
-        // ps += pd;
-        // pt += ps;
+        return texture.kd / 255.0; // pa que siga funcionando de momento
 
-        // int type = (float)(rand()) / (float)(RAND_MAX);
-        // switch (type)
-        // {
-        // case type <= pd: // Diffuse
-        //     return kd / 255.0;
+        // en obras, que miras mamawebo
+        int type = texture.getMatType();
 
-        // case type <= ps: // Specular
-        //     return ks * ();
+        switch (type)
+        {
+        case 0: // diffuse
+            return texture.kd / 255.0;
+        case 1: // specular
 
-        // case type <= pt: // Reflection
+            break;
+        case 2: // reflect
 
-        // default:        // Absortion
-        //     absorbed = true;
-        //     return;
-        // }
+            break;
+        case 3: // absorbed
+            absorbed = true;
+            return Vect3(0,0,0);
+        }
 
-        return (kd / 255.0);
     }
 
     /**
@@ -175,7 +174,7 @@ public:
      */
     void direct_light(vector<Primitive *> objs, Vect3 &emission,
                       Point x, Direction w0, vector<Light *> light_points,
-                      Direction n, Vect3 color, float shadowBias);
+                      Direction n, Vect3 color, float shadowBias, Texture texture);
 
     /**
      * @brief Light value emission
@@ -192,7 +191,7 @@ public:
      */
     void light_value(int bounces_left, vector<Primitive *> objs, Vect3 &emission,
                      Point x, Direction w0, vector<Light *> light_points, Direction n,
-                     Vect3 color, float shadowBias, string name);
+                     Vect3 color, float shadowBias, string name, Texture texture);
 
     /**
      * @brief Creates a random Direction

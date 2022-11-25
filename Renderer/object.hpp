@@ -28,16 +28,15 @@ using namespace std;
 class Object
 {
 public:
-    Vect3 emission;
     int numPolygons;
     string name;
+    Texture texture;
     Triangle triangles[MAX_POLYGON];
 
     Point c;
 
-    Object(string _name, string obj, Vect3 color)
+    Object(string _name, string obj, Texture texture_)
     {
-        emission = color;
         name = _name;
 
         c = Point(0, 0, 0);
@@ -87,8 +86,8 @@ public:
             triangles[e].p1 = vertexes.at(i.x - 1);
             triangles[e].p2 = vertexes.at(i.y - 1);
             triangles[e].p3 = vertexes.at(i.z - 1);
-            triangles[e].setEmission(emission);
             triangles[e].sertNormal();
+            triangles[e].setTexture(texture_);
             e++;
         }
 

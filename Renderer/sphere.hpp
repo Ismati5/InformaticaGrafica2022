@@ -34,12 +34,12 @@ public:
      * @param radius
      * @param emi
      */
-    Sphere(Point center, float radius, Vect3 emi, string id)
+    Sphere(Point center, float radius, string id, Texture texture_)
         : center(center), radius(radius)
     {
         type = 1;
-        emission = emi;
         name = id;
+        setTexture(texture_);
     }
 
     /**
@@ -49,9 +49,10 @@ public:
      * @param center
      * @param reference
      */
-    Sphere(Direction axis, Point center, Point reference, Vect3 emi)
+    Sphere(Direction axis, Point center, Point reference, Texture texture_)
         : axis(axis), center(center), reference(reference)
     {
+        setTexture(texture_);
         Direction radius1 = axis / 2;
         Direction radius2 = reference - center;
 
@@ -63,8 +64,6 @@ public:
         {
             radius = radius2.modulus();
         }
-
-        emission = emi;
     }
 
     /**
