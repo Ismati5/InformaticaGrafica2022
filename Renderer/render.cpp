@@ -49,13 +49,13 @@ Vect3 yellow_backroom_floor = Vect3(198, 197, 139);
 Vect3 yellow_backroom_wall = Vect3(228, 230, 168);
 Vect3 yellow_backroom_ceiling = Vect3(225, 226, 187);
 
-
 // Textures
-Texture diff_red(red, Vect3(0,0,0), Vect3(0,0,0), Vect3(0,0,0), Vect3(1, 0, 0), 0);
-Texture diff_green(green, Vect3(0,0,0), Vect3(0,0,0), Vect3(0,0,0), Vect3(1, 0, 0), 0);
-Texture diff_white(white, Vect3(0,0,0), Vect3(0,0,0), Vect3(0,0,0), Vect3(1, 0, 0), 0);
-Texture diff_spec_blue(blue, Vect3(0,0,0), Vect3(0,0,0), Vect3(0,0,0), Vect3(0.5, 0.5, 0), 0);
-Texture spec_refr(Vect3(0,0,0), Vect3(0,0,0), Vect3(0,0,0), Vect3(0,0,0), Vect3(0, 0.5, 0.5), 1.5);
+Material diff_red(red, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
+Material diff_blue(blue, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
+Material diff_green(green, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
+Material diff_light_grey(light_grey, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
+Material diff_spec_blue(blue, blue, Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
+Material spec_refr(Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 1.5, 0.2);
 
 // 32:9
 int Resol_4K_p[2] = {4096 * 2, 2160};
@@ -95,7 +95,7 @@ void renderScene(string file, int rays)
     vector<Light *> lights;
     render_config config;
 
-    config.resol = Resol_400;
+    config.resol = Resol_256;
     config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
@@ -123,18 +123,18 @@ void renderScene(string file, int rays)
     Plane right_plane(Direction(-1, 0, 0), 1, "green_plane", diff_green);
     objs.push_back(&right_plane);
 
-    Plane floor_plane(Direction(0, 1, 0), 1, "floor_plane", diff_white);
+    Plane floor_plane(Direction(0, 1, 0), 1, "floor_plane", diff_light_grey);
     objs.push_back(&floor_plane);
 
-    Plane ceiling_plane(Direction(0, -1, 0), 1, "ceiling_plane", diff_white);
+    Plane ceiling_plane(Direction(0, -1, 0), 1, "ceiling_plane", diff_light_grey);
     // ceiling_plane.setPower(Vect3(255, 255, 255));
     objs.push_back(&ceiling_plane);
 
-    Plane back_plane(Direction(0, 0, -1), 1, "back_plane", diff_white);
+    Plane back_plane(Direction(0, 0, -1), 1, "back_plane", diff_light_grey);
     objs.push_back(&back_plane);
 
     Sphere left_sphere(Point(-0.5, -0.7, 0.25), 0.3, "purple_sphere", diff_spec_blue);
-    objs.push_back(&left_sphere);
+    // objs.push_back(&left_sphere);
 
     Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "blue_sphere", spec_refr);
     objs.push_back(&right_sphere);

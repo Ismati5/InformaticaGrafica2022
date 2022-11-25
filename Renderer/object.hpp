@@ -30,12 +30,12 @@ class Object
 public:
     int numPolygons;
     string name;
-    Texture texture;
+    Material material;
     Triangle triangles[MAX_POLYGON];
 
     Point c;
 
-    Object(string _name, string obj, Texture texture_)
+    Object(string _name, string obj, Material mat)
     {
         name = _name;
 
@@ -87,7 +87,7 @@ public:
             triangles[e].p2 = vertexes.at(i.y - 1);
             triangles[e].p3 = vertexes.at(i.z - 1);
             triangles[e].sertNormal();
-            triangles[e].setTexture(texture_);
+            triangles[e].setMaterial(mat);
             e++;
         }
 

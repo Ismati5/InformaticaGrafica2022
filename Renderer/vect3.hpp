@@ -116,6 +116,13 @@ public:
     const Vect3 &operator/=(const float s);
 
     /**
+     * @brief Returns max vector value
+     *
+     * @return const float
+     */
+    const float maxValue();
+
+    /**
      * @brief operator<<
      *
      * @param os

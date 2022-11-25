@@ -1,5 +1,5 @@
 /**
- * @file texture.cpp
+ * @file material.cpp
  * @author Adrián Yago & Ismael Tienda
  * @brief
  * @version 0.1
@@ -8,5 +8,4 @@
  * @copyright Copyright (c) 2022
  *
  */
-#include "texture.hpp"
-
+#include "material.hpp"

@@ -155,6 +155,16 @@ const Vect3 &Vect3::operator/=(const float s)
 }
 
 /**
+ * @brief Returns max vector value
+ *
+ * @return const float
+ */
+const float Vect3::maxValue()
+{
+    return max(x, max(y, z));
+}
+
+/**
  * @brief operator<<
  *
  * @param os

@@ -33,12 +33,12 @@ public:
      * @param c
      * @param emi
      */
-    Plane(Direction _normal, float c, string id, Texture texture_) : c(c)
+    Plane(Direction _normal, float c, string id, Material mat) : c(c)
     {
         type = 0;
         normal = _normal;
         name = id;
-        setTexture(texture_);
+        setMaterial(mat);
     }
 
     /**

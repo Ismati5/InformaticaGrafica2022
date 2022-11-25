@@ -12,7 +12,7 @@
 
 #include "vect3.hpp"
 #include "ray.hpp"
-#include "texture.hpp"
+#include "material.hpp"
 
 using namespace std;
 
@@ -25,7 +25,7 @@ class Primitive
 public:
     // emission RGB tuple
     Direction normal;
-    Texture texture;
+    Material material;
     int type;
 
     string name = "none";
@@ -41,24 +41,23 @@ public:
      */
     virtual bool intersect(Ray ray, float &t, Direction &sur_normal, Point &x) = 0;
 
-    void setTexture(Texture texture_) 
+    void setMaterial(Material mat)
     {
-        texture = texture_;
+        material = mat;
     }
 
     bool isLight()
     {
-        return texture.isLight();
+        return material.isLight();
     }
 
     Vect3 power()
     {
-        return texture.ke;
-    }
-    
-    Vect3 color()
-    {
-        return texture.kd;
+        return material.ke;
     }
 
+    Vect3 color()
+    {
+        return material.kd;
+    }
 };
