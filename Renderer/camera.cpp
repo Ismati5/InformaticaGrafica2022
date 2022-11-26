@@ -264,7 +264,7 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
     }
     else if (material_type == SPECULAR)
     {
-        wi = (w0 - n * 2 * (w0.dotProd(n))).normalize(); // No se por que no va
+        wi = ((n * 2 * (w0.dotProd(n))) - w0).normalize();
     }
 
     Ray ray(wi, x);
@@ -294,6 +294,12 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
     }
 
     light_value(objs, lx, closest_point, wi, light_points, closest_normal, closest_emission, shadowBias, closest_name, material_aux);
+
+    if (material_type == SPECULAR)
+    {
+        emission = lx;
+        return;
+    }
 
     emission = ld + lx * brdf;
     // cout << "B - Emission from: " << name << " = " << emission << " (ld = " << ld << ", fr = " << brdf << ", lx = " << lx << ")" << endl;

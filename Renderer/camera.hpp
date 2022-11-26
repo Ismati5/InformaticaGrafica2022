@@ -141,6 +141,11 @@ public:
 
         // return material.kd / 255.0; // pa que siga funcionando de momento
 
+        if (material.isLight())
+        {
+            return (material.ke / 255.0);
+        }
+
         float p = 0;
 
         type = material.getMatType(p);
