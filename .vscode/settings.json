@@ -62,7 +62,8 @@
         "sstream": "cpp",
         "chrono": "cpp",
         "thread": "cpp",
-        "ratio": "cpp"
+        "ratio": "cpp",
+        "complex": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

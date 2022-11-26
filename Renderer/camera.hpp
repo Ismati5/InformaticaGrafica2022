@@ -169,6 +169,7 @@ public:
             type = ABSORTION;
             return Vect3(0, 0, 0);
         }
+        return Vect3(0,0,0);
     }
 
     /**

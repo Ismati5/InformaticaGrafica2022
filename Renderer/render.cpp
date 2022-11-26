@@ -47,14 +47,18 @@ Vect3 white = Vect3(255, 255, 255);
 Vect3 black = Vect3(0, 0, 0);
 
 // Materials
-Material diff_red(red, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
-Material diff_purple(purple, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
-Material diff_blue(blue, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
-Material diff_green(green, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
-Material diff_light_grey(light_grey, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
-Material diff_spec_blue(blue, light_grey, Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
-Material spec_refr(Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 1.5, 0.2);
-Material em_light_grey(light_grey, Vect3(0, 0, 0), Vect3(0, 0, 0), light_grey, 0.2);
+//                          kd                  ks              kt              ke              ref     absortion
+Material diff_red           (red,               Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0),         0.2);
+Material diff_purple        (purple,            Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0),         0.2);
+Material diff_blue          (blue,              Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0),         0.2);
+Material diff_green         (green,             Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0),         0.2);
+Material diff_light_grey    (light_grey,        Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0),         0.2);
+Material diff_spec_blue     (blue,              light_grey,     Vect3(0, 0, 0), Vect3(0, 0, 0),         0.2);
+
+Material spec_refr          (Vect3(0, 0, 0),    Vect3(0, 0, 0), Vect3(0, 0, 0),                 1.5,    0.2);
+Material spec               (Vect3(0, 0, 0),    Vect3(0, 0, 0), Vect3(0, 0, 0),                 1.5,    0.2);
+Material em_light_grey      (light_grey,        Vect3(0, 0, 0), Vect3(0, 0, 0), light_grey,             0.2);
+Material refr               (Vect3(0, 0, 0),    Vect3(0, 0, 0), white,           Vect3(0, 0, 0), 1.5,    0.2);
 
 // 32:9
 int Resol_4K_p[2] = {4096 * 2, 2160};
@@ -94,7 +98,7 @@ void renderScene(string file, int rays)
     vector<Light *> lights;
     render_config config;
 
-    config.resol = Resol_400;
+    config.resol = Resol_512;
     config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
@@ -112,8 +116,8 @@ void renderScene(string file, int rays)
     Direction f(0, 0, 3);
     Camera camera(l, u, f, o, config.resol);
 
-    Light light(Point(0, 0.5, 0), white);
-    lights.push_back(&light);
+    // Light light(Point(0, 0.5, 0), white);
+    // lights.push_back(&light);
 
     Plane left_plane(Direction(1, 0, 0), 1, "red_plane", diff_red);
     objs.push_back(&left_plane);
@@ -124,7 +128,7 @@ void renderScene(string file, int rays)
     Plane floor_plane(Direction(0, 1, 0), 1, "floor_plane", diff_light_grey);
     objs.push_back(&floor_plane);
 
-    Plane ceiling_plane(Direction(0, -1, 0), 1, "ceiling_plane", diff_light_grey);
+    Plane ceiling_plane(Direction(0, -1, 0), 1, "ceiling_plane", em_light_grey);
     objs.push_back(&ceiling_plane);
 
     Plane back_plane(Direction(0, 0, -1), 1, "back_plane", diff_light_grey);
@@ -133,8 +137,8 @@ void renderScene(string file, int rays)
     Sphere left_sphere(Point(-0.5, -0.7, 0.25), 0.3, "blue_plastic_sphere", diff_spec_blue);
     objs.push_back(&left_sphere);
 
-    Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "refraction_sphere", diff_blue);
-    // objs.push_back(&right_sphere);
+    Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "refraction_sphere", refr);
+    objs.push_back(&right_sphere);
 
     // TEST F1 y Tree
 
