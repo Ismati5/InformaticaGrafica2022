@@ -47,12 +47,12 @@ Vect3 white = Vect3(255, 255, 255);
 Vect3 black = Vect3(0, 0, 0);
 
 // Materials
-Material diff_red(red, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
-Material diff_blue(blue, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
-Material diff_green(green, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
-Material diff_light_grey(light_grey, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
-Material diff_spec_blue(blue, white, Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
-Material spec_refr(Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 1.5, 0.2);
+Material diff_red(red, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.4);
+Material diff_blue(blue, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.4);
+Material diff_green(green, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.4);
+Material diff_light_grey(light_grey, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.4);
+Material diff_spec_blue(blue, white, Vect3(0, 0, 0), Vect3(0, 0, 0), 0.4);
+Material spec_refr(Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 1.5, 0.4);
 
 // 32:9
 int Resol_4K_p[2] = {4096 * 2, 2160};
@@ -92,7 +92,7 @@ void renderScene(string file, int rays)
     vector<Light *> lights;
     render_config config;
 
-    config.resol = Resol_256;
+    config.resol = Resol_400;
     config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
@@ -101,7 +101,7 @@ void renderScene(string file, int rays)
     config.outfile = file;
     config.pathtracing = true;
     config.start = clock();
-    config.num_threads = 1;
+    config.num_threads = 12;
 
     // Default CORNELL BOX
     Point o(0, 0, -3.5);
@@ -132,7 +132,7 @@ void renderScene(string file, int rays)
     Sphere left_sphere(Point(-0.5, -0.7, 0.25), 0.3, "blue_plastic_sphere", diff_spec_blue);
     objs.push_back(&left_sphere);
 
-    Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "refractin_sphere", spec_refr);
+    Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "refraction_sphere", spec_refr);
     // objs.push_back(&right_sphere);
 
     // TEST F1 y Tree

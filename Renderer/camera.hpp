@@ -154,11 +154,11 @@ public:
             return (material.kd / 255.0) / p;
         case SPECULAR:
             type = SPECULAR;
-            return (material.kd / 255.0) / p;
+            return (material.ks / 255.0) / p;
             break;
         case REFRACTION:
             type = REFRACTION;
-            return (material.kd / 255.0) / p;
+            return (material.kt / 255.0) / p;
             break;
         case ABSORTION:
             type = ABSORTION;

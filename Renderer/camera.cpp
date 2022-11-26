@@ -252,8 +252,6 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
     Direction closest_normal;
     string closest_name;
 
-    Ray ray(wi, x);
-
     Vect3 ld(0, 0, 0), lx(0, 0, 0);
 
     materialType material_type;
@@ -268,6 +266,8 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
     {
         wi = (w0 - n * 2 * (w0.dotProd(n))).normalize(); // No se por que no va
     }
+
+    Ray ray(wi, x);
 
     /*cout << "x: " << x << endl;
     cout << "n: " << n << endl;
