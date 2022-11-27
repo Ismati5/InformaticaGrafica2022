@@ -268,27 +268,29 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
     }
     else if(material_type == REFRACTION)
     {   
-        Direction auxN = n;
-        float no = 1;
-        float ni = material.ref_coef;
-        float cosi, inAngle = w0.dotProd(auxN);
 
-        // clamp 
-        if (inAngle < -1) cosi = -1;
-        else if (inAngle > 1) cosi = 1;
-        else cosi = inAngle;
- 
+        Direction auxN = n;
+        float cosi = w0.dotProd(auxN);
+
         if (cosi < 0) cosi = -cosi;
-        else 
+
+        float no = 1;
+        float nf, ni = material.ref_coef;
+        
+        if (material.rayInside)
         {
-            swap(ni, no);
+            nf = ni / no;
             auxN = auxN * -1;
         }
-        float nf = no / ni;
+        else nf = no / ni;
  
         float k = 1 - nf * nf * (1 - cosi * cosi);
-        if (k < 0) wi = Direction(0,0,0);
-        else wi = w0 * nf + auxN * ( nf * cosi - sqrt(k) );
+        if (k < 0)
+        {
+            material.rayInside = !material.rayInside;
+        }
+
+        wi = (w0 * nf + auxN * ( nf * cosi - sqrt(k) )).normalize();
     }
 
     Ray ray(wi, x);
