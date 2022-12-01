@@ -34,7 +34,6 @@ public:
     Vect3 ke; // power
     float pabs;
     float ref_coef;
-    bool rayInside;
 
     Material() {}
 

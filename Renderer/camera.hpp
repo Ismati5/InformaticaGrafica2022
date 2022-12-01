@@ -202,7 +202,7 @@ public:
      */
     void light_value(vector<Primitive *> objs, Vect3 &emission,
                      Point x, Direction w0, vector<Light *> light_points, Direction n,
-                     Vect3 color, float shadowBias, string name, Material material);
+                     Vect3 color, float shadowBias, string name, Material material, float ref_coef);
 
     /**
      * @brief Creates a random Direction

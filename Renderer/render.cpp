@@ -58,7 +58,7 @@ Material diff_spec_blue     (blue,              light_grey,     Vect3(0, 0, 0), 
 Material spec_refr          (Vect3(0, 0, 0),    Vect3(0, 0, 0), Vect3(0, 0, 0),                 1.5,    0.2);
 Material spec               (Vect3(0, 0, 0),    Vect3(0, 0, 0), Vect3(0, 0, 0),                 1.5,    0.2);
 Material em_light_grey      (light_grey,        Vect3(0, 0, 0), Vect3(0, 0, 0), light_grey,             0.2);
-Material refr               (Vect3(0, 0, 0),    Vect3(0, 0, 0), white,           Vect3(0, 0, 0), 1.5,    0.2);
+Material refr               (Vect3(0, 0, 0),    Vect3(10, 10, 10),          white,          Vect3(0, 0, 0), 1.5,    0.2);
 
 // 32:9
 int Resol_4K_p[2] = {4096 * 2, 2160};
@@ -98,7 +98,7 @@ void renderScene(string file, int rays)
     vector<Light *> lights;
     render_config config;
 
-    config.resol = Resol_512;
+    config.resol = Resol_256;
     config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
@@ -107,7 +107,7 @@ void renderScene(string file, int rays)
     config.outfile = file;
     config.pathtracing = true;
     config.start = clock();
-    config.num_threads = 12;
+    config.num_threads = 6;
 
     // Default CORNELL BOX
     Point o(0, 0, -3.5);

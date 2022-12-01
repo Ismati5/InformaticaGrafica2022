@@ -222,7 +222,7 @@ void Camera::direct_light(vector<Primitive *> objs, Vect3 &emission,
  * @param shadowBias
  */
 void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0,
-                         vector<Light *> light_points, Direction n, Vect3 color, float shadowBias, string name, Material material)
+                         vector<Light *> light_points, Direction n, Vect3 color, float shadowBias, string name, Material material, float ref_coef)
 {
 
     // Calculate random vector
@@ -264,7 +264,7 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
     }
     else if (material_type == SPECULAR)
     {
-        wi = ((n * 2 * (w0.dotProd(n))) - w0).normalize();
+        wi = (w0 - (n * 2 * (w0.dotProd(n)))).normalize();
     }
     else if(material_type == REFRACTION)
     {   
@@ -272,20 +272,24 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
         float nf, ni = material.ref_coef;
 
         Direction auxN = n;
-        float cosi = auxN.dotProd(w0.normalize());
+        float angI = auxN.dotProd(w0.normalize());
 
-        if (cosi < 0) cosi = -cosi;
+        if (angI < -1) angI = -1;
+        else if (angI > 1) angI = 1;
+
+        if (angI < 0) angI = -angI;
         else 
         {
             auxN = auxN * -1;
             swap(no, ni);
         }
-
+    
         nf = no / ni;
  
-        float k = 1 - nf * nf * (1 - cosi * cosi);
-        wi = (w0 * nf + auxN * ( nf * cosi - sqrt(k) )).normalize();
-
+        float k = 1 - nf * nf * (1 - angI * angI);
+        if (k < 0) wi = w0;
+        else wi = (w0 * nf + auxN * ( nf * angI - sqrtf(k) )).normalize();
+        
     }
 
     Ray ray(wi, x);
@@ -314,7 +318,7 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
         return;
     }
 
-    light_value(objs, lx, closest_point, wi, light_points, closest_normal, closest_emission, shadowBias, closest_name, material_aux);
+    light_value(objs, lx, closest_point, wi, light_points, closest_normal, closest_emission, shadowBias, closest_name, material_aux, material.ref_coef);
 
     if (material_type == SPECULAR || material_type == REFRACTION)
     {
@@ -408,7 +412,7 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                                 closest_normal = sur_normal;
                                 closest_x = x;
 
-                                w0 = (origin - x).normalize();
+                                w0 = (x - origin).normalize();
                                 intersected = true;
                             }
                         }
@@ -423,7 +427,7 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                         {
 
                             if (!closest_light)
-                                light_value(objs, closest_emission, closest_x, w0, lights, closest_normal, closest_material.kd, config.shadow_bias, closest_name, closest_material);
+                                light_value(objs, closest_emission, closest_x, w0, lights, closest_normal, closest_material.kd, config.shadow_bias, closest_name, closest_material, 1);
                             else
                                 closest_emission = closest_power * fr(closest_x, ray.d, w0, closest_material, material_type);
 
