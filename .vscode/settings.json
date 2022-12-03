@@ -63,7 +63,10 @@
         "chrono": "cpp",
         "thread": "cpp",
         "ratio": "cpp",
-        "complex": "cpp"
+        "complex": "cpp",
+        "typeindex": "cpp",
+        "list": "cpp",
+        "map": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

@@ -154,6 +154,16 @@ const Vect3 &Vect3::operator/=(const float s)
     return (*this);
 }
 
+const float& Vect3::operator[](size_t t) const
+{
+    if (t == 0)
+        return x;
+    else if (t == 1)
+        return y;
+    else // (t == 2)
+        return z;
+}
+
 /**
  * @brief Returns max vector value
  *

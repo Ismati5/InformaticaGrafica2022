@@ -1,1 +1,1 @@
-g++ point.cpp direction.cpp render.cpp matrix4.cpp vect4.cpp vect3.cpp object.cpp sphere.cpp station.cpp primitive.cpp light.cpp plane.cpp camera.cpp triangle.cpp -o render -std=c++11
+g++ point.cpp direction.cpp render.cpp matrix4.cpp vect4.cpp vect3.cpp object.cpp sphere.cpp station.cpp primitive.cpp light.cpp plane.cpp camera.cpp triangle.cpp kdtree.cpp -o render -std=c++17

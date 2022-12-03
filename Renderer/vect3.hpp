@@ -115,6 +115,8 @@ public:
      */
     const Vect3 &operator/=(const float s);
 
+    const float& operator[](size_t t) const;
+
     /**
      * @brief Returns max vector value
      *
