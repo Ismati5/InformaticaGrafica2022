@@ -11,6 +11,7 @@
 #pragma once
 
 #include <iostream>
+#include "Vect3.hpp"
 
 using namespace std;
 
@@ -34,6 +35,8 @@ public:
      * @param z
      */
     Point(float x = 0.0, float y = 0.0, float z = 0.0);
+
+    Vect3 toVect3();
 
     /**
      * @brief Point = Point + Direction

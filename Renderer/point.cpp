@@ -10,6 +10,7 @@
  */
 #include "point.hpp"
 #include "direction.hpp"
+#include "Vect3.hpp"
 
 /**
  * @brief Construct a new Point:: Point object
@@ -19,6 +20,11 @@
  * @param z
  */
 Point::Point(float x, float y, float z) : x(x), y(y), z(z) {}
+
+Vect3 Point::toVect3()
+{
+    return Vect3(this->x, this->y, this->z);
+}
 
 /**
  * @brief Point = Point + Direction
