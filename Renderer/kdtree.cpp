@@ -14,8 +14,10 @@ using namespace std;
 */
 class Photon {
 public:
-    Vect3 position_;    // 3D point of the interaction
     Vect3 emission;
+    Vect3 position_;    // 3D point of the interaction
+    Direction direction;
+    float flux;
 
     float position(size_t i) const { return position_[i];}    // It returns the axis i position (x, y or z)
 };
@@ -149,8 +151,10 @@ void direct_light(vector<Primitive *> objs, Vect3 &emission,
 }
 
 void light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0,
-                         vector<Light *> light_points, Direction n, float shadowBias, Material material, list<Photon> &photons)
+                         vector<Light *> light_points, Direction n, float shadowBias, Material material, list<Photon> &photons, int max_photons)
 {
+
+    if (photons.size() >= max_photons) return;
 
     // Calculate random vector
     float theta = (float)(rand()) / (float)(RAND_MAX);
@@ -195,6 +199,7 @@ void light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w
 
     Photon ph;
     ph.position_ = closest_point.toVect3();
+    ph.direction = wi;
 
     if (intersected == NONE) // No intersection with scene
     {
@@ -209,7 +214,7 @@ void light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w
         return;
     }
 
-    light_value(objs, lx, closest_point, wi, light_points, closest_normal, shadowBias, material_aux, photons);
+    light_value(objs, lx, closest_point, wi, light_points, closest_normal, shadowBias, material_aux, photons, max_photons);
 
     //Save photon
     ph.emission = ld + lx * brdf;
@@ -256,9 +261,9 @@ bool hitPosition(vector<Primitive *> objects, Ray ray, Direction &n, Point &x, M
 /*
     Example function to generate the photon map with the given photons
 */
-PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> objects, int numPhotons, float shadowBias){
+PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> objects, int max_photons, float shadowBias){
 
-    const size_t fixedListSize(numPhotons);
+    const size_t fixedListSize(max_photons);
     list<Photon> photons(fixedListSize);        // Create a list of photons 
 
     int totalPower;
@@ -267,19 +272,17 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
 
     Material material;
     Vect3 emission = Vect3(0,0,0);
-    Direction wi, n;
+    Direction n;
     Photon ph;
     Point x;
-    int numPhotons_perLight;
     for (Light *light : lights)
     {
-        numPhotons_perLight = numPhotons * ((light->power.x + light->power.y + light->power.z) / totalPower);
-        for (int i = 0; i < numPhotons_perLight; i++)
+        int initial_size = photons.size();
+        int shots_taken = 0;
+        int max_shots = max_photons * ((light->power.x + light->power.y + light->power.z) / totalPower);
+        while (shots_taken < max_shots)
         {
-            
-            if (photons.size() >= photons.max_size()) goto out;
-
-            wi = randomWalk();
+            Direction wi = randomWalk();
             // Cambiar a coordenadas globales
             //TODO
 
@@ -288,12 +291,28 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
 
             if (hitPosition(objects, ray, n, x, material))
             {
-                light_value(objects, emission, x, (x - light->center).normalize(), lights, n, shadowBias, material, photons);
+                ph.position_ = x.toVect3();
+                ph.direction = wi;
+
+                light_value(objects, emission, x, (x - light->center).normalize(), lights, n, shadowBias, material, photons, max_photons);
+                ph.emission = emission;
                 emission = Vect3(0,0,0);
+                
+                if (photons.size() >= max_photons) goto out;
+                photons.push_front(ph); // First bounce
             }
-
-
+            shots_taken++;
         }
+
+        // Modify flux of the last shots_taken photons
+        int added_photons = photons.size() - initial_size; 
+        auto it = photons.begin();
+        for (int i = 0; i < added_photons; i++)
+        {
+            it->flux = (4*PI*(light->power.x + light->power.y + light->power.z)) / shots_taken;
+            it++;
+        }
+
     }
     out:
 
