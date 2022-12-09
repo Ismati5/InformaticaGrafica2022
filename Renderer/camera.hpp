@@ -49,6 +49,7 @@ struct render_config
     int *resol;
     float aspect_ratio;
     int rays;
+    int max_photons;
     int num_tiles_x;
     int num_tiles_y;
     int tile_size{32};

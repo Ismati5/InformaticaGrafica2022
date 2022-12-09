@@ -86,6 +86,57 @@ int Resol_512[2] = {512, 512};
 int Resol_1024[2] = {1024, 1024};
 int Resol_2048[2] = {2048, 2048};
 
+void renderPhotonMapping(string file, int max_photons)
+{
+    vector<Primitive *> objs;
+    vector<Light *> lights;
+    render_config config;
+
+    config.resol = Resol_256;
+    config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
+    config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
+    config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
+    config.shadow_bias = 1e-4; // The bigger shadowBias is, the bigger the difference from reality is
+    config.outfile = file;
+    config.pathtracing = true;
+    config.start = clock();
+    config.num_threads = 6;
+
+    // Default CORNELL BOX
+    Point o(0, 0, -3.5);
+    Direction l(-config.aspect_ratio, 0, 0);
+    Direction u(0, 1, 0);
+    Direction f(0, 0, 3);
+    Camera camera(l, u, f, o, config.resol);
+
+    Light light(Point(0, 0.5, 0), white);
+    lights.push_back(&light);
+
+    Plane left_plane(Direction(1, 0, 0), 1, "red_plane", diff_red);
+    objs.push_back(&left_plane);
+
+    Plane right_plane(Direction(-1, 0, 0), 1, "green_plane", diff_green);
+    objs.push_back(&right_plane);
+
+    Plane floor_plane(Direction(0, 1, 0), 1, "floor_plane", diff_light_grey);
+    objs.push_back(&floor_plane);
+
+    Plane ceiling_plane(Direction(0, -1, 0), 1, "ceiling_plane", diff_light_grey);
+    objs.push_back(&ceiling_plane);
+
+    Plane back_plane(Direction(0, 0, -1), 1, "back_plane", diff_light_grey);
+    objs.push_back(&back_plane);
+
+    Sphere left_sphere(Point(-0.5, -0.7, 0.25), 0.3, "blue_plastic_sphere", diff_spec_blue);
+    objs.push_back(&left_sphere);
+
+    Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "refraction_sphere", refr);
+    objs.push_back(&right_sphere);
+
+    // PhotonMap map = generation_of_photon_map(lights, objs, config);
+
+}
+
 /**
  * @brief Create a Render scene
  *
@@ -273,13 +324,20 @@ void renderScene(string file, int rays)
 int main(int argc, char *argv[])
 {
 
-    if (argc == 3)
+    if (argc == 4)
     {
-        renderScene(argv[1], stoi(argv[2]));
+        if (stoi(argv[3]) == 0) // non photon mapping
+        {
+            renderScene(argv[1], stoi(argv[2]));
+        }
+        else
+        {
+            renderPhotonMapping(argv[1], stoi(argv[2]));
+        }
     }
     else
     {
-        cout << "[!] Usage: renderer <filename.ppm> <rays per pixel>" << endl;
+        cout << "[!] Usage: renderer <filename.ppm> <rays per pixel> <photon mapping>" << endl;
     }
 
     return 0;

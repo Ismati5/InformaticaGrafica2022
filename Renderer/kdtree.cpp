@@ -261,63 +261,52 @@ bool hitPosition(vector<Primitive *> objects, Ray ray, Direction &n, Point &x, M
 /*
     Example function to generate the photon map with the given photons
 */
-PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> objects, int max_photons, float shadowBias){
+PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> objects, render_config config){
 
-    const size_t fixedListSize(max_photons);
-    list<Photon> photons(fixedListSize);        // Create a list of photons 
-
-    int totalPower;
-    for (Light *light : lights)
-        totalPower += light->power.x + light->power.y + light->power.z;
-
+    Point x;
+    Direction n;
     Material material;
     Vect3 emission = Vect3(0,0,0);
-    Direction n;
-    Photon ph;
-    Point x;
+
+    const size_t fixedListSize(config.max_photons);
+    list<Photon> all_photons(fixedListSize);
+    list<Photon> photons(fixedListSize);
+
+    int totalPower;
+    for (Light *light : lights) totalPower += light->powerValue();
+
+    int added_photons = 0;
     for (Light *light : lights)
     {
-        int initial_size = photons.size();
-        int shots_taken = 0;
-        int max_shots = max_photons * ((light->power.x + light->power.y + light->power.z) / totalPower);
-        while (shots_taken < max_shots)
+        photons.clear();
+        int max_shots = config.max_photons * (light->powerValue() / totalPower);
+        for (int i = 0; i < max_shots; i++)
         {
             Direction wi = randomWalk();
-            // Cambiar a coordenadas globales
-            //TODO
+            // Cambiar a coordenadas globales (TODO)
 
-            // Calcular foton
             Ray ray(wi, light->center);
-
             if (hitPosition(objects, ray, n, x, material))
             {
-                ph.position_ = x.toVect3();
-                ph.direction = wi;
+                light_value(objects, emission, x, (x - light->center).normalize(), lights, n, 
+                            config.shadow_bias, material, photons, config.max_photons - all_photons.size() - photons.size());
 
-                light_value(objects, emission, x, (x - light->center).normalize(), lights, n, shadowBias, material, photons, max_photons);
-                ph.emission = emission;
-                emission = Vect3(0,0,0);
-                
-                if (photons.size() >= max_photons) goto out;
-                photons.push_front(ph); // First bounce
+                if (config.max_photons <= all_photons.size() + photons.size()) break;
             }
-            shots_taken++;
         }
 
-        // Modify flux of the last shots_taken photons
-        int added_photons = photons.size() - initial_size; 
-        auto it = photons.begin();
-        for (int i = 0; i < added_photons; i++)
-        {
-            it->flux = (4*PI*(light->power.x + light->power.y + light->power.z)) / shots_taken;
-            it++;
-        }
+        // Update flux
+        for (auto it = photons.begin(); it != photons.end(); ++it)
+            it->flux = (4 * PI * light->powerValue()) / max_shots;
 
+        all_photons.insert(all_photons.end(), photons.begin(), photons.end());
+        if (config.max_photons <= all_photons.size()) break;
+        
     }
-    out:
 
-    PhotonMap map = PhotonMap(photons, PhotonAxisPosition());
+    PhotonMap map = PhotonMap(all_photons, PhotonAxisPosition());
     return map;
+
 }
 
 /*

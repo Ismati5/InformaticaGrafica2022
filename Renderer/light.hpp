@@ -30,4 +30,9 @@ public:
     {
         power = p;
     }
+
+    int powerValue()
+    {
+        return this->power.x + this->power.y + this->power.z;
+    }
 };
