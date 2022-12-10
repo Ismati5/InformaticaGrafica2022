@@ -23,6 +23,7 @@
 #include "camera.hpp"
 #include "light.hpp"
 #include "object.hpp"
+#include "photon.hpp"
 
 using namespace std;
 
@@ -98,6 +99,7 @@ void renderPhotonMapping(string file, int max_photons)
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
     config.shadow_bias = 1e-4; // The bigger shadowBias is, the bigger the difference from reality is
     config.outfile = file;
+    config.max_photons = max_photons;
     config.pathtracing = true;
     config.start = clock();
     config.num_threads = 6;
@@ -127,13 +129,13 @@ void renderPhotonMapping(string file, int max_photons)
     Plane back_plane(Direction(0, 0, -1), 1, "back_plane", diff_light_grey);
     objs.push_back(&back_plane);
 
-    Sphere left_sphere(Point(-0.5, -0.7, 0.25), 0.3, "blue_plastic_sphere", diff_spec_blue);
+    Sphere left_sphere(Point(-0.5, -0.7, 0.25), 0.3, "blue_sphere", diff_blue);
     objs.push_back(&left_sphere);
 
-    Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "refraction_sphere", refr);
+    Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "red_sphere", diff_red);
     objs.push_back(&right_sphere);
 
-    // PhotonMap map = generation_of_photon_map(lights, objs, config);
+    PhotonMap map = generation_of_photon_map(lights, objs, config);
 
 }
 

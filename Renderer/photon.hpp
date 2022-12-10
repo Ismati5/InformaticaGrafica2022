@@ -6,7 +6,7 @@ Description :   This is an example of usage of the KDTree class. It does not
 
 using namespace std;
 
-#include "kdtree.h"
+#include "kdtree.hpp"
 
 /* 
     Your Photon class implementation, which stores each 
@@ -39,8 +39,35 @@ using PhotonMap = nn::KDTree<Photon,3,PhotonAxisPosition>;
 
 Vect3 fr(Point x, Direction wi, Direction w0, Material material, materialType &type)
 {
+    if (material.isLight())
+    {
+        return (material.ke / 255.0);
+    }
 
-    return material.kd / 255.0;
+    float p = 0;
+
+    type = material.getMatType(p);
+
+    p = 1; // PROVISIONAL
+
+    switch (type)
+    {
+    case DIFFUSE:
+        type = DIFFUSE;
+        return (material.kd / 255.0) / p;
+    case SPECULAR:
+        type = SPECULAR;
+        return (material.ks / 255.0) / p;
+        break;
+    case REFRACTION:
+        type = REFRACTION;
+        return (material.kt / 255.0) / p;
+        break;
+    case ABSORTION:
+        type = ABSORTION;
+        return Vect3(0, 0, 0);
+    }
+    return Vect3(0,0,0);
 
 }
 
@@ -188,6 +215,11 @@ void light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w
     materialType material_type;
     Vect3 brdf = fr(x, wi, w0, material, material_type);
 
+    cout << material_type << endl;
+
+    if (material_type != DIFFUSE) 
+        return ;
+
     Ray ray(wi, x);
 
 
@@ -258,6 +290,21 @@ bool hitPosition(vector<Primitive *> objects, Ray ray, Direction &n, Point &x, M
 
 }
 
+void printList(list<Photon> list)
+{
+    cout << "SIZE:" <<  list.size() << endl << endl;
+
+    for (Photon ph : list)
+    {
+        cout << "EMISSION:" <<  ph.emission << endl;
+        cout << "POSITION:" <<  ph.position_ << endl;
+        cout << "DIRECTION:" <<  ph.direction << endl;
+        cout << "FLUX:" <<  ph.flux << endl;
+        cout << "========================================" <<endl;
+
+    }
+}
+
 /*
     Example function to generate the photon map with the given photons
 */
@@ -270,9 +317,10 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
 
     const size_t fixedListSize(config.max_photons);
     list<Photon> all_photons(fixedListSize);
+    all_photons.clear();
     list<Photon> photons(fixedListSize);
 
-    int totalPower;
+    int totalPower = 0;
     for (Light *light : lights) totalPower += light->powerValue();
 
     int added_photons = 0;
@@ -282,6 +330,7 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
         int max_shots = config.max_photons * (light->powerValue() / totalPower);
         for (int i = 0; i < max_shots; i++)
         {
+            cout << "i: " << i << endl;
             Direction wi = randomWalk();
             // Cambiar a coordenadas globales (TODO)
 
@@ -291,10 +340,12 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
                 light_value(objects, emission, x, (x - light->center).normalize(), lights, n, 
                             config.shadow_bias, material, photons, config.max_photons - all_photons.size() - photons.size());
 
+                cout << "2: " << config.max_photons - all_photons.size() - photons.size() << endl;
                 if (config.max_photons <= all_photons.size() + photons.size()) break;
             }
         }
 
+        cout << "FLUX" << endl;
         // Update flux
         for (auto it = photons.begin(); it != photons.end(); ++it)
             it->flux = (4 * PI * light->powerValue()) / max_shots;
@@ -303,6 +354,8 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
         if (config.max_photons <= all_photons.size()) break;
         
     }
+
+    printList(all_photons);
 
     PhotonMap map = PhotonMap(all_photons, PhotonAxisPosition());
     return map;
