@@ -215,8 +215,6 @@ void light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w
     materialType material_type;
     Vect3 brdf = fr(x, wi, w0, material, material_type);
 
-    cout << material_type << endl;
-
     if (material_type != DIFFUSE) 
         return ;
 
@@ -276,12 +274,12 @@ bool hitPosition(vector<Primitive *> objects, Ray ray, Direction &n, Point &x, M
         if (obj->intersect(ray, t1, hitNormal, hitPoint))
         {
             intersected = true;
-            if (lowest_t1 < t1)
+            if (t1 < lowest_t1)
             {
                 x = hitPoint;
                 n = hitNormal;
                 m = obj->material;
-                lowest_t1 = 1;
+                lowest_t1 = t1;
             }
         }
     }
@@ -330,7 +328,7 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
         int max_shots = config.max_photons * (light->powerValue() / totalPower);
         for (int i = 0; i < max_shots; i++)
         {
-            cout << "i: " << i << endl;
+
             Direction wi = randomWalk();
             // Cambiar a coordenadas globales (TODO)
 
@@ -340,12 +338,10 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
                 light_value(objects, emission, x, (x - light->center).normalize(), lights, n, 
                             config.shadow_bias, material, photons, config.max_photons - all_photons.size() - photons.size());
 
-                cout << "2: " << config.max_photons - all_photons.size() - photons.size() << endl;
                 if (config.max_photons <= all_photons.size() + photons.size()) break;
             }
         }
 
-        cout << "FLUX" << endl;
         // Update flux
         for (auto it = photons.begin(); it != photons.end(); ++it)
             it->flux = (4 * PI * light->powerValue()) / max_shots;
