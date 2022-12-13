@@ -61,7 +61,7 @@ struct render_config
     float max_distance = 9999;
     int num_threads = thread::hardware_concurrency();
 
-    //Photon mapping
+    // Photon mapping
     int max_photons;
     int k;
     float r;
@@ -174,7 +174,7 @@ public:
             type = ABSORTION;
             return Vect3(0, 0, 0);
         }
-        return Vect3(0,0,0);
+        return Vect3(0, 0, 0);
     }
 
     /**

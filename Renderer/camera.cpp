@@ -266,30 +266,34 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
     {
         wi = (w0 - (n * 2 * (w0.dotProd(n)))).normalize();
     }
-    else if(material_type == REFRACTION)
-    {   
+    else if (material_type == REFRACTION)
+    {
         float no = 1;
         float nf, ni = material.ref_coef;
 
         Direction auxN = n;
         float angI = auxN.dotProd(w0.normalize());
 
-        if (angI < -1) angI = -1;
-        else if (angI > 1) angI = 1;
+        if (angI < -1)
+            angI = -1;
+        else if (angI > 1)
+            angI = 1;
 
-        if (angI < 0) angI = -angI;
-        else 
+        if (angI < 0)
+            angI = -angI;
+        else
         {
             auxN = auxN * -1;
             swap(no, ni);
         }
-    
+
         nf = no / ni;
- 
+
         float k = 1 - nf * nf * (1 - angI * angI);
-        if (k < 0) wi = w0;
-        else wi = (w0 * nf + auxN * ( nf * angI - sqrtf(k) )).normalize();
-        
+        if (k < 0)
+            wi = w0;
+        else
+            wi = (w0 * nf + auxN * (nf * angI - sqrtf(k))).normalize();
     }
 
     Ray ray(wi, x);
@@ -575,7 +579,7 @@ void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light 
 
                         // buscar k fotones mas cercanos a distancia maxima r
 
-                        //calcular con kernelDensity
+                        // calcular con kernelDensity
 
                         intersections++;
                         total_emission += closest_emission;

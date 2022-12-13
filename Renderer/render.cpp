@@ -157,7 +157,7 @@ void renderScene(string file, int rays)
     vector<Light *> lights;
     render_config config;
 
-    config.resol = Resol_360;
+    config.resol = Resol_256;
     config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
@@ -169,7 +169,7 @@ void renderScene(string file, int rays)
     config.num_threads = 12;
 
     // Default CORNELL BOX
-    /*Point o(0, 0, -3.5);
+    Point o(0, 0, -3.5);
     Direction l(-config.aspect_ratio, 0, 0);
     Direction u(0, 1, 0);
     Direction f(0, 0, 3);
@@ -197,7 +197,7 @@ void renderScene(string file, int rays)
     objs.push_back(&left_sphere);
 
     Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "refraction_sphere", refr);
-    objs.push_back(&right_sphere);*/
+    objs.push_back(&right_sphere);
 
     // TEST TREE
     /*Point o(-0.5, 6, 25);
@@ -226,7 +226,7 @@ void renderScene(string file, int rays)
 
     // TEST F1
 
-    Point o(0, 5, 25);
+    /*Point o(0, 5, 25);
     Direction l(config.aspect_ratio, 0, 0);
     Direction u(0, 1, 0);
     Direction f(0, 0, -3);
@@ -247,7 +247,7 @@ void renderScene(string file, int rays)
     for (int i = 0; i < F1.getPolygons(); i++)
     {
         objs.push_back(F1.getTriangles(i));
-    }
+    }*/
 
     // Multi-Threading rendering
     static atomic<int>
