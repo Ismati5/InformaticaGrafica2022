@@ -40,6 +40,8 @@ Vect3 green = Vect3(0, 255, 0);
 Vect3 purple = Vect3(228, 172, 255);
 Vect3 light_grey = Vect3(231, 230, 230);
 
+Vect3 grey = Vect3(112, 128, 144);
+
 Vect3 yellow = Vect3(233, 236, 107);
 Vect3 dark_blue = Vect3(0, 23, 49);
 Vect3 gray = Vect3(207, 207, 196);
@@ -54,7 +56,9 @@ Material diff_purple(purple, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2
 Material diff_blue(blue, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
 Material diff_green(green, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
 Material diff_light_grey(light_grey, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
+Material diff_grey(grey, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
 Material diff_spec_blue(blue, light_grey, Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
+Material diff_spec_red(red, light_grey, Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
 
 Material spec_refr(Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 1.5, 0.2);
 Material spec(Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 1.5, 0.2);
@@ -150,7 +154,7 @@ void renderScene(string file, int rays)
     vector<Light *> lights;
     render_config config;
 
-    config.resol = Resol_720;
+    config.resol = Resol_360;
     config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
@@ -192,9 +196,8 @@ void renderScene(string file, int rays)
     Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "refraction_sphere", refr);
     objs.push_back(&right_sphere);*/
 
-    // TEST F1 y Tree
-
-    Point o(-0.5, 6, 25);
+    // TEST TREE
+    /*Point o(-0.5, 6, 25);
     Direction l(-config.aspect_ratio, 0, 0);
     Direction u(0, 1, 0);
     Direction f(0, 0, -3);
@@ -209,9 +212,6 @@ void renderScene(string file, int rays)
     Plane ceiling_plane(Direction(0, -1, 0), 10, "ceiling_plane", em_light_grey);
     objs.push_back(&ceiling_plane);
 
-    // Object F1("F1", "objs/F1.obj", red);
-    // F1.translate(Direction(0, -1, -0.5));
-
     Object Tree("Tree", "objs/tree.obj", diff_purple);
     Tree.scale(-2);
     Tree.translate(Direction(0, -1, 0));
@@ -219,6 +219,31 @@ void renderScene(string file, int rays)
     for (int i = 0; i < Tree.getPolygons(); i++)
     {
         objs.push_back(Tree.getTriangles(i));
+    }*/
+
+    // TEST F1
+
+    Point o(0, 5, 25);
+    Direction l(config.aspect_ratio, 0, 0);
+    Direction u(0, 1, 0);
+    Direction f(0, 0, -3);
+    Camera camera(l, u, f, o, config.resol);
+
+    Plane floor_plane(Direction(0, 1, 0), 1, "floor_plane", diff_grey);
+    objs.push_back(&floor_plane);
+
+    Plane back_pane(Direction(0, 0, 1), 15, "back_pane", diff_light_grey);
+    objs.push_back(&back_pane);
+
+    Plane ceiling_plane(Direction(0, -1, 0), 30, "ceiling_plane", em_light_grey);
+    objs.push_back(&ceiling_plane);
+
+    Object F1("F1", "objs/F1.obj", diff_spec_red);
+    F1.translate(Direction(0, -1, -0.5));
+
+    for (int i = 0; i < F1.getPolygons(); i++)
+    {
+        objs.push_back(F1.getTriangles(i));
     }
 
     // Multi-Threading rendering
