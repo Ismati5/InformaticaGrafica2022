@@ -49,7 +49,6 @@ struct render_config
     int *resol;
     float aspect_ratio;
     int rays;
-    int max_photons;
     int num_tiles_x;
     int num_tiles_y;
     int tile_size{32};
@@ -61,6 +60,11 @@ struct render_config
 
     float max_distance = 9999;
     int num_threads = thread::hardware_concurrency();
+
+    //Photon mapping
+    int max_photons;
+    int k;
+    float r;
 };
 
 /**
@@ -223,4 +227,8 @@ public:
      * @param max_emission
      */
     void render_thread(int id, vector<Primitive *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission);
+
+    // float kernel_density(render_config config, PhotonMap map);
+
+    void renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission);
 };

@@ -181,7 +181,7 @@ void light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w
                          vector<Light *> light_points, Direction n, float shadowBias, Material material, list<Photon> &photons, int max_photons)
 {
 
-    if (photons.size() >= max_photons) return;
+    if (max_photons == 0) return;
 
     // Calculate random vector
     float theta = (float)(rand()) / (float)(RAND_MAX);
@@ -220,7 +220,6 @@ void light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w
 
     Ray ray(wi, x);
 
-
     // Light from point sources
     direct_light(objs, ld, x, w0, light_points, n, shadowBias, material);
 
@@ -244,7 +243,7 @@ void light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w
         return;
     }
 
-    light_value(objs, lx, closest_point, wi, light_points, closest_normal, shadowBias, material_aux, photons, max_photons);
+    light_value(objs, lx, closest_point, wi, light_points, closest_normal, shadowBias, material_aux, photons, max_photons-1);
 
     //Save photon
     ph.emission = ld + lx * brdf;
@@ -290,8 +289,6 @@ bool hitPosition(vector<Primitive *> objects, Ray ray, Direction &n, Point &x, M
 
 void printList(list<Photon> list)
 {
-    cout << "SIZE:" <<  list.size() << endl << endl;
-
     for (Photon ph : list)
     {
         cout << "EMISSION:" <<  ph.emission << endl;
@@ -301,6 +298,7 @@ void printList(list<Photon> list)
         cout << "========================================" <<endl;
 
     }
+    cout << "SIZE:" <<  list.size() << endl << endl;
 }
 
 /*
@@ -328,13 +326,12 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
         int max_shots = config.max_photons * (light->powerValue() / totalPower);
         for (int i = 0; i < max_shots; i++)
         {
-
             Direction wi = randomWalk();
-            // Cambiar a coordenadas globales (TODO)
 
             Ray ray(wi, light->center);
             if (hitPosition(objects, ray, n, x, material))
             {
+                cout << config.max_photons - all_photons.size() - photons.size() << endl;
                 light_value(objects, emission, x, (x - light->center).normalize(), lights, n, 
                             config.shadow_bias, material, photons, config.max_photons - all_photons.size() - photons.size());
 
@@ -374,7 +371,7 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
 //     // nearest is the nearest photons returned by the KDTree
 //     auto nearest = map.nearest_neighbors(query_position,
 //                                          nphotons_estimate,
-//                                          radius_estimate)
+//                                          radius_estimate);
 // }
 
 

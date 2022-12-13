@@ -103,10 +103,13 @@ void renderPhotonMapping(string file, int max_photons)
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
     config.shadow_bias = 1e-4; // The bigger shadowBias is, the bigger the difference from reality is
     config.outfile = file;
-    config.max_photons = max_photons;
     config.pathtracing = true;
     config.start = clock();
     config.num_threads = 6;
+
+    config.max_photons = max_photons;
+    config.k = 10;
+    config.r = 2;
 
     // Default CORNELL BOX
     Point o(0, 0, -3.5);

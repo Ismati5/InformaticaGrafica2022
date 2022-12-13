@@ -484,3 +484,127 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
             progressBar(config.num_tiles_x * config.num_tiles_y - tile, config.num_tiles_x * config.num_tiles_y, config.start);
     }
 }
+
+// float Camera::kernel_density(render_config config, PhotonMap map)
+// {
+
+// }
+
+void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission)
+{
+
+    srand(time(NULL));
+
+    int tile, intersections;
+    while ((tile = --num_tile) >= 0)
+    {
+        intersections = 0;
+        float t1, lowest_t1 = numeric_limits<float>::infinity();
+        bool intersected = false;
+        Direction sur_normal;
+        Vect3 closest_emission = Vect3(0, 0, 0);
+        Vect3 total_emission = Vect3(0, 0, 0);
+        Point x;
+
+        Ray ray;
+        ray.p = origin;
+
+        int tile_y = tile / config.num_tiles_x;
+        int tile_x = tile - tile_y * config.num_tiles_x;
+        int x0 = tile_x * config.tile_size;
+        int x1 = min((tile_x + 1) * config.tile_size, config.resol[0]);
+        int y0 = tile_y * config.tile_size;
+        int y1 = min((tile_y + 1) * config.tile_size, config.resol[1]);
+
+        for (float i = y0; i < y1; i++) // i rows
+        {
+            for (float j = x0; j < x1; j++) // j columns
+            {
+                for (float r = 0; r < config.rays; r++)
+                {
+                    Direction variation_x = randomDir(pixelSize_x);
+                    Direction variation_y = randomDir(pixelSize_y);
+                    Point pixel = topLeft - pixelSize_x * j - pixelSize_y * i - variation_x - variation_y;
+                    ray.d = (pixel - origin).normalize();
+
+                    // check intersections
+
+                    Direction w0;
+                    Direction closest_normal;
+                    string closest_name;
+                    Point closest_x;
+                    Material closest_material;
+                    bool closest_light = false;
+                    Vect3 closest_power;
+
+                    materialType material_type;
+
+                    closest_emission = Vect3(0, 0, 0);
+
+                    for (Primitive *i : objs)
+                    {
+                        if (i->intersect(ray, t1, sur_normal, x))
+                        {
+                            if (t1 < lowest_t1)
+                            {
+                                lowest_t1 = t1;
+
+                                if (i->isLight())
+                                {
+                                    closest_light = true;
+                                    closest_power = i->power();
+                                }
+                                else
+                                    closest_light = false;
+
+                                closest_material = i->material;
+                                closest_name = i->name;
+                                closest_normal = sur_normal;
+                                closest_x = x;
+
+                                w0 = (x - origin).normalize();
+                                intersected = true;
+                            }
+                        }
+                    }
+
+                    lowest_t1 = numeric_limits<float>::infinity();
+
+                    if (intersected)
+                    {
+
+                        // buscar k fotones mas cercanos a distancia maxima r
+
+                        //calcular con kernelDensity
+
+                        intersections++;
+                        total_emission += closest_emission;
+                        intersected = false;
+                    }
+                }
+
+                if (intersections > 0)
+                {
+
+                    if (max_emission < round(total_emission.x))
+                        max_emission = round(total_emission.x);
+                    if (max_emission < round(total_emission.y))
+                        max_emission = round(total_emission.y);
+                    if (max_emission < round(total_emission.z))
+                        max_emission = round(total_emission.z);
+
+                    config.content[(int)(i * config.resol[0] + j)] =
+                        Vect3(round(total_emission.x), round(total_emission.y), round(total_emission.z));
+
+                    intersections = 0;
+                    total_emission = Vect3(0, 0, 0);
+                    lowest_t1 = numeric_limits<float>::infinity();
+                }
+                else
+                    config.content[(int)(i * config.resol[0] + j)] = Vect3(0, 0, 0);
+            }
+        }
+        if (id == 0 && tile > -1)
+            progressBar(config.num_tiles_x * config.num_tiles_y - tile, config.num_tiles_x * config.num_tiles_y, config.start);
+    }
+}
