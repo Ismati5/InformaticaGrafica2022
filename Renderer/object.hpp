@@ -31,12 +31,13 @@ public:
     int numPolygons;
     string name;
     Material material;
-    Triangle triangles[MAX_POLYGON];
+    Triangle *triangles[MAX_POLYGON];
 
     Point c;
 
     Object(string _name, string obj, Material mat)
     {
+
         name = _name;
 
         c = Point(0, 0, 0);
@@ -83,11 +84,13 @@ public:
         int e = 0;
         for (Vect3 i : faces)
         {
-            triangles[e].p1 = vertexes.at(i.x - 1);
-            triangles[e].p2 = vertexes.at(i.y - 1);
-            triangles[e].p3 = vertexes.at(i.z - 1);
-            triangles[e].sertNormal();
-            triangles[e].setMaterial(mat);
+            triangles[e] = new Triangle();
+
+            triangles[e]->p1 = vertexes.at(i.x - 1);
+            triangles[e]->p2 = vertexes.at(i.y - 1);
+            triangles[e]->p3 = vertexes.at(i.z - 1);
+            triangles[e]->sertNormal();
+            triangles[e]->setMaterial(mat);
             e++;
         }
 
@@ -101,9 +104,9 @@ public:
         return numPolygons;
     }
 
-    Triangle *getTriangles()
+    Triangle *getTriangles(int i)
     {
-        return triangles;
+        return triangles[i];
     }
 
     void scale(float s)
@@ -114,10 +117,10 @@ public:
         }
         for (int i = 0; i < numPolygons; i++)
         {
-            triangles[i].p1 = triangles[i].p1 * s;
-            triangles[i].p2 = triangles[i].p2 * s;
-            triangles[i].p3 = triangles[i].p3 * s;
-            triangles[i].sertNormal();
+            triangles[i]->p1 = triangles[i]->p1 * s;
+            triangles[i]->p2 = triangles[i]->p2 * s;
+            triangles[i]->p3 = triangles[i]->p3 * s;
+            triangles[i]->sertNormal();
         }
         cout << " >> Se ha escalado el objeto " << name << "." << endl;
     }
@@ -129,10 +132,10 @@ public:
 
         for (int i = 0; i < numPolygons; i++)
         {
-            triangles[i].p1 = triangles[i].p1 + dir;
-            triangles[i].p2 = triangles[i].p2 + dir;
-            triangles[i].p3 = triangles[i].p3 + dir;
-            triangles[i].sertNormal();
+            triangles[i]->p1 = triangles[i]->p1 + dir;
+            triangles[i]->p2 = triangles[i]->p2 + dir;
+            triangles[i]->p3 = triangles[i]->p3 + dir;
+            triangles[i]->sertNormal();
         }
 
         cout << " >> Se ha trasladado el objeto " << name << "." << endl;

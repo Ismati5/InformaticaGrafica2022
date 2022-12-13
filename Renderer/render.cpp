@@ -49,17 +49,17 @@ Vect3 black = Vect3(0, 0, 0);
 
 // Materials
 //                          kd                  ks              kt              ke              ref     absortion
-Material diff_red           (red,               Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0),         0.2);
-Material diff_purple        (purple,            Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0),         0.2);
-Material diff_blue          (blue,              Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0),         0.2);
-Material diff_green         (green,             Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0),         0.2);
-Material diff_light_grey    (light_grey,        Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0),         0.2);
-Material diff_spec_blue     (blue,              light_grey,     Vect3(0, 0, 0), Vect3(0, 0, 0),         0.2);
+Material diff_red(red, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
+Material diff_purple(purple, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
+Material diff_blue(blue, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
+Material diff_green(green, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
+Material diff_light_grey(light_grey, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
+Material diff_spec_blue(blue, light_grey, Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
 
-Material spec_refr          (Vect3(0, 0, 0),    Vect3(0, 0, 0), Vect3(0, 0, 0),                 1.5,    0.2);
-Material spec               (Vect3(0, 0, 0),    Vect3(0, 0, 0), Vect3(0, 0, 0),                 1.5,    0.2);
-Material em_light_grey      (light_grey,        Vect3(0, 0, 0), Vect3(0, 0, 0), light_grey,             0.2);
-Material refr               (Vect3(0, 0, 0),    Vect3(10, 10, 10),          white,          Vect3(0, 0, 0), 1.5,    0.2);
+Material spec_refr(Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 1.5, 0.2);
+Material spec(Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 1.5, 0.2);
+Material em_light_grey(light_grey, Vect3(0, 0, 0), Vect3(0, 0, 0), light_grey, 0.2);
+Material refr(Vect3(0, 0, 0), Vect3(10, 10, 10), white, Vect3(0, 0, 0), 1.5, 0.2);
 
 // 32:9
 int Resol_4K_p[2] = {4096 * 2, 2160};
@@ -136,7 +136,6 @@ void renderPhotonMapping(string file, int max_photons)
     objs.push_back(&right_sphere);
 
     PhotonMap map = generation_of_photon_map(lights, objs, config);
-
 }
 
 /**
@@ -151,7 +150,7 @@ void renderScene(string file, int rays)
     vector<Light *> lights;
     render_config config;
 
-    config.resol = Resol_256;
+    config.resol = Resol_720;
     config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
@@ -160,10 +159,10 @@ void renderScene(string file, int rays)
     config.outfile = file;
     config.pathtracing = true;
     config.start = clock();
-    config.num_threads = 6;
+    config.num_threads = 12;
 
     // Default CORNELL BOX
-    Point o(0, 0, -3.5);
+    /*Point o(0, 0, -3.5);
     Direction l(-config.aspect_ratio, 0, 0);
     Direction u(0, 1, 0);
     Direction f(0, 0, 3);
@@ -191,11 +190,11 @@ void renderScene(string file, int rays)
     objs.push_back(&left_sphere);
 
     Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "refraction_sphere", refr);
-    objs.push_back(&right_sphere);
+    objs.push_back(&right_sphere);*/
 
     // TEST F1 y Tree
 
-    /*Point o(-0.5, 6, 25);
+    Point o(-0.5, 6, 25);
     Direction l(-config.aspect_ratio, 0, 0);
     Direction u(0, 1, 0);
     Direction f(0, 0, -3);
@@ -204,71 +203,23 @@ void renderScene(string file, int rays)
     Light light1(Point(12, 30, 20), Vect3(5000, 5000, 5000));
     lights.push_back(&light1);
 
-    Light light2(Point(0, 5, 6), Vect3(100, 100, 100));
-    // lights.push_back(&light2);
-
-    Light light3(Point(0, 5, -5), Vect3(100, 100, 100));
-    // lights.push_back(&light3);
-
-    Light light4(Point(-3, 5, 3), Vect3(100, 100, 100));
-    // lights.push_back(&light4);
-
-    Light light5(Point(3, 5, 3), Vect3(100, 100, 100));
-    // lights.push_back(&light5);
-
-    Light light6(Point(-3, 5, -3), Vect3(100, 100, 100));
-    // lights.push_back(&light6);
-
-    Light light7(Point(3, 5, -3), Vect3(100, 100, 100));
-    // lights.push_back(&light7);
-
-    Sphere test1(Point(0, 5, 0), 0.3, green);
-    // objs.push_back(&test1);
-
-    Sphere test2(Point(0, 5, 6), 0.3, green);
-    // objs.push_back(&test2);
-
-    Sphere test3(Point(0, 5, -5), 0.3, green);
-    // objs.push_back(&test3);
-
-    Sphere test4(Point(-3, 5, 3), 0.3, green);
-    // objs.push_back(&test4);
-
-    Sphere test5(Point(3, 5, 3), 0.3, green);
-    // objs.push_back(&test5);
-
-    Sphere test6(Point(-3, 5, -3), 0.3, green);
-    // objs.push_back(&test6);
-
-    Sphere test7(Point(3, 5, -3), 0.3, green);
-    // objs.push_back(&test7);
-
-    Plane floor_plane(Direction(0, 1, 0), 1, green);
+    Plane floor_plane(Direction(0, 1, 0), 1, "floor_plane", diff_green);
     objs.push_back(&floor_plane);
 
-    Plane ceiling_plane(Direction(0, -1, 0), 10, light_grey);
-    // objs.push_back(&ceiling_plane);
-
-    Plane back_plane(Direction(0, 0, 1), 50, blue);
-    objs.push_back(&back_plane);
-
-    Plane left_plane(Direction(1, 0, 0), 8, light_grey);
-    // objs.push_back(&left_plane);
-
-    Plane right_plane(Direction(-1, 0, 0), 8, light_grey);
-    // objs.push_back(&right_plane);
+    Plane ceiling_plane(Direction(0, -1, 0), 10, "ceiling_plane", em_light_grey);
+    objs.push_back(&ceiling_plane);
 
     // Object F1("F1", "objs/F1.obj", red);
     // F1.translate(Direction(0, -1, -0.5));
 
-    Object Tree("Tree", "objs/tree.obj", purple);
+    Object Tree("Tree", "objs/tree.obj", diff_purple);
     Tree.scale(-2);
     Tree.translate(Direction(0, -1, 0));
 
     for (int i = 0; i < Tree.getPolygons(); i++)
     {
-        objs.push_back(&Tree.getTriangles()[i]);
-    }*/
+        objs.push_back(Tree.getTriangles(i));
+    }
 
     // Multi-Threading rendering
     static atomic<int>
