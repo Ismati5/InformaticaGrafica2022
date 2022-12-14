@@ -180,7 +180,6 @@ void direct_light(vector<Primitive *> objs, Vect3 &emission,
 void light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0,
                          vector<Light *> light_points, Direction n, float shadowBias, Material material, list<Photon> &photons, int max_photons)
 {
-
     if (max_photons == 0) return;
 
     // Calculate random vector
@@ -215,6 +214,7 @@ void light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w
     materialType material_type;
     Vect3 brdf = fr(x, wi, w0, material, material_type);
 
+    // Only store non diffuse intersections
     if (material_type != DIFFUSE) 
         return ;
 
@@ -261,6 +261,7 @@ Direction randomWalk()
     return Direction(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
 }
 
+// Returns true if ray "ray" hits something. n,x and m will contain the data of the closest hit
 bool hitPosition(vector<Primitive *> objects, Ray ray, Direction &n, Point &x, Material &m) 
 {
     float t1, lowest_t1 = numeric_limits<float>::infinity();
@@ -291,11 +292,12 @@ void printList(list<Photon> list)
 {
     for (Photon ph : list)
     {
+        cout << "============================================" <<endl;
         cout << "EMISSION:" <<  ph.emission << endl;
         cout << "POSITION:" <<  ph.position_ << endl;
         cout << "DIRECTION:" <<  ph.direction << endl;
         cout << "FLUX:" <<  ph.flux << endl;
-        cout << "========================================" <<endl;
+        cout << "============================================" <<endl;
 
     }
     cout << "SIZE:" <<  list.size() << endl << endl;
@@ -331,7 +333,7 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
             Ray ray(wi, light->center);
             if (hitPosition(objects, ray, n, x, material))
             {
-                cout << config.max_photons - all_photons.size() - photons.size() << endl;
+                
                 light_value(objects, emission, x, (x - light->center).normalize(), lights, n, 
                             config.shadow_bias, material, photons, config.max_photons - all_photons.size() - photons.size());
 
@@ -358,21 +360,21 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
 /*
     Example method to search for the nearest neighbors of the photon map
 */
-// void search_nearest(PhotonMap map, ...){
-//     // Position to look for the nearest photons
-//     Vect3 query_position = ...;    
+void search_nearest(PhotonMap map, Vect3 x, unsigned long K, float r){
+    // Position to look for the nearest photons
+    Vect3 query_position = x;    
 
-//     // Maximum number of photons to look for
-//     unsigned long nphotons_estimate = ...;
+    // Maximum number of photons to look for
+    unsigned long nphotons_estimate = K;
 
-//     // Maximum distance to look for photons
-//     float radius_estimate = ...;
+    // Maximum distance to look for photons
+    float radius_estimate = r;
 
-//     // nearest is the nearest photons returned by the KDTree
-//     auto nearest = map.nearest_neighbors(query_position,
-//                                          nphotons_estimate,
-//                                          radius_estimate);
-// }
+    // nearest is the nearest photons returned by the KDTree
+    auto nearest = map.nearest_neighbors(query_position,
+                                         nphotons_estimate,
+                                         radius_estimate);
+}
 
 
 
