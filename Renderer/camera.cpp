@@ -268,7 +268,7 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
     }
     else if (material_type == REFRACTION)
     {
-        float no = 1;
+        float no = ref_coef;
         float nf, ni = material.ref_coef;
 
         Direction auxN = n;
@@ -294,15 +294,20 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
             wi = w0;
         else
             wi = (w0 * nf + auxN * (nf * angI - sqrtf(k))).normalize();
+
+        /*cout << "x: " << x << endl;
+        cout << "n: " << n << endl;
+        cout << "name: " << name << endl;
+        cout << "w0: " << w0 << endl;
+        cout << "wi: " << wi << endl;
+        cout << "no: " << no << endl;
+        cout << "ni: " << ni << endl;
+
+        char a;
+        cin >> a;*/
     }
 
     Ray ray(wi, x);
-
-    /*cout << "x: " << x << endl;
-    cout << "n: " << n << endl;
-    cout << "name: " << name << endl;
-    cout << "w0: " << w0 << endl;
-    cout << "wi: " << wi << endl;*/
 
     // Light from point sources
     direct_light(objs, ld, x, w0, light_points, n, color, shadowBias, material);
@@ -435,10 +440,16 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                             else
                                 closest_emission = closest_power * fr(closest_x, ray.d, w0, closest_material, material_type);
 
-                            /*cout << "Hit with " << closest_name << endl;
-                            cout << "Total emission: " << closest_emission << " from ray " << r << endl
-                                 << endl
-                                 << endl;*/
+                            /*if (closest_name == "refraction_sphere")
+                            {
+                                cout << "Hit with " << closest_name << endl;
+                                cout << "Total emission: " << closest_emission << " from ray " << r << endl
+                                     << endl
+                                     << endl;
+
+                                char a;
+                                cin >> a;
+                            }*/
                         }
                         else
                             closest_emission = closest_material.kd; // Without path tracing
@@ -457,11 +468,11 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                          << total_emission << " from " << config.rays << " intersections. @@@" << endl
                          << endl;
 
-                    cout << i << ":" << j << "  -> " << intersections << endl;
+                    cout << i << ":" << j << "  -> " << intersections << endl;*/
 
                     total_emission /= (float)config.rays;
 
-                    cout << endl
+                    /*cout << endl
                          << "@@@ - Final TOTAL: "
                          << total_emission << " - @@@" << endl
                          << endl;*/

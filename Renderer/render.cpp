@@ -49,21 +49,23 @@ Vect3 orange = Vect3(255, 153, 51);
 Vect3 white = Vect3(255, 255, 255);
 Vect3 black = Vect3(0, 0, 0);
 
+Vect3 none = Vect3(0, 0, 0);
+
 // Materials
 //                          kd                  ks              kt              ke              ref     absortion
-Material diff_red(red, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
-Material diff_purple(purple, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
-Material diff_blue(blue, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
-Material diff_green(green, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
-Material diff_light_grey(light_grey, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
-Material diff_grey(grey, Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
-Material diff_spec_blue(blue, light_grey, Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
-Material diff_spec_red(red, light_grey, Vect3(0, 0, 0), Vect3(0, 0, 0), 0.2);
+Material diff_red(red, none, none, none, 0.2);
+Material diff_purple(purple, none, none, none, 0.2);
+Material diff_blue(blue, none, none, none, 0.2);
+Material diff_green(green, none, none, none, 0.2);
+Material diff_light_grey(light_grey, none, none, none, 0.2);
+Material diff_grey(grey, none, none, none, 0.2);
+Material diff_spec_blue(blue, light_grey, none, none, 0.2);
+Material diff_spec_red(red, light_grey, none, none, 0.2);
 
-Material spec_refr(Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 1.5, 0.2);
-Material spec(Vect3(0, 0, 0), Vect3(0, 0, 0), Vect3(0, 0, 0), 1.5, 0.2);
-Material em_light_grey(light_grey, Vect3(0, 0, 0), Vect3(0, 0, 0), light_grey, 0.2);
-Material refr(Vect3(0, 0, 0), Vect3(10, 10, 10), white, Vect3(0, 0, 0), 1.5, 0.2);
+Material spec_refr(none, Vect3(10, 10, 10), white, none, 1.5, 0.2);
+Material spec(none, none, none, 1.5, 0.2);
+Material em_light_grey(light_grey, none, none, light_grey, 0.2);
+Material refr(none, none, white, none, 1.5, 0.2);
 
 // 32:9
 int Resol_4K_p[2] = {4096 * 2, 2160};
