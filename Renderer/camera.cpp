@@ -110,7 +110,7 @@ intersectionType Camera::closestObj(vector<Primitive *> objs, Ray ray, Direction
         {
             intersected = true;
 
-            if (t1 < lowest_t1)
+            if (t1 < lowest_t1 && t1 > 0.0001)
             {
                 lowest_t1 = t1;
                 closest_point = point;
@@ -268,7 +268,7 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
     }
     else if (material_type == REFRACTION)
     {
-        float no = ref_coef;
+        float no = 1;
         float nf, ni = material.ref_coef;
 
         Direction auxN = n;
@@ -280,7 +280,9 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
             angI = 1;
 
         if (angI < 0)
+        {
             angI = -angI;
+        }
         else
         {
             auxN = auxN * -1;
@@ -291,7 +293,7 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
 
         float k = 1 - nf * nf * (1 - angI * angI);
         if (k < 0)
-            wi = w0;
+            wi = Direction(0, 0, 0);
         else
             wi = (w0 * nf + auxN * (nf * angI - sqrtf(k))).normalize();
 
@@ -308,9 +310,6 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
     }
 
     Ray ray(wi, x);
-
-    // Light from point sources
-    direct_light(objs, ld, x, w0, light_points, n, color, shadowBias, material);
 
     Material material_aux;
 
@@ -334,6 +333,9 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
         emission = lx;
         return;
     }
+
+    // Light from point sources
+    direct_light(objs, ld, x, w0, light_points, n, color, shadowBias, material);
 
     emission = ld + lx * brdf;
     // cout << "B - Emission from: " << name << " = " << emission << " (ld = " << ld << ", fr = " << brdf << ", lx = " << lx << ")" << endl;

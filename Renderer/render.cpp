@@ -62,7 +62,7 @@ Material diff_grey(grey, none, none, none, 0.2);
 Material diff_spec_blue(blue, light_grey, none, none, 0.2);
 Material diff_spec_red(red, light_grey, none, none, 0.2);
 
-Material spec_refr(none, Vect3(10, 10, 10), white, none, 1.5, 0.2);
+Material spec_refr(none, Vect3(30, 30, 30), white, none, 1.5, 0.2);
 Material spec(none, none, none, 1.5, 0.2);
 Material em_light_grey(light_grey, none, none, light_grey, 0.2);
 Material refr(none, none, white, none, 1.5, 0.2);
@@ -177,8 +177,8 @@ void renderScene(string file, int rays)
     Direction f(0, 0, 3);
     Camera camera(l, u, f, o, config.resol);
 
-    // Light light(Point(0, 0.5, 0), white);
-    // lights.push_back(&light);
+    Light light(Point(0, 0.5, 0), white);
+    lights.push_back(&light);
 
     Plane left_plane(Direction(1, 0, 0), 1, "red_plane", diff_red);
     objs.push_back(&left_plane);
@@ -189,7 +189,7 @@ void renderScene(string file, int rays)
     Plane floor_plane(Direction(0, 1, 0), 1, "floor_plane", diff_light_grey);
     objs.push_back(&floor_plane);
 
-    Plane ceiling_plane(Direction(0, -1, 0), 1, "ceiling_plane", em_light_grey);
+    Plane ceiling_plane(Direction(0, -1, 0), 1, "ceiling_plane", diff_light_grey);
     objs.push_back(&ceiling_plane);
 
     Plane back_plane(Direction(0, 0, -1), 1, "back_plane", diff_light_grey);
@@ -198,7 +198,7 @@ void renderScene(string file, int rays)
     Sphere left_sphere(Point(-0.5, -0.7, 0.25), 0.3, "blue_plastic_sphere", diff_spec_blue);
     objs.push_back(&left_sphere);
 
-    Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "refraction_sphere", refr);
+    Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "refraction_sphere", spec_refr);
     objs.push_back(&right_sphere);
 
     // TEST TREE
