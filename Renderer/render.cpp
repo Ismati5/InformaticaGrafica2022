@@ -13,17 +13,10 @@
 #include <string>
 #include <ctime>
 
-#include "point.hpp"
-#include "direction.hpp"
-#include "vect3.hpp"
-#include "vect4.hpp"
-#include "matrix4.hpp"
-#include "sphere.hpp"
 #include "station.hpp"
 #include "camera.hpp"
-#include "light.hpp"
 #include "object.hpp"
-#include "photon.hpp"
+#include "camera_photon.cpp"
 
 using namespace std;
 

@@ -1,43 +1,12 @@
-/*
-Description :   This is an example of usage of the KDTree class. It does not
-                compile, but should give you the idea of how to integrate the
-                KDTree in your code
-*/
-
 using namespace std;
 
-#include "kdtree.hpp"
+#include "variables.hpp"
+#include "material.hpp"
+#include "light.hpp"
+#include "ray.hpp"
+#include "primitive.hpp"
 
-/* 
-    Your Photon class implementation, which stores each 
-    photon walk interaction 
-*/
-class Photon {
-public:
-    Vect3 emission;
-    Vect3 position_;    // 3D point of the interaction
-    Direction direction;
-    float flux;
-
-    float position(size_t i) const { return position_[i];}    // It returns the axis i position (x, y or z)
-};
-
-/* 
-    An additional struct that allows the KD-Tree to access your photon position
-*/
-struct PhotonAxisPosition {
-    float operator()(const Photon& p, size_t i) const {
-        return p.position(i);
-    }
-};
-
-/* 
-    The KD-Tree ready to work in 3 dimensions, with Photon s, under a 
-    brand-new name: PhotonMap 
-*/
-using PhotonMap = nn::KDTree<Photon,3,PhotonAxisPosition>;
-
-Vect3 fr(Point x, Direction wi, Direction w0, Material material, materialType &type)
+Vect3 fr_ph(Point x, Direction wi, Direction w0, Material material, materialType &type)
 {
     if (material.isLight())
     {
@@ -71,7 +40,7 @@ Vect3 fr(Point x, Direction wi, Direction w0, Material material, materialType &t
 
 }
 
-intersectionType closestObj(vector<Primitive *> objs, Ray ray, Direction &closest_normal, Point &closest_point,
+intersectionType closestObj_ph(vector<Primitive *> objs, Ray ray, Direction &closest_normal, Point &closest_point,
                                     Vect3 &closest_emission, Direction w0, string &name, Material material, Material &intersectedMaterial)
 {
     float t1, lowest_t1 = numeric_limits<float>::infinity();
@@ -103,7 +72,7 @@ intersectionType closestObj(vector<Primitive *> objs, Ray ray, Direction &closes
                 if (obj->isLight())
                 {
                     closest_type = LIGHT;
-                    closest_emission = obj->power() * fr(closest_point, ray.d, w0, material, material_type);
+                    closest_emission = obj->power() * fr_ph(closest_point, ray.d, w0, material, material_type);
                 }
 
                 else
@@ -167,7 +136,7 @@ void direct_light(vector<Primitive *> objs, Vect3 &emission,
 
             // Middle term (fr)
 
-            aux_emission *= (fr(x, wi, w0, material, material_type) / PI);
+            aux_emission *= (fr_ph(x, wi, w0, material, material_type) / PI);
 
             // Right term
             aux_emission *= abs(n.dotProd((light->center - x).normalize()));
@@ -177,7 +146,7 @@ void direct_light(vector<Primitive *> objs, Vect3 &emission,
     }
 }
 
-void light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0,
+void light_value_ph(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0,
                          vector<Light *> light_points, Direction n, float shadowBias, Material material, list<Photon> &photons, int max_photons)
 {
     if (max_photons == 0) return;
@@ -212,11 +181,15 @@ void light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w
     Vect3 ld(0, 0, 0), lx(0, 0, 0);
 
     materialType material_type;
-    Vect3 brdf = fr(x, wi, w0, material, material_type);
+    Vect3 brdf = fr_ph(x, wi, w0, material, material_type);
+
+    if (material_type == ABSORTION)
+        return;
 
     // Only store non diffuse intersections
-    if (material_type != DIFFUSE) 
-        return ;
+    bool savePhoton = true;
+    if (material_type == SPECULAR || material_type == REFRACTION) 
+        savePhoton = false;
 
     Ray ray(wi, x);
 
@@ -224,7 +197,7 @@ void light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w
     direct_light(objs, ld, x, w0, light_points, n, shadowBias, material);
 
     Material material_aux;
-    intersectionType intersected = closestObj(objs, ray, closest_normal, closest_point, closest_emission, w0, closest_name, material, material_aux);
+    intersectionType intersected = closestObj_ph(objs, ray, closest_normal, closest_point, closest_emission, w0, closest_name, material, material_aux);
 
     Photon ph;
     ph.position_ = closest_point.toVect3();
@@ -233,21 +206,21 @@ void light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w
     if (intersected == NONE) // No intersection with scene
     {
         ph.emission = Vect3(0, 0, 0);
-        photons.push_front(ph);
+        if(savePhoton) photons.push_front(ph);
         return;
     }
     else if (intersected == LIGHT) // Intersection with area light
     {
         ph.emission = closest_emission;
-        photons.push_front(ph);
+        if(savePhoton) photons.push_front(ph);
         return;
     }
 
-    light_value(objs, lx, closest_point, wi, light_points, closest_normal, shadowBias, material_aux, photons, max_photons-1);
+    light_value_ph(objs, lx, closest_point, wi, light_points, closest_normal, shadowBias, material_aux, photons, max_photons-1);
 
     //Save photon
     ph.emission = ld + lx * brdf;
-    photons.push_front(ph);
+    if(savePhoton) photons.push_front(ph);
 }
 
 Direction randomWalk()
@@ -334,7 +307,7 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
             if (hitPosition(objects, ray, n, x, material))
             {
                 
-                light_value(objects, emission, x, (x - light->center).normalize(), lights, n, 
+                light_value_ph(objects, emission, x, (x - light->center).normalize(), lights, n, 
                             config.shadow_bias, material, photons, config.max_photons - all_photons.size() - photons.size());
 
                 if (config.max_photons <= all_photons.size() + photons.size()) break;

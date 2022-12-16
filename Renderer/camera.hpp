@@ -19,53 +19,13 @@
 #include <limits>
 #include <ctime>
 
-#include "direction.hpp"
 #include "sphere.hpp"
 #include "plane.hpp"
 #include "triangle.hpp"
-#include "point.hpp"
 #include "light.hpp"
-#include "ray.hpp"
-#include "matrix4.hpp"
-#include "vect4.hpp"
-
-#define PI (3.14159265358979323846264338327950288)
+#include "variables.hpp"
 
 using namespace std;
-
-enum intersectionType
-{
-    NONE,
-    LIGHT,
-    OBJECT,
-};
-
-/**
- * @brief Render configuration
- *
- */
-struct render_config
-{
-    int *resol;
-    float aspect_ratio;
-    int rays;
-    int num_tiles_x;
-    int num_tiles_y;
-    int tile_size{32};
-    float shadow_bias;
-    Vect3 *content;
-    string outfile;
-    bool pathtracing;
-    unsigned start;
-
-    float max_distance = 9999;
-    int num_threads = thread::hardware_concurrency();
-
-    // Photon mapping
-    int max_photons;
-    int k;
-    float r;
-};
 
 /**
  * @brief Generates a progress bar
