@@ -188,7 +188,9 @@ public:
      */
     void render_thread(int id, vector<Primitive *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission);
 
-    // float kernel_density(render_config config, PhotonMap map);
+    void search_nearest(PhotonMap map, Vect3 x, unsigned long K, float r, vector<const Photon*> &photons);
 
-    void renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission);
+    Vect3 kernel_density(render_config config, PhotonMap map, Point x, Direction w0);
+
+    void renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission, PhotonMap map);
 };

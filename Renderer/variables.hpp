@@ -46,8 +46,9 @@ class Photon {
 public:
     Vect3 emission;
     Vect3 position_;    // 3D point of the interaction
-    Direction direction;
+    Direction wp;
     float flux;
+    Material material;
 
     float position(size_t i) const { return position_[i];}    // It returns the axis i position (x, y or z)
 };

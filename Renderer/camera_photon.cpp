@@ -201,17 +201,19 @@ void light_value_ph(vector<Primitive *> objs, Vect3 &emission, Point x, Directio
 
     Photon ph;
     ph.position_ = closest_point.toVect3();
-    ph.direction = wi;
+    ph.wp = wi;
 
     if (intersected == NONE) // No intersection with scene
     {
         ph.emission = Vect3(0, 0, 0);
+        ph.material = material;
         if(savePhoton) photons.push_front(ph);
         return;
     }
     else if (intersected == LIGHT) // Intersection with area light
     {
         ph.emission = closest_emission;
+        ph.material = material;
         if(savePhoton) photons.push_front(ph);
         return;
     }
@@ -220,6 +222,7 @@ void light_value_ph(vector<Primitive *> objs, Vect3 &emission, Point x, Directio
 
     //Save photon
     ph.emission = ld + lx * brdf;
+    ph.material = material;
     if(savePhoton) photons.push_front(ph);
 }
 
@@ -268,7 +271,7 @@ void printList(list<Photon> list)
         cout << "============================================" <<endl;
         cout << "EMISSION:" <<  ph.emission << endl;
         cout << "POSITION:" <<  ph.position_ << endl;
-        cout << "DIRECTION:" <<  ph.direction << endl;
+        cout << "WP:" <<  ph.wp << endl;
         cout << "FLUX:" <<  ph.flux << endl;
         cout << "============================================" <<endl;
 
@@ -330,24 +333,6 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
 
 }
 
-/*
-    Example method to search for the nearest neighbors of the photon map
-*/
-void search_nearest(PhotonMap map, Vect3 x, unsigned long K, float r){
-    // Position to look for the nearest photons
-    Vect3 query_position = x;    
-
-    // Maximum number of photons to look for
-    unsigned long nphotons_estimate = K;
-
-    // Maximum distance to look for photons
-    float radius_estimate = r;
-
-    // nearest is the nearest photons returned by the KDTree
-    auto nearest = map.nearest_neighbors(query_position,
-                                         nphotons_estimate,
-                                         radius_estimate);
-}
 
 
 

@@ -132,6 +132,7 @@ public:
      * @return std::ostream&
      */
     friend std::ostream &operator<<(std::ostream &os, const Vect3 &d);
+
 };
 
 std::ostream &operator<<(std::ostream &os, const Vect3 &d);

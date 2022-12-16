@@ -502,12 +502,43 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
     }
 }
 
-// float Camera::kernel_density(render_config config, PhotonMap map)
-// {
+void Camera::search_nearest(PhotonMap map, Vect3 x, unsigned long K, float r, vector<const Photon*> &photons){
+    // Position to look for the nearest photons
+    Vect3 query_position = x;    
 
-// }
+    // Maximum number of photons to look for
+    unsigned long nphotons_estimate = K;
 
-void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission)
+    // Maximum distance to look for photons
+    float radius_estimate = r;
+
+    // nearest is the nearest photons returned by the KDTree
+    photons = map.nearest_neighbors(query_position,
+                                         nphotons_estimate,
+                                         radius_estimate);
+}
+
+Vect3 Camera::kernel_density(render_config config, PhotonMap map, Point x, Direction w0)
+{
+    materialType type;
+    vector<const Photon*> photons;
+    search_nearest(map, Vect3(0,0,0), 1, 2, photons);
+
+    Vect3 kernel_dens = (0,0,0);
+    for (Photon const *ph : photons)
+    {
+        Vect3 leftComp = fr(x, ph->wp, w0 ,ph->material, type);
+        float rightComp = ph->flux / (PI * config.r * config.r);
+
+        kernel_dens += leftComp * rightComp;
+
+    }
+    
+    return kernel_dens;
+
+}
+
+void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission, PhotonMap map)
 {
 
     srand(time(NULL));
@@ -589,10 +620,10 @@ void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light 
 
                     if (intersected)
                     {
+                        vector<const Photon*> photons;
+                        search_nearest(map, closest_x.toVect3(), config.k, config.r, photons);
 
-                        // buscar k fotones mas cercanos a distancia maxima r
-
-                        // calcular con kernelDensity
+                        closest_emission = kernel_density(config, map, closest_x, w0);
 
                         intersections++;
                         total_emission += closest_emission;
