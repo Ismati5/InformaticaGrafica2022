@@ -326,7 +326,7 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
         
     }
 
-    printList(all_photons);
+    // printList(all_photons);
 
     PhotonMap map = PhotonMap(all_photons, PhotonAxisPosition());
     return map;

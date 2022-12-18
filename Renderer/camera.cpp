@@ -523,17 +523,21 @@ Vect3 Camera::kernel_density(render_config config, PhotonMap map, Point x, Direc
     materialType type;
     vector<const Photon*> photons;
     search_nearest(map, Vect3(0,0,0), 1, 2, photons);
+    cout << photons.size() << endl;
+    Vect3 leftComp;
+    float rightComp;
 
     Vect3 kernel_dens = (0,0,0);
-    for (Photon const *ph : photons)
+    for (const Photon *ph : photons)
     {
-        Vect3 leftComp = fr(x, ph->wp, w0 ,ph->material, type);
-        float rightComp = ph->flux / (PI * config.r * config.r);
+        cout << "VA A PETAR" << endl;
+        leftComp = fr(x, ph->wp, w0 ,ph->material, type);
+        cout << "MUELTO" << endl;
+        rightComp = ph->flux / (PI * config.r * config.r);
 
         kernel_dens += leftComp * rightComp;
-
     }
-    
+
     return kernel_dens;
 
 }
@@ -588,9 +592,10 @@ void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light 
                     materialType material_type;
 
                     closest_emission = Vect3(0, 0, 0);
-
+ 
                     for (Primitive *i : objs)
                     {
+
                         if (i->intersect(ray, t1, sur_normal, x))
                         {
                             if (t1 < lowest_t1)
@@ -615,9 +620,7 @@ void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light 
                             }
                         }
                     }
-
                     lowest_t1 = numeric_limits<float>::infinity();
-
                     if (intersected)
                     {
                         vector<const Photon*> photons;

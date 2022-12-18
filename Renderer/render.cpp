@@ -90,7 +90,7 @@ int Resol_512[2] = {512, 512};
 int Resol_1024[2] = {1024, 1024};
 int Resol_2048[2] = {2048, 2048};
 
-void renderPhotonMapping(string file, int max_photons)
+void renderPhotonMapping(string file, int rays, int max_photons)
 {
     vector<Primitive *> objs;
     vector<Light *> lights;
@@ -102,9 +102,10 @@ void renderPhotonMapping(string file, int max_photons)
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
     config.shadow_bias = 1e-4; // The bigger shadowBias is, the bigger the difference from reality is
     config.outfile = file;
-    config.pathtracing = true;
+        config.rays = rays;
+    config.pathtracing = false;
     config.start = clock();
-    config.num_threads = 6;
+    config.num_threads = 1;
 
     config.max_photons = max_photons;
     config.k = 10;
@@ -142,6 +143,59 @@ void renderPhotonMapping(string file, int max_photons)
     objs.push_back(&right_sphere);
 
     PhotonMap map = generation_of_photon_map(lights, objs, config);
+
+    // Multi-Threading rendering
+    static atomic<int>
+        tiles_left;
+    tiles_left = config.num_tiles_x * config.num_tiles_y;
+
+    static atomic<int> max_emission;
+    max_emission = 0;
+
+    vector<thread> threads;
+    config.content = (Vect3 *)malloc(config.resol[0] * config.resol[1] * sizeof(Vect3));
+    for (int i = 0; i < config.num_threads; i++)
+        threads.emplace_back(&Camera::renderPhoton_thread, camera, i, objs, lights, ref(config), ref(tiles_left), ref(max_emission), map);
+
+    for (auto &t : threads)
+        t.join();
+
+    //  Saving file
+    cout << "> Progress   [||||||||||||||||||||||||||||||||||||||||||||||||||] - 100%        (Saving image ...)\r";
+    cout.flush();
+
+    ofstream file_stream("renders/" + config.outfile);
+    file_stream << "P3" << endl;
+    file_stream << "#MAX=255" << endl;
+    file_stream << config.resol[0] << " " << config.resol[1] << endl;
+    file_stream << max_emission << endl;
+
+    for (float i = 0; i < config.resol[1]; i++) // i rows
+    {
+        for (float j = 0; j < config.resol[0]; j++) // j columns
+        {
+            file_stream << config.content[(int)((i * config.resol[0] + j))].x << " " << config.content[(int)((i * config.resol[0] + j))].y << " " << config.content[(int)((i * config.resol[0] + j))].z << "    ";
+        }
+        file_stream << endl;
+    }
+
+    file_stream.close();
+    cout << "> Progress   [||||||||||||||||||||||||||||||||||||||||||||||||||] - 100%         (Saving completed!)\r" << endl;
+    cout.flush();
+
+    if (double(clock() - config.start) / CLOCKS_PER_SEC > 60)
+    {
+        cout << "> Completed in " << int(double(clock() - config.start) / CLOCKS_PER_SEC) / 60 << "min " << int(double(clock() - config.start / CLOCKS_PER_SEC)) % 60 << "s! File saved as renders/" << config.outfile << "." << endl
+             << endl;
+    }
+    else
+    {
+        cout << "> Completed in " << int(double(clock() - config.start) / CLOCKS_PER_SEC) << "s! File saved as renders/" << config.outfile << "." << endl
+             << endl;
+    }
+
+    free(config.content);
+
 }
 
 /**
@@ -329,20 +383,20 @@ void renderScene(string file, int rays)
 int main(int argc, char *argv[])
 {
 
-    if (argc == 4)
+    if (argc >= 4)
     {
-        if (stoi(argv[3]) == 0) // non photon mapping
+        if (stoi(argv[4]) == 0) // non photon mapping
         {
             renderScene(argv[1], stoi(argv[2]));
         }
         else
         {
-            renderPhotonMapping(argv[1], stoi(argv[2]));
+            renderPhotonMapping(argv[1], stoi(argv[2]), stoi(argv[3]));
         }
     }
     else
     {
-        cout << "[!] Usage: renderer <filename.ppm> <rays per pixel> <photon mapping>" << endl;
+        cout << "[!] Usage: renderer <filename.ppm> <rays per pixel> <max photons>? <photon mapping>" << endl;
     }
 
     return 0;
