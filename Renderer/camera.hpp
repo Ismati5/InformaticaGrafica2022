@@ -75,6 +75,8 @@ public:
         pixelSize_y = (topLeft - botLeft) / size[1];
     }
 
+    Camera() {}
+
     /**
      * @brief Intersects ray with scene
      *
@@ -188,7 +190,7 @@ public:
      */
     void render_thread(int id, vector<Primitive *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission);
 
-    void search_nearest(PhotonMap map, Vect3 x, unsigned long K, float r, vector<const Photon*> &photons);
+    void search_nearest(PhotonMap map, Vect3 x, unsigned long K, float r, vector<const Photon *> &photons);
 
     Vect3 kernel_density(render_config config, PhotonMap map, Point x, Direction w0);
 

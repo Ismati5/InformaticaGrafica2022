@@ -12,6 +12,7 @@
 #include <fstream>
 #include <string>
 #include <ctime>
+#include <iomanip>
 
 #include "station.hpp"
 #include "camera.hpp"
@@ -90,6 +91,155 @@ int Resol_512[2] = {512, 512};
 int Resol_1024[2] = {1024, 1024};
 int Resol_2048[2] = {2048, 2048};
 
+/**
+ * @brief Returns color from string
+ *
+ * @param name
+ * @return Vect3
+ */
+Vect3 stringToColor(string name)
+{
+    if (name == "WHITE")
+        return white;
+    else
+    {
+        cout << "[!] Invalid color used: " << name << endl;
+        exit(1);
+    }
+}
+
+/**
+ * @brief Returns material from string
+ *
+ * @param name
+ * @return Material
+ */
+Material stringToMaterial(string name)
+{
+    if (name == "DIFF_RED")
+        return diff_red;
+    else if (name == "DIFF_GREEN")
+        return diff_green;
+    else if (name == "DIFF_LIGHT_GREY")
+        return diff_light_grey;
+    else if (name == "DIFF_SPEC_BLUE")
+        return diff_spec_blue;
+    else if (name == "SPEC_REFR")
+        return spec_refr;
+    else if (name == "EM_LIGHT_GREY")
+        return em_light_grey;
+    else
+    {
+        cout << "[!] Invalid material used: " << name << endl;
+        exit(1);
+    }
+}
+
+/**
+ * @brief Load scene from a file
+ *
+ * @param file
+ * @param objs
+ * @param lights
+ * @return render_config
+ */
+render_config loadScene(string file, Camera &camera, vector<Primitive *> &objs, vector<Light *> &lights)
+{
+    ifstream file_stream("scenes/" + file + ".dat"); // Scene file
+    render_config config;
+
+    if (file_stream.is_open())
+    {
+        cout << endl
+             << "1 > Loading " << file + ".dat"
+             << " scene ..." << endl;
+    }
+    else
+    {
+        cout << "[!] Failed loading " << file + ".dat"
+             << " file!" << endl;
+        exit(1);
+    }
+
+    string data;
+
+    file_stream >> data;
+
+    while (!file_stream.eof())
+    {
+
+        if (data == "#")
+        {
+            getline(file_stream, data);
+        }
+        else
+        {
+
+            if (data == "RESOLUTION") // Set scene resolution
+            {
+                int resol1, resol2;
+                file_stream >> resol1 >> resol2;
+                config.resol[0] = resol1;
+                config.resol[1] = resol2;
+                config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
+            }
+            else if (data == "THREADS") // Set scene num of threads
+            {
+                string threads;
+                file_stream >> threads;
+                config.num_threads = stoi(threads);
+            }
+            else if (data == "CAMERA") // Load a plane
+            {
+                float x, y, z;
+                file_stream >> x >> y >> z;
+                Point o(x, y, z);
+                Direction l(-config.aspect_ratio, 0, 0);
+                Direction u(0, 1, 0);
+                Direction f(0, 0, 3);
+                camera = Camera(l, u, f, o, config.resol);
+            }
+            else if (data == "LIGHT") // Load a plane
+            {
+                string color;
+                float x, y, z;
+                file_stream >> x >> y >> z >> color;
+                Light *auxLight = new Light(Point(x, y, z), stringToColor(color));
+                lights.push_back(auxLight);
+            }
+            else if (data == "PLANE") // Load a plane
+            {
+                string name, material;
+                float x, y, z, d;
+                file_stream >> name >> x >> y >> z >> d >> material;
+                Plane *auxPlane = new Plane(Direction(x, y, z), d, name, stringToMaterial(material));
+                objs.push_back(auxPlane);
+            }
+            else if (data == "SPHERE") // Load a sphere
+            {
+                string name, material;
+                float x, y, z, d;
+                file_stream >> name >> x >> y >> z >> d >> material;
+                Sphere *auxSphere = new Sphere(Point(x, y, z), d, name, stringToMaterial(material));
+                objs.push_back(auxSphere);
+            }
+        }
+
+        file_stream >> data;
+    }
+
+    file_stream.close();
+
+    return config;
+}
+
+/**
+ * @brief Create a Photon Render scene
+ *
+ * @param file
+ * @param rays
+ * @param max_photons
+ */
 void renderPhotonMapping(string file, int rays, int max_photons)
 {
     vector<Primitive *> objs;
@@ -207,54 +357,45 @@ void renderScene(string file, int rays)
 {
     vector<Primitive *> objs;
     vector<Light *> lights;
-    render_config config;
+    vector<Light *> lights_aux;
 
-    config.resol = Resol_1024;
-    config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
+    Camera *camera = new Camera();
+
+    render_config config = loadScene(file, *camera, objs, lights);
+
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
     config.shadow_bias = 1e-4; // The bigger shadowBias is, the bigger the difference from reality is
-    config.rays = rays;
-    config.outfile = file;
+    config.outfile = file + ".ppm";
     config.pathtracing = true;
     config.start = clock();
-    config.num_threads = 12;
+    config.rays = rays;
 
-    // Default CORNELL BOX
-    Point o(0, 0, -3.5);
-    Direction l(-config.aspect_ratio, 0, 0);
-    Direction u(0, 1, 0);
-    Direction f(0, 0, 3);
-    Camera camera(l, u, f, o, config.resol);
+    if (objs.size() == 0)
+    {
+        cout << "[!] Scene is empty! Objects are needed." << endl;
+        exit(1);
+    }
 
-    // Light light(Point(0, 0.5, 0), white);
-    // lights.push_back(&light);
+    if (lights.size() == 0)
+    {
+        lights = lights_aux;
+    }
 
-    Triangle tri1(Point(-0.3, 1, -0.3), Point(-0.3, 1, 0.3), Point(0.3, 1, 0.3), Material(light_grey, none, none, Vect3(3000, 3000, 3000), 0.2));
-    objs.push_back(&tri1);
-    Triangle tri2(Point(0.3, 1, -0.3), Point(0.3, 1, 0.3), Point(-0.3, 1, -0.3), Material(light_grey, none, none, Vect3(3000, 3000, 3000), 0.2));
-    objs.push_back(&tri2);
+    cout << " - Resolution: " << config.resol[0] << "x" << config.resol[1] << " pixels." << endl;
+    cout << " - Threads used: " << config.num_threads << " threads." << endl;
+    cout << " - Total Objects: " << objs.size() << " objects." << endl;
+    cout << " - Total Point Lights: " << lights.size() << " lights." << endl
+         << endl;
 
-    Plane left_plane(Direction(1, 0, 0), 1, "red_plane", diff_red);
-    objs.push_back(&left_plane);
+    cout << "2 > Starting rendering scene ..." << endl;
 
-    Plane right_plane(Direction(-1, 0, 0), 1, "green_plane", diff_green);
-    objs.push_back(&right_plane);
+    // Small area light CORNELL BOX
 
-    Plane floor_plane(Direction(0, 1, 0), 1, "floor_plane", diff_light_grey);
-    objs.push_back(&floor_plane);
-
-    Plane ceiling_plane(Direction(0, -1, 0), 1, "ceiling_plane", diff_light_grey);
-    objs.push_back(&ceiling_plane);
-
-    Plane back_plane(Direction(0, 0, -1), 1, "back_plane", diff_light_grey);
-    objs.push_back(&back_plane);
-
-    Sphere left_sphere(Point(-0.5, -0.7, 0.25), 0.3, "blue_plastic_sphere", diff_spec_blue);
-    objs.push_back(&left_sphere);
-
-    Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "refraction_sphere", spec_refr);
-    objs.push_back(&right_sphere);
+    // Triangle tri1(Point(-0.3, 1, -0.3), Point(-0.3, 1, 0.3), Point(0.3, 1, 0.3), Material(light_grey, none, none, Vect3(3000, 3000, 3000), 0.2));
+    // objs.push_back(&tri1);
+    // Triangle tri2(Point(0.3, 1, -0.3), Point(0.3, 1, 0.3), Point(-0.3, 1, -0.3), Material(light_grey, none, none, Vect3(3000, 3000, 3000), 0.2));
+    // objs.push_back(&tri2);
 
     // TEST FIAT
     /*Point o(0, 1.6, 8);
@@ -340,6 +481,7 @@ void renderScene(string file, int rays)
 
     vector<thread> threads;
     config.content = (Vect3 *)malloc(config.resol[0] * config.resol[1] * sizeof(Vect3));
+
     for (int i = 0; i < config.num_threads; i++)
         threads.emplace_back(&Camera::render_thread, camera, i, objs, lights, ref(config), ref(tiles_left), ref(max_emission));
 
@@ -347,7 +489,7 @@ void renderScene(string file, int rays)
         t.join();
 
     //  Saving file
-    cout << "> Progress   [||||||||||||||||||||||||||||||||||||||||||||||||||] - 100%        (Saving image ...)\r";
+    cout << " - Progress   [||||||||||||||||||||||||||||||||||||||||||||||||||] - 100%        (Saving image ...)\r";
     cout.flush();
 
     ofstream file_stream("renders/" + config.outfile);
@@ -366,17 +508,19 @@ void renderScene(string file, int rays)
     }
 
     file_stream.close();
-    cout << "> Progress   [||||||||||||||||||||||||||||||||||||||||||||||||||] - 100%         (Saving completed!)\r" << endl;
+    cout << " - Progress   [||||||||||||||||||||||||||||||||||||||||||||||||||] - 100%         (Saving completed!)\r" << endl;
     cout.flush();
 
     if (double(clock() - config.start) / CLOCKS_PER_SEC > 60)
     {
-        cout << "> Completed in " << int(double(clock() - config.start) / CLOCKS_PER_SEC) / 60 << "min " << int(double(clock() - config.start / CLOCKS_PER_SEC)) % 60 << "s! File saved as renders/" << config.outfile << "." << endl
+        cout << endl
+             << "3 > Completed in " << int(double(clock() - config.start) / CLOCKS_PER_SEC) / 60 << "min " << int(double(clock() - config.start / CLOCKS_PER_SEC)) % 60 << "s! File saved as renders/" << config.outfile << "." << endl
              << endl;
     }
     else
     {
-        cout << "> Completed in " << int(double(clock() - config.start) / CLOCKS_PER_SEC) << "s! File saved as renders/" << config.outfile << "." << endl
+        cout << endl
+             << "3 > Completed in " << int(double(clock() - config.start) / CLOCKS_PER_SEC) << "s! File saved as renders/" << config.outfile << "." << endl
              << endl;
     }
 
@@ -405,13 +549,13 @@ int main(int argc, char *argv[]) // 1 = -r / -p,  2 = file, 3 = rays, 4 ? = phot
         }
         else
         {
-            cout << "[!] Usage: render [-r | -p] <filename.ppm> <rays per pixel> [max photons]" << endl;
+            cout << "[!] Usage: render [-r | -p] <filename> <rays per pixel> [max photons]" << endl;
             exit(1);
         }
     }
     else
     {
-        cout << "[!] Usage: render [-r | -p] <filename.ppm> <rays per pixel> [max photons]" << endl;
+        cout << "[!] Usage: render [-r | -p] <filename> <rays per pixel> [max photons]" << endl;
         exit(1);
     }
 

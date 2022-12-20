@@ -26,7 +26,7 @@ void progressBar(int tile, int total_tiles, unsigned start)
 
     estimated = (total_tiles - tile) * estimated;
 
-    cout << "   Progress   [";
+    cout << " - Progress   [";
     percentage = tile * 100 / total_tiles;
     for (int i = 0; i < 50; i++)
     {
@@ -502,9 +502,10 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
     }
 }
 
-void Camera::search_nearest(PhotonMap map, Vect3 x, unsigned long K, float r, vector<const Photon*> &photons){
+void Camera::search_nearest(PhotonMap map, Vect3 x, unsigned long K, float r, vector<const Photon *> &photons)
+{
     // Position to look for the nearest photons
-    Vect3 query_position = x;    
+    Vect3 query_position = x;
 
     // Maximum number of photons to look for
     unsigned long nphotons_estimate = K;
@@ -514,24 +515,24 @@ void Camera::search_nearest(PhotonMap map, Vect3 x, unsigned long K, float r, ve
 
     // nearest is the nearest photons returned by the KDTree
     photons = map.nearest_neighbors(query_position,
-                                         nphotons_estimate,
-                                         radius_estimate);
+                                    nphotons_estimate,
+                                    radius_estimate);
 }
 
 Vect3 Camera::kernel_density(render_config config, PhotonMap map, Point x, Direction w0)
 {
     materialType type;
-    vector<const Photon*> photons;
-    search_nearest(map, Vect3(0,0,0), 1, 2, photons);
+    vector<const Photon *> photons;
+    search_nearest(map, Vect3(0, 0, 0), 1, 2, photons);
     cout << photons.size() << endl;
     Vect3 leftComp;
     float rightComp;
 
-    Vect3 kernel_dens = (0,0,0);
+    Vect3 kernel_dens = (0, 0, 0);
     for (const Photon *ph : photons)
     {
         cout << "VA A PETAR" << endl;
-        leftComp = fr(x, ph->wp, w0 ,ph->material, type);
+        leftComp = fr(x, ph->wp, w0, ph->material, type);
         cout << "MUELTO" << endl;
         rightComp = ph->flux / (PI * config.r * config.r);
 
@@ -539,7 +540,6 @@ Vect3 Camera::kernel_density(render_config config, PhotonMap map, Point x, Direc
     }
 
     return kernel_dens;
-
 }
 
 void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission, PhotonMap map)
@@ -592,7 +592,7 @@ void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light 
                     materialType material_type;
 
                     closest_emission = Vect3(0, 0, 0);
- 
+
                     for (Primitive *i : objs)
                     {
 
@@ -623,7 +623,7 @@ void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light 
                     lowest_t1 = numeric_limits<float>::infinity();
                     if (intersected)
                     {
-                        vector<const Photon*> photons;
+                        vector<const Photon *> photons;
                         search_nearest(map, closest_x.toVect3(), config.k, config.r, photons);
 
                         closest_emission = kernel_density(config, map, closest_x, w0);
