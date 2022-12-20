@@ -102,7 +102,7 @@ void renderPhotonMapping(string file, int rays, int max_photons)
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
     config.shadow_bias = 1e-4; // The bigger shadowBias is, the bigger the difference from reality is
     config.outfile = file;
-        config.rays = rays;
+    config.rays = rays;
     config.pathtracing = false;
     config.start = clock();
     config.num_threads = 1;
@@ -195,7 +195,6 @@ void renderPhotonMapping(string file, int rays, int max_photons)
     }
 
     free(config.content);
-
 }
 
 /**
@@ -210,7 +209,7 @@ void renderScene(string file, int rays)
     vector<Light *> lights;
     render_config config;
 
-    config.resol = Resol_256;
+    config.resol = Resol_1024;
     config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
@@ -222,14 +221,19 @@ void renderScene(string file, int rays)
     config.num_threads = 12;
 
     // Default CORNELL BOX
-    /*Point o(0, 0, -3.5);
+    Point o(0, 0, -3.5);
     Direction l(-config.aspect_ratio, 0, 0);
     Direction u(0, 1, 0);
     Direction f(0, 0, 3);
     Camera camera(l, u, f, o, config.resol);
 
-    // sLight light(Point(0, 0.5, 0), white);
+    // Light light(Point(0, 0.5, 0), white);
     // lights.push_back(&light);
+
+    Triangle tri1(Point(-0.3, 1, -0.3), Point(-0.3, 1, 0.3), Point(0.3, 1, 0.3), Material(light_grey, none, none, Vect3(3000, 3000, 3000), 0.2));
+    objs.push_back(&tri1);
+    Triangle tri2(Point(0.3, 1, -0.3), Point(0.3, 1, 0.3), Point(-0.3, 1, -0.3), Material(light_grey, none, none, Vect3(3000, 3000, 3000), 0.2));
+    objs.push_back(&tri2);
 
     Plane left_plane(Direction(1, 0, 0), 1, "red_plane", diff_red);
     objs.push_back(&left_plane);
@@ -240,7 +244,7 @@ void renderScene(string file, int rays)
     Plane floor_plane(Direction(0, 1, 0), 1, "floor_plane", diff_light_grey);
     objs.push_back(&floor_plane);
 
-    Plane ceiling_plane(Direction(0, -1, 0), 1, "ceiling_plane", em_light_grey);
+    Plane ceiling_plane(Direction(0, -1, 0), 1, "ceiling_plane", diff_light_grey);
     objs.push_back(&ceiling_plane);
 
     Plane back_plane(Direction(0, 0, -1), 1, "back_plane", diff_light_grey);
@@ -251,10 +255,9 @@ void renderScene(string file, int rays)
 
     Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "refraction_sphere", spec_refr);
     objs.push_back(&right_sphere);
-    */
 
     // TEST FIAT
-    Point o(0, 1.6, 8);
+    /*Point o(0, 1.6, 8);
     Direction l(config.aspect_ratio, 0, 0);
     Direction u(0, 1, 0);
     Direction f(0, 0, -3);
@@ -275,7 +278,7 @@ void renderScene(string file, int rays)
     for (int i = 0; i < Fiat.getPolygons(); i++)
     {
         objs.push_back(Fiat.getTriangles(i));
-    }
+    }*/
 
     // TEST TREE
     /*Point o(-0.5, 6, 25);
@@ -380,23 +383,36 @@ void renderScene(string file, int rays)
     free(config.content);
 }
 
-int main(int argc, char *argv[])
+/**
+ * @brief render [-r | -p] <filename.ppm> <rays per pixel> [max photons]
+ *
+ * @param argc
+ * @param argv
+ * @return int
+ */
+int main(int argc, char *argv[]) // 1 = -r / -p,  2 = file, 3 = rays, 4 ? = photons
 {
 
     if (argc >= 4)
     {
-        if (stoi(argv[4]) == 0) // non photon mapping
+        if (argv[1][1] == 'r') // Ray-tracing
         {
-            renderScene(argv[1], stoi(argv[2]));
+            renderScene(argv[2], stoi(argv[3]));
+        }
+        else if (argv[1][1] == 'p' && argc == 5) // Photon-Mapping
+        {
+            renderPhotonMapping(argv[2], stoi(argv[3]), stoi(argv[4]));
         }
         else
         {
-            renderPhotonMapping(argv[1], stoi(argv[2]), stoi(argv[3]));
+            cout << "[!] Usage: render [-r | -p] <filename.ppm> <rays per pixel> [max photons]" << endl;
+            exit(1);
         }
     }
     else
     {
-        cout << "[!] Usage: renderer <filename.ppm> <rays per pixel> <max photons>? <photon mapping>" << endl;
+        cout << "[!] Usage: render [-r | -p] <filename.ppm> <rays per pixel> [max photons]" << endl;
+        exit(1);
     }
 
     return 0;
