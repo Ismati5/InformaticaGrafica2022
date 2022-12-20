@@ -122,7 +122,6 @@ public:
             triangles[i]->p3 = triangles[i]->p3 * s;
             triangles[i]->sertNormal();
         }
-        cout << " >> Se ha escalado el objeto " << name << "." << endl;
     }
 
     void translate(Direction dir)
@@ -137,7 +136,5 @@ public:
             triangles[i]->p3 = triangles[i]->p3 + dir;
             triangles[i]->sertNormal();
         }
-
-        cout << " >> Se ha trasladado el objeto " << name << "." << endl;
     }
 };

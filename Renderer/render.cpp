@@ -13,6 +13,8 @@
 #include <string>
 #include <ctime>
 #include <iomanip>
+#include <windows.h>
+#include <ShellApi.h>
 
 #include "station.hpp"
 #include "camera.hpp"
@@ -174,7 +176,6 @@ render_config loadScene(string file, Camera &camera, vector<Primitive *> &objs, 
         }
         else
         {
-
             if (data == "RESOLUTION") // Set scene resolution
             {
                 int resol1, resol2;
@@ -222,6 +223,35 @@ render_config loadScene(string file, Camera &camera, vector<Primitive *> &objs, 
                 file_stream >> name >> x >> y >> z >> d >> material;
                 Sphere *auxSphere = new Sphere(Point(x, y, z), d, name, stringToMaterial(material));
                 objs.push_back(auxSphere);
+            }
+            else if (data == "TRIANGLE") // Load a sphere
+            {
+                string material;
+                float x1, y1, z1, x2, y2, z2, x3, y3, z3;
+                file_stream >> x1 >> y1 >> z1 >> x2 >> y2 >> z2 >> x3 >> y3 >> z3 >> material;
+                Triangle *auxTriangle = new Triangle(Point(x1, y1, z1), Point(x2, y2, z2), Point(x3, y3, z3), stringToMaterial(material));
+                objs.push_back(auxTriangle);
+            }
+            else if (data == "OBJECT") // Load a sphere
+            {
+                string name, obj_file, material;
+                float x, y, z, scale;
+                file_stream >> name >> obj_file >> scale >> x >> y >> z >> material;
+                Object *aux_Object = new Object(name, obj_file, stringToMaterial(material));
+                aux_Object->scale(scale);
+                aux_Object->translate(Direction(x, y, z));
+                for (int i = 0; i < aux_Object->getPolygons(); i++)
+                {
+                    objs.push_back(aux_Object->getTriangles(i));
+                }
+            }
+            else if (data == "$DEBUG_PATH") // Set scene num of threads
+            {
+                config.pathtracing = false;
+            }
+            else if (data == "$DEBUG_THREAD") // Set scene num of threads
+            {
+                config.num_threads = 1;
             }
         }
 
@@ -367,7 +397,6 @@ void renderScene(string file, int rays)
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
     config.shadow_bias = 1e-4; // The bigger shadowBias is, the bigger the difference from reality is
     config.outfile = file + ".ppm";
-    config.pathtracing = true;
     config.start = clock();
     config.rays = rays;
 
@@ -393,9 +422,9 @@ void renderScene(string file, int rays)
     // Small area light CORNELL BOX
 
     // Triangle tri1(Point(-0.3, 1, -0.3), Point(-0.3, 1, 0.3), Point(0.3, 1, 0.3), Material(light_grey, none, none, Vect3(3000, 3000, 3000), 0.2));
-    // objs.push_back(&tri1);
-    // Triangle tri2(Point(0.3, 1, -0.3), Point(0.3, 1, 0.3), Point(-0.3, 1, -0.3), Material(light_grey, none, none, Vect3(3000, 3000, 3000), 0.2));
-    // objs.push_back(&tri2);
+    //  objs.push_back(&tri1);
+    //  Triangle tri2(Point(0.3, 1, -0.3), Point(0.3, 1, 0.3), Point(-0.3, 1, -0.3), Material(light_grey, none, none, Vect3(3000, 3000, 3000), 0.2));
+    //  objs.push_back(&tri2);
 
     // TEST FIAT
     /*Point o(0, 1.6, 8);
@@ -525,6 +554,9 @@ void renderScene(string file, int rays)
     }
 
     free(config.content);
+
+    string output_file = "renders\\" + config.outfile;
+    ShellExecuteA(GetDesktopWindow(), NULL, output_file.c_str(), NULL, NULL, SW_SHOW); // Open output file created
 }
 
 /**

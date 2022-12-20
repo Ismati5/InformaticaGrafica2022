@@ -30,7 +30,7 @@ struct render_config
     float shadow_bias;
     Vect3 *content;
     string outfile;
-    bool pathtracing;
+    bool pathtracing = true;
     unsigned start;
 
     float max_distance = 9999;
@@ -42,28 +42,31 @@ struct render_config
     float r;
 };
 
-class Photon {
+class Photon
+{
 public:
     Vect3 emission;
-    Vect3 position_;    // 3D point of the interaction
+    Vect3 position_; // 3D point of the interaction
     Direction wp;
     float flux;
     Material material;
 
-    float position(size_t i) const { return position_[i];}    // It returns the axis i position (x, y or z)
+    float position(size_t i) const { return position_[i]; } // It returns the axis i position (x, y or z)
 };
 
-/* 
+/*
     An additional struct that allows the KD-Tree to access your photon position
 */
-struct PhotonAxisPosition {
-    float operator()(const Photon& p, size_t i) const {
+struct PhotonAxisPosition
+{
+    float operator()(const Photon &p, size_t i) const
+    {
         return p.position(i);
     }
 };
 
-/* 
-    The KD-Tree ready to work in 3 dimensions, with Photon s, under a 
-    brand-new name: PhotonMap 
+/*
+    The KD-Tree ready to work in 3 dimensions, with Photon s, under a
+    brand-new name: PhotonMap
 */
-using PhotonMap = nn::KDTree<Photon,3,PhotonAxisPosition>;
+using PhotonMap = nn::KDTree<Photon, 3, PhotonAxisPosition>;
