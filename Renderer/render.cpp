@@ -60,6 +60,7 @@ Material diff_light_grey(light_grey, none, none, none, 0.2);
 Material diff_grey(grey, none, none, none, 0.2);
 Material diff_spec_blue(blue, light_grey, none, none, 0.2);
 Material diff_spec_red(red, light_grey, none, none, 0.2);
+Material diff_spec_purple(purple, light_grey, none, none, 0.2);
 
 Material spec(grey, grey, none, none, 0.2);
 
@@ -141,6 +142,8 @@ Material stringToMaterial(string name)
         return diff_spec_blue;
     else if (name == "DIFF_SPEC_RED")
         return diff_spec_red;
+    else if (name == "DIFF_SPEC_PURPLE")
+        return diff_spec_purple;
     else if (name == "SPEC_REFR")
         return spec_refr;
     else if (name == "SPEC")
