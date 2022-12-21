@@ -34,6 +34,7 @@ Vect3 red = Vect3(204, 0, 0);
 Vect3 blue = Vect3(143, 255, 255);
 Vect3 green = Vect3(0, 255, 0);
 Vect3 purple = Vect3(228, 172, 255);
+Vect3 dark_purple = Vect3(156, 12, 153);
 Vect3 light_grey = Vect3(231, 230, 230);
 
 Vect3 grey = Vect3(112, 128, 144);
@@ -52,6 +53,7 @@ Vect3 none = Vect3(0, 0, 0);
 Material diff_red(red, none, none, none, 0.2);
 Material diff_black(none, none, none, none, 0.2);
 Material diff_purple(purple, none, none, none, 0.2);
+Material diff_dark_purple(dark_purple, none, none, none, 0.2);
 Material diff_blue(blue, none, none, none, 0.2);
 Material diff_green(green, none, none, none, 0.2);
 Material diff_light_grey(light_grey, none, none, none, 0.2);
@@ -123,6 +125,8 @@ Material stringToMaterial(string name)
         return diff_red;
     else if (name == "DIFF_PURPLE")
         return diff_purple;
+    else if (name == "DIFF_DARK_PURPLE")
+        return diff_dark_purple;
     else if (name == "DIFF_BLUE")
         return diff_blue;
     else if (name == "DIFF_GREEN")
