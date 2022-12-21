@@ -444,13 +444,6 @@ void renderScene(string file, int rays)
 
     cout << "2 > Starting rendering scene ..." << endl;
 
-    // Small area light CORNELL BOX
-
-    // Triangle tri1(Point(-0.3, 1, -0.3), Point(-0.3, 1, 0.3), Point(0.3, 1, 0.3), Material(light_grey, none, none, Vect3(3000, 3000, 3000), 0.2));
-    //  objs.push_back(&tri1);
-    //  Triangle tri2(Point(0.3, 1, -0.3), Point(0.3, 1, 0.3), Point(-0.3, 1, -0.3), Material(light_grey, none, none, Vect3(3000, 3000, 3000), 0.2));
-    //  objs.push_back(&tri2);
-
     // TEST FIAT
     /*Point o(0, 1.6, 8);
     Direction l(config.aspect_ratio, 0, 0);
