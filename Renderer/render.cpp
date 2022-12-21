@@ -50,6 +50,7 @@ Vect3 none = Vect3(0, 0, 0);
 // Materials
 //                          kd                  ks              kt              ke              ref     absortion
 Material diff_red(red, none, none, none, 0.2);
+Material diff_black(none, none, none, none, 0.2);
 Material diff_purple(purple, none, none, none, 0.2);
 Material diff_blue(blue, none, none, none, 0.2);
 Material diff_green(green, none, none, none, 0.2);
@@ -130,6 +131,8 @@ Material stringToMaterial(string name)
         return diff_light_grey;
     else if (name == "DIFF_GREY")
         return diff_grey;
+    else if (name == "DIFF_BLACK")
+        return diff_black;
     else if (name == "DIFF_SPEC_BLUE")
         return diff_spec_blue;
     else if (name == "DIFF_SPEC_RED")
