@@ -8,4 +8,4 @@ THREADS 6
 CAMERA  0 0 -30
 PLANE   ceiling_plane 0 -1 0   20   EM_LIGHT_GREY
 PLANE   back_plane  0 0 -1  10   DIFF_BLACK
-OBJECT  Bird  objs/Bird.obj -4   0 -8 0 -90 x  DIFF_RED
+OBJECT  Bird  objs/Bird.obj -4   0 -8 0 -90 x   0 y 0 z    DIFF_RED

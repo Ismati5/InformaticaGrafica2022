@@ -252,20 +252,15 @@ render_config loadScene(string file, Camera &camera, vector<Primitive *> &objs, 
             else if (data == "OBJECT") // Load a sphere
             {
                 string name, obj_file, material, axis;
-                float x, y, z, scale, deg;
-                file_stream >> name >> obj_file >> scale >> x >> y >> z >> deg >> axis >> material;
+                float x, y, z, scale, degx, degy, degz;
+                file_stream >> name >> obj_file >> scale >> x >> y >> z >> degx >> axis >> degy >> axis >> degz >> axis >> material;
                 Object *aux_Object = new Object(name, obj_file, stringToMaterial(material));
-                if (deg != 0)
-                {
-                    int a;
-                    if (axis == "x")
-                        a = 0;
-                    else if (axis == "y")
-                        a = 1;
-                    if (axis == "z")
-                        a = 2;
-                    aux_Object->rotate(deg * PI / 180, a);
-                }
+                if (degx != 0)
+                    aux_Object->rotate(degx * PI / 180, 0);
+                if (degy != 0)
+                    aux_Object->rotate(degy * PI / 180, 1);
+                if (degz != 0)
+                    aux_Object->rotate(degz * PI / 180, 2);
                 aux_Object->scale(scale);
                 aux_Object->translate(Direction(x, y, z));
                 for (int i = 0; i < aux_Object->getPolygons(); i++)
@@ -446,80 +441,6 @@ void renderScene(string file, int rays)
          << endl;
 
     cout << "2 > Starting rendering scene ..." << endl;
-
-    // TEST FIAT
-    /*Point o(0, 1.6, 8);
-    Direction l(config.aspect_ratio, 0, 0);
-    Direction u(0, 1, 0);
-    Direction f(0, 0, -3);
-    Camera camera(l, u, f, o, config.resol);
-
-    Plane floor_plane(Direction(0, 1, 0), 1, "floor_plane", diff_grey);
-    objs.push_back(&floor_plane);
-
-    Plane back_pane(Direction(0, 0, 1), 15, "back_pane", diff_light_grey);
-    // objs.push_back(&back_pane);
-
-    Plane ceiling_plane(Direction(0, -1, 0), 30, "ceiling_plane", em_light_blue);
-    objs.push_back(&ceiling_plane);
-
-    Object Fiat("Fiat", "objs/FiatUno.obj", diff_spec_red);
-    Fiat.translate(Direction(0, -1, -4));
-
-    for (int i = 0; i < Fiat.getPolygons(); i++)
-    {
-        objs.push_back(Fiat.getTriangles(i));
-    }*/
-
-    // TEST TREE
-    /*Point o(-0.5, 6, 25);
-    Direction l(-config.aspect_ratio, 0, 0);
-    Direction u(0, 1, 0);
-    Direction f(0, 0, -3);
-    Camera camera(l, u, f, o, config.resol);
-
-    Light light1(Point(12, 30, 20), Vect3(5000, 5000, 5000));
-    lights.push_back(&light1);
-
-    Plane floor_plane(Direction(0, 1, 0), 1, "floor_plane", diff_green);
-    objs.push_back(&floor_plane);
-
-    Plane ceiling_plane(Direction(0, -1, 0), 10, "ceiling_plane", em_light_grey);
-    objs.push_back(&ceiling_plane);
-
-    Object Tree("Tree", "objs/tree.obj", diff_purple);
-    Tree.scale(-2);
-    Tree.translate(Direction(0, -1, 0));
-
-    for (int i = 0; i < Tree.getPolygons(); i++)
-    {
-        objs.push_back(Tree.getTriangles(i));
-    }*/
-
-    // TEST F1
-
-    /*Point o(0, 5, 25);
-    Direction l(config.aspect_ratio, 0, 0);
-    Direction u(0, 1, 0);
-    Direction f(0, 0, -3);
-    Camera camera(l, u, f, o, config.resol);
-
-    Plane floor_plane(Direction(0, 1, 0), 1, "floor_plane", diff_grey);
-    objs.push_back(&floor_plane);
-
-    Plane back_pane(Direction(0, 0, 1), 15, "back_pane", diff_light_grey);
-    objs.push_back(&back_pane);
-
-    Plane ceiling_plane(Direction(0, -1, 0), 30, "ceiling_plane", em_light_grey);
-    objs.push_back(&ceiling_plane);
-
-    Object F1("F1", "objs/F1.obj", diff_spec_red);
-    F1.translate(Direction(0, -1, -0.5));
-
-    for (int i = 0; i < F1.getPolygons(); i++)
-    {
-        objs.push_back(F1.getTriangles(i));
-    }*/
 
     // Multi-Threading rendering
     static atomic<int>

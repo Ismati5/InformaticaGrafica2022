@@ -8,4 +8,4 @@ THREADS 6
 CAMERA  -0.5 6 -25
 PLANE   floor_plane 0 1 0   1   DIFF_GREEN
 PLANE   ceiling_plane 0 -1 0   15   EM_LIGHT_GREY
-OBJECT  Tree  objs/tree.obj -2   0 -1 0 0 x  DIFF_PURPLE
+OBJECT  Tree  objs/tree.obj -2   0 -1 0 0 x 0 y 0 z  DIFF_PURPLE
