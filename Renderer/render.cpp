@@ -58,7 +58,7 @@ Material diff_grey(grey, none, none, none, 0.2);
 Material diff_spec_blue(blue, light_grey, none, none, 0.2);
 Material diff_spec_red(red, light_grey, none, none, 0.2);
 
-Material spec(none, none, none, 1.5, 0.2);
+Material spec(grey, grey, none, none, 0.2);
 
 Material refr(none, none, white, none, 1.5, 0.2);
 
@@ -120,16 +120,30 @@ Material stringToMaterial(string name)
 {
     if (name == "DIFF_RED")
         return diff_red;
+    else if (name == "DIFF_PURPLE")
+        return diff_purple;
+    else if (name == "DIFF_BLUE")
+        return diff_blue;
     else if (name == "DIFF_GREEN")
         return diff_green;
     else if (name == "DIFF_LIGHT_GREY")
         return diff_light_grey;
+    else if (name == "DIFF_GREY")
+        return diff_grey;
     else if (name == "DIFF_SPEC_BLUE")
         return diff_spec_blue;
+    else if (name == "DIFF_SPEC_RED")
+        return diff_spec_red;
     else if (name == "SPEC_REFR")
         return spec_refr;
+    else if (name == "SPEC")
+        return spec;
+    else if (name == "REFR")
+        return refr;
     else if (name == "EM_LIGHT_GREY")
         return em_light_grey;
+    else if (name == "EM_LIGHT_BLUE")
+        return em_light_blue;
     else
     {
         cout << "[!] Invalid material used: " << name << endl;
@@ -234,10 +248,21 @@ render_config loadScene(string file, Camera &camera, vector<Primitive *> &objs, 
             }
             else if (data == "OBJECT") // Load a sphere
             {
-                string name, obj_file, material;
-                float x, y, z, scale;
-                file_stream >> name >> obj_file >> scale >> x >> y >> z >> material;
+                string name, obj_file, material, axis;
+                float x, y, z, scale, deg;
+                file_stream >> name >> obj_file >> scale >> x >> y >> z >> deg >> axis >> material;
                 Object *aux_Object = new Object(name, obj_file, stringToMaterial(material));
+                if (deg != 0)
+                {
+                    int a;
+                    if (axis == "x")
+                        a = 0;
+                    else if (axis == "y")
+                        a = 1;
+                    if (axis == "z")
+                        a = 2;
+                    aux_Object->rotate(deg * PI / 180, a);
+                }
                 aux_Object->scale(scale);
                 aux_Object->translate(Direction(x, y, z));
                 for (int i = 0; i < aux_Object->getPolygons(); i++)

@@ -4,10 +4,10 @@
 # Area Light
 #
 $DEBUG_PATH
-RESOLUTION  256 256
+RESOLUTION  512 512
 THREADS 12
 CAMERA  0 5 -30
 PLANE   floor_plane 0 1 0   1   DIFF_LIGHT_GREY
 PLANE   ceiling_plane 0 -1 0   30   DIFF_LIGHT_GREY
 PLANE   back_plane  0 0 -1  20   DIFF_LIGHT_GREY
-OBJECT  F1  objs/F1.obj 1   0 -1 1  DIFF_RED
+OBJECT  F1  objs/F1.obj 1   0 -1 1 270 y  DIFF_RED

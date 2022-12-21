@@ -16,6 +16,8 @@
 #include <string>
 
 #include "triangle.hpp"
+#include "vect4.hpp"
+#include "matrix4.hpp"
 
 #define MAX_POLYGON 20000
 
@@ -134,6 +136,36 @@ public:
             triangles[i]->p1 = triangles[i]->p1 + dir;
             triangles[i]->p2 = triangles[i]->p2 + dir;
             triangles[i]->p3 = triangles[i]->p3 + dir;
+            triangles[i]->sertNormal();
+        }
+    }
+
+    /**
+     * @brief Rotates th radians given
+     *          an axis "a"(0=x, 1=y, 2=z)
+     *
+     * @param th
+     * @param a
+     */
+    void rotate(float th, int a)
+    {
+        for (int i = 0; i < numPolygons; i++)
+        {
+            Vect4 aux_vect4(triangles[i]->p1);
+            Matrix4 T = tm_rotation(th, a);
+            aux_vect4 = T * aux_vect4;
+            triangles[i]->p1 = aux_vect4.toPoint();
+
+            aux_vect4 = Point(triangles[i]->p2);
+            T = tm_rotation(th, a);
+            aux_vect4 = T * aux_vect4;
+            triangles[i]->p2 = aux_vect4.toPoint();
+
+            aux_vect4 = Point(triangles[i]->p3);
+            T = tm_rotation(th, a);
+            aux_vect4 = T * aux_vect4;
+            triangles[i]->p3 = aux_vect4.toPoint();
+
             triangles[i]->sertNormal();
         }
     }
