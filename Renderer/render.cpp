@@ -30,7 +30,7 @@ Vect3 green_p = Vect3(119, 221, 119);
 Vect3 purple_p = Vect3(177, 162, 202);
 Vect3 light_grey_p = Vect3(238, 238, 238);
 
-Vect3 red = Vect3(204, 0, 0);
+Vect3 red = Vect3(255, 40, 0);
 Vect3 blue = Vect3(143, 255, 255);
 Vect3 green = Vect3(0, 255, 0);
 Vect3 purple = Vect3(228, 172, 255);
@@ -40,7 +40,7 @@ Vect3 light_grey = Vect3(231, 230, 230);
 Vect3 grey = Vect3(112, 128, 144);
 
 Vect3 yellow = Vect3(233, 236, 107);
-Vect3 dark_blue = Vect3(0, 23, 49);
+Vect3 dark_blue = Vect3(0, 11, 141);
 Vect3 gray = Vect3(207, 207, 196);
 Vect3 orange = Vect3(255, 153, 51);
 Vect3 white = Vect3(255, 255, 255);
@@ -59,6 +59,7 @@ Material diff_green(green, none, none, none, 0.2);
 Material diff_light_grey(light_grey, none, none, none, 0.2);
 Material diff_grey(grey, none, none, none, 0.2);
 Material diff_spec_blue(blue, light_grey, none, none, 0.2);
+Material diff_spec_dark_blue(dark_blue, light_grey, none, none, 0.2);
 Material diff_spec_red(red, light_grey, none, none, 0.2);
 Material diff_spec_purple(purple, light_grey, none, none, 0.2);
 
@@ -142,6 +143,8 @@ Material stringToMaterial(string name)
         return diff_spec_blue;
     else if (name == "DIFF_SPEC_RED")
         return diff_spec_red;
+    else if (name == "DIFF_SPEC_DARK_BLUE")
+        return diff_spec_dark_blue;
     else if (name == "DIFF_SPEC_PURPLE")
         return diff_spec_purple;
     else if (name == "SPEC_REFR")
