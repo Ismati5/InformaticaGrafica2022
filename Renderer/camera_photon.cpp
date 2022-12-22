@@ -237,7 +237,7 @@ Direction randomWalk()
     return Direction(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
 }
 
-// Returns true if ray "ray" hits something. n,x and m will contain the data of the closest hit
+// Returns true if ray "ray" hits something. n, x and m will contain the data of the closest hit
 bool hitPosition(vector<Primitive *> objects, Ray ray, Direction &n, Point &x, Material &m) 
 {
     float t1, lowest_t1 = numeric_limits<float>::infinity();
@@ -327,7 +327,6 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
     }
 
     // printList(all_photons);
-
     PhotonMap map = PhotonMap(all_photons, PhotonAxisPosition());
     return map;
 
