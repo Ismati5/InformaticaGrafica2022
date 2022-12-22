@@ -55,6 +55,7 @@ Material diff_black(none, none, none, none, 0.2);
 Material diff_purple(purple, none, none, none, 0.2);
 Material diff_dark_purple(dark_purple, none, none, none, 0.2);
 Material diff_blue(blue, none, none, none, 0.2);
+Material diff_dark_blue(dark_blue, none, none, none, 0.2);
 Material diff_green(green, none, none, none, 0.2);
 Material diff_light_grey(light_grey, none, none, none, 0.2);
 Material diff_grey(grey, none, none, none, 0.2);
@@ -131,6 +132,8 @@ Material stringToMaterial(string name)
         return diff_dark_purple;
     else if (name == "DIFF_BLUE")
         return diff_blue;
+    else if (name == "DIFF_DARK_BLUE")
+        return diff_dark_blue;
     else if (name == "DIFF_GREEN")
         return diff_green;
     else if (name == "DIFF_LIGHT_GREY")
