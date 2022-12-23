@@ -2,6 +2,10 @@
 Work done by Adrián Yago & Ismael Tienda, Computer engineering students, 2022.
 <br/><br/>
 <br/><br/>
+![bear](https://user-images.githubusercontent.com/79214939/209251178-e99bdc11-4f6a-4684-bde1-aa2081c05530.png)
+Bear rendered in 1920x1080 - Path Tracing with shadows - 312 rpp
+<br/><br/>
+<br/><br/>
 ![F1 - 1080](https://user-images.githubusercontent.com/79214939/200829130-51c69c14-5fde-4d6b-a6d0-2de2d84e51dc.png)
 F1 Car rendered in 1920x1080 - Path Tracing with shadows - 4 rpp
 <br/><br/>
