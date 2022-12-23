@@ -502,7 +502,7 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
     }
 }
 
-vector<const Photon *> Camera::search_nearest(PhotonMap map, Vect3 x, unsigned long K, float r)
+vector<Photon> Camera::search_nearest(PhotonMap map, Vect3 x, unsigned long K, float r)
 {
     // Position to look for the nearest photons
     Vect3 query_position = x;
@@ -514,27 +514,31 @@ vector<const Photon *> Camera::search_nearest(PhotonMap map, Vect3 x, unsigned l
     float radius_estimate = r;
 
     // nearest is the nearest photons returned by the KDTree
-    return map.nearest_neighbors(query_position,
+    vector<const Photon *> aux = map.nearest_neighbors(query_position,
                                     nphotons_estimate,
                                     radius_estimate);
+
+    vector<Photon> photons;
+    for (const Photon *ph : aux){
+        photons.push_back(*ph);
+    }
+    return photons;
 }
 
 Vect3 Camera::kernel_density(render_config config, PhotonMap map, Point x, Direction w0)
 {
     materialType type;
-    vector<const Photon *> photons = search_nearest(map, x.toVect3(), config.k, config.r);
+    vector<Photon> photons = search_nearest(map, x.toVect3(), config.k, config.r);
     
     Vect3 leftComp;
     float rightComp;
 
     Vect3 kernel_dens = (0, 0, 0);
-    for (const Photon *ph : photons)
+    for (Photon ph : photons)
     {
-        cout << "1aa" << endl;
-        leftComp = fr(x, ph->wp, w0, ph->material, type);
-        cout << "2bb" << endl;
-        rightComp = ph->flux / (PI * config.r * config.r);
-        cout << "Emission: " << kernel_dens << endl;
+        leftComp = fr(x, ph.wp, w0, ph.material, type);
+        rightComp = ph.flux / (PI * config.r * config.r);
+        // cout << "Emission: " << kernel_dens << endl;
         kernel_dens += leftComp * rightComp;
     }
 

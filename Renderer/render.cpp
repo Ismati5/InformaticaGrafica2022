@@ -414,6 +414,9 @@ void renderPhotonMapping(string file, int rays, int max_photons)
     }
 
     free(config.content);
+
+    string output_file = "renders\\" + config.outfile;
+    ShellExecuteA(GetDesktopWindow(), NULL, output_file.c_str(), NULL, NULL, SW_SHOW); // Open output file created
 }
 
 /**
