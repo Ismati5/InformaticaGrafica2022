@@ -1,0 +1,15 @@
+#
+# F1 Object
+#
+# Area Light
+#
+# $DEBUG_PATH
+
+RESOLUTION  128 128
+THREADS 12
+CAMERA  0 1 -10
+LIGHT   0 3 0 WHITE
+PLANE   floor_plane 0 1 0   1   DIFF_LIGHT_GREY
+PLANE   ceiling_plane 0 -1 0   10   DIFF_LIGHT_GREY
+PLANE   back_plane  0 0 -1  5   DIFF_LIGHT_GREY
+OBJECT  SportCar  objs/SportCar.obj 1   0 -1 0      0 x -150 y 0 z  DIFF_ORANGE

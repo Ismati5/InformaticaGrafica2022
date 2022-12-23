@@ -1,0 +1,15 @@
+#
+# Statue Object
+#
+# Area Light
+#
+$DEBUG_PATH
+RESOLUTION  128 128
+THREADS 12
+CAMERA  0 0 -15
+PLANE   left_plane   1 0 0   10   DIFF_GREEN
+PLANE   right_plane -1 0 0  10  DIFF_RED
+PLANE   floor_plane 0 1 0   1   DIFF_BLUE
+PLANE   ceiling_plane 0 -1 0   20   EM_LIGHT_GREY
+PLANE   back_plane  0 0 -1  10   DIFF_BLACK
+OBJECT  Statue  objs/Statue.obj -32   0 -1 0  0 x 0 y 0 z    DIFF_PURPLE
