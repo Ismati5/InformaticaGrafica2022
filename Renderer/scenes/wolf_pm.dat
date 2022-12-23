@@ -1,0 +1,18 @@
+#
+# Tree Object
+#
+# Area Light
+#
+# $DEBUG_PATH
+RESOLUTION  256 256
+THREADS 12
+K 10000
+R 2
+CAMERA  0 0 -30
+LIGHT   0 0.5 0 WHITE
+PLANE   left_plane   1 0 0   10   DIFF_LIGHT_GREY
+PLANE   right_plane -1 0 0  10  DIFF_LIGHT_GREY
+PLANE   floor_plane 0 1 0   8   DIFF_LIGHT_GREY
+PLANE   ceiling_plane 0 -1 0   20   DIFF_LIGHT_GREY
+PLANE   back_plane  0 0 -1  15   DIFF_LIGHT_GREY
+OBJECT  Wolf  objs/Wolf.obj -13   0 -8 0 0 x 215 y 0 z    DIFF_SPEC_PURPLE

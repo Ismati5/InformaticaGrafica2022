@@ -309,7 +309,6 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
             Ray ray(wi, light->center);
             if (hitPosition(objects, ray, n, x, material))
             {
-                
                 light_value_ph(objects, emission, x, (x - light->center).normalize(), lights, n, 
                             config.shadow_bias, material, photons, config.max_photons - all_photons.size() - photons.size());
 

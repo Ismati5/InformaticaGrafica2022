@@ -624,6 +624,7 @@ void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light 
                         }
                     }
                     lowest_t1 = numeric_limits<float>::infinity();
+                    
                     if (intersected)
                     {
                         closest_emission = kernel_density(config, map, closest_x, w0);
@@ -636,6 +637,8 @@ void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light 
 
                 if (intersections > 0)
                 {
+
+                    total_emission /= (float)config.rays;
 
                     if (max_emission < round(total_emission.x))
                         max_emission = round(total_emission.x);

@@ -19,7 +19,7 @@
 #include "station.hpp"
 #include "camera.hpp"
 #include "object.hpp"
-#include "camera_photon.cpp"
+#include "photonMap.cpp"
 
 using namespace std;
 
@@ -284,6 +284,18 @@ render_config loadScene(string file, Camera &camera, vector<Primitive *> &objs, 
                     objs.push_back(aux_Object->getTriangles(i));
                 }
             }
+            else if (data == "K") // K for photon mapping
+            {
+                string K;
+                file_stream >> K;
+                config.k = stoi(K);
+            }
+            else if (data == "R") // r for photon mapping
+            {
+                string r;
+                file_stream >> r;
+                config.r = stoi(r);
+            }
             else if (data == "$DEBUG_PATH") // Set scene num of threads
             {
                 config.pathtracing = false;
@@ -313,55 +325,78 @@ void renderPhotonMapping(string file, int rays, int max_photons)
 {
     vector<Primitive *> objs;
     vector<Light *> lights;
-    render_config config;
+    vector<Light *> lights_aux;
 
-    config.resol = Resol_256;
-    config.aspect_ratio = float(config.resol[0]) / float(config.resol[1]);
+    Camera *camera = new Camera();
+
+    render_config config = loadScene(file, *camera, objs, lights);
+
     config.num_tiles_x = (config.resol[0] + config.tile_size - 1) / config.tile_size;
     config.num_tiles_y = (config.resol[1] + config.tile_size - 1) / config.tile_size;
     config.shadow_bias = 1e-4; // The bigger shadowBias is, the bigger the difference from reality is
-    config.outfile = file;
-    config.rays = rays;
-    config.pathtracing = false;
+    config.outfile = file + ".ppm";
     config.start = clock();
-    config.num_threads = 1;
-
+    config.rays = rays;
+    // Photon mapping
     config.max_photons = max_photons;
-    config.k = 10;
-    config.r = 2;
 
-    // Default CORNELL BOX
-    Point o(0, 0, -3.5);
-    Direction l(-config.aspect_ratio, 0, 0);
-    Direction u(0, 1, 0);
-    Direction f(0, 0, 3);
-    Camera camera(l, u, f, o, config.resol);
+    if (objs.size() == 0)
+    {
+        cout << "[!] Scene is empty! Objects are needed." << endl;
+        exit(1);
+    }
 
-    Light light(Point(0, 0.5, 0), white);
-    lights.push_back(&light);
+    if (lights.size() == 0)
+    {
+        lights = lights_aux;
+    }
 
-    Plane left_plane(Direction(1, 0, 0), 1, "red_plane", diff_red);
-    objs.push_back(&left_plane);
+    cout << " - Resolution: " << config.resol[0] << "x" << config.resol[1] << " pixels." << endl;
+    cout << " - Threads used: " << config.num_threads << " threads." << endl;
+    cout << " - Total Objects: " << objs.size() << " objects." << endl;
+    cout << " - Total Point Lights: " << lights.size() << " lights." << endl;
+    cout << " - Number of Photons: " << config.max_photons << " photons." << endl;
+    cout << " - R: " << config.r << endl;
+    cout << " - K: " << config.k << " photons." << endl
+         << endl;
 
-    Plane right_plane(Direction(-1, 0, 0), 1, "green_plane", diff_green);
-    objs.push_back(&right_plane);
+    cout << "2 > Filling the map ..." << endl << endl;
 
-    Plane floor_plane(Direction(0, 1, 0), 1, "floor_plane", diff_light_grey);
-    objs.push_back(&floor_plane);
 
-    Plane ceiling_plane(Direction(0, -1, 0), 1, "ceiling_plane", diff_light_grey);
-    objs.push_back(&ceiling_plane);
+    // // Default CORNELL BOX
+    // Point o(0, 0, -3.5);
+    // Direction l(-config.aspect_ratio, 0, 0);
+    // Direction u(0, 1, 0);
+    // Direction f(0, 0, 3);
+    // Camera camera(l, u, f, o, config.resol);
 
-    Plane back_plane(Direction(0, 0, -1), 1, "back_plane", diff_light_grey);
-    objs.push_back(&back_plane);
+    // Light light(Point(0, 0.5, 0), white);
+    // lights.push_back(&light);
 
-    Sphere left_sphere(Point(-0.5, -0.7, 0.25), 0.3, "blue_sphere", diff_blue);
-    objs.push_back(&left_sphere);
+    // Plane left_plane(Direction(1, 0, 0), 1, "red_plane", diff_red);
+    // objs.push_back(&left_plane);
 
-    Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "red_sphere", diff_red);
-    objs.push_back(&right_sphere);
+    // Plane right_plane(Direction(-1, 0, 0), 1, "green_plane", diff_green);
+    // objs.push_back(&right_plane);
+
+    // Plane floor_plane(Direction(0, 1, 0), 1, "floor_plane", diff_light_grey);
+    // objs.push_back(&floor_plane);
+
+    // Plane ceiling_plane(Direction(0, -1, 0), 1, "ceiling_plane", diff_light_grey);
+    // objs.push_back(&ceiling_plane);
+
+    // Plane back_plane(Direction(0, 0, -1), 1, "back_plane", diff_light_grey);
+    // objs.push_back(&back_plane);
+
+    // Sphere left_sphere(Point(-0.5, -0.7, 0.25), 0.3, "blue_sphere", diff_blue);
+    // objs.push_back(&left_sphere);
+
+    // Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "red_sphere", diff_red);
+    // objs.push_back(&right_sphere);
 
     PhotonMap map = generation_of_photon_map(lights, objs, config);
+
+    cout << "3 > Starting rendering scene ..." << endl;
 
     // Multi-Threading rendering
     static atomic<int>
@@ -404,12 +439,14 @@ void renderPhotonMapping(string file, int rays, int max_photons)
 
     if (double(clock() - config.start) / CLOCKS_PER_SEC > 60)
     {
-        cout << "> Completed in " << int(double(clock() - config.start) / CLOCKS_PER_SEC) / 60 << "min " << int(double(clock() - config.start / CLOCKS_PER_SEC)) % 60 << "s! File saved as renders/" << config.outfile << "." << endl
+        cout << endl
+             << "4 > Completed in " << int(double(clock() - config.start) / CLOCKS_PER_SEC) / 60 << "min " << int(double(clock() - config.start / CLOCKS_PER_SEC)) % 60 << "s! File saved as renders/" << config.outfile << "." << endl
              << endl;
     }
     else
     {
-        cout << "> Completed in " << int(double(clock() - config.start) / CLOCKS_PER_SEC) << "s! File saved as renders/" << config.outfile << "." << endl
+        cout << endl
+             << "4 > Completed in " << int(double(clock() - config.start) / CLOCKS_PER_SEC) << "s! File saved as renders/" << config.outfile << "." << endl
              << endl;
     }
 
