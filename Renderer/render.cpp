@@ -360,8 +360,8 @@ void renderPhotonMapping(string file, int rays, int max_photons)
     cout << " - K: " << config.k << " photons." << endl
          << endl;
 
-    cout << "2 > Filling the map ..." << endl << endl;
-
+    cout << "2 > Filling the photon map ..." << endl
+         << endl;
 
     // // Default CORNELL BOX
     // Point o(0, 0, -3.5);
@@ -491,6 +491,7 @@ void renderScene(string file, int rays)
     }
 
     cout << " - Resolution: " << config.resol[0] << "x" << config.resol[1] << " pixels." << endl;
+    cout << " - Rays used: " << config.rays << " rays." << endl;
     cout << " - Threads used: " << config.num_threads << " threads." << endl;
     cout << " - Total Objects: " << objs.size() << " objects." << endl;
     cout << " - Total Point Lights: " << lights.size() << " lights." << endl
@@ -569,7 +570,7 @@ int main(int argc, char *argv[]) // 1 = -r / -p,  2 = file, 3 = rays, 4 ? = phot
 
     if (argc >= 4)
     {
-        if (argv[1][1] == 'r') // Ray-tracing
+        if (argv[1][1] == 'r') // Path-Tracer
         {
             renderScene(argv[2], stoi(argv[3]));
         }
