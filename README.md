@@ -6,23 +6,18 @@ Work done by Adrián Yago & Ismael Tienda, Computer engineering students, 2022.
 Bear rendered in 1920x1080 - Path Tracing with shadows - 312 rpp
 <br/><br/>
 <br/><br/>
-![F1 - 1080](https://user-images.githubusercontent.com/79214939/200829130-51c69c14-5fde-4d6b-a6d0-2de2d84e51dc.png)
-F1 Car rendered in 1920x1080 - Path Tracing with shadows - 4 rpp
-<br/><br/>
-<br/><br/>
-![image](https://user-images.githubusercontent.com/79214939/207553793-68839e00-00f3-49d4-8764-2e8abdcb61ab.png)
+![cornell_f1](https://user-images.githubusercontent.com/79214939/209251430-4ea7a3d7-5f4c-46d8-b3a1-3e845e649234.png)
 <br/>
-F1 Specular car rendered in 730x360 - Path Tracing with shadows and area light - 20 rpp
+F1 Cars rendered in 1280x720 - Path Tracing with shadows - 80 rpp
 <br/><br/>
 <br/><br/>
-![testlights](https://user-images.githubusercontent.com/79214939/200829176-43d21460-013d-41bf-915e-9984a9f7f082.png)
-Tree scene rendered in 1920x1080 - Path Tracing with shadows - 4 rpp
- <br/><br/>
- <br/><br/>
  ![image](https://user-images.githubusercontent.com/79214939/207554659-a4176ec8-faa4-4f3c-8b69-4e5642d27a29.png)
- <br/><br/>
+ <br/>
  Tree scene rendered in 1280x720 - Path Tracing with shadows and area light - 20 rpp
  <br/><br/>
  <br/><br/>
-![test2](https://user-images.githubusercontent.com/79214939/200829479-5eaf04a1-bc7f-4feb-91df-b1026f282ed6.png) ![test_cornell64](https://user-images.githubusercontent.com/79214939/200829093-c0141aa4-d9a6-42b8-8ac9-de902754424b.png)
+![test_cornell64](https://user-images.githubusercontent.com/79214939/200829093-c0141aa4-d9a6-42b8-8ac9-de902754424b.png)
+![cornell_1](https://user-images.githubusercontent.com/79214939/209252021-0962bb36-b4cb-4e91-8e50-30962474f74a.png)
+![cornell_2](https://user-images.githubusercontent.com/79214939/209252034-a7d323bf-18b3-460d-8753-e0b59cba42a8.png)
+
 
