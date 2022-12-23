@@ -3,10 +3,10 @@
 #
 # Photon mapping cornell box
 #
-RESOLUTION 256 256
+RESOLUTION 124 124
 THREADS 12
-K 10000
-R 2
+K 1000
+R 0.3
 CAMERA  0 0 -3.5
 LIGHT   0 3 0 WHITE
 PLANE   red_plane   1 0 0   1   DIFF_RED

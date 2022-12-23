@@ -294,7 +294,7 @@ render_config loadScene(string file, Camera &camera, vector<Primitive *> &objs, 
             {
                 string r;
                 file_stream >> r;
-                config.r = stoi(r);
+                config.r = stof(r);
             }
             else if (data == "$DEBUG_PATH") // Set scene num of threads
             {
