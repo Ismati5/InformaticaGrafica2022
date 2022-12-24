@@ -538,6 +538,7 @@ Vect3 Camera::kernel_density(render_config config, PhotonMap map, Point x, Direc
     {
         leftComp = fr(x, ph.wp, w0, ph.material, type);
         rightComp = ph.flux / (PI * config.r * config.r);
+        
         // cout << "Emission: " << kernel_dens << endl;
         kernel_dens += leftComp * rightComp;
     }
