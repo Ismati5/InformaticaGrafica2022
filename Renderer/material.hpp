@@ -85,7 +85,9 @@ public:
         cout << "pt: " << pt << endl;
         cout << "abs: " << pabs << endl;
 
-        cout << endl;*/
+        cout << endl;
+
+        */
 
         if (type <= pd)
         {
