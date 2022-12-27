@@ -143,9 +143,10 @@ void direct_light(vector<Primitive *> objs, Vect3 &emission,
 }
 
 void light_value_ph(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0,
-                         vector<Light *> light_points, Direction n, float shadowBias, Material material, list<Photon> &photons, int max_photons)
+                         vector<Light *> light_points, Direction n, float shadowBias, 
+                         Material material, list<Photon> &photons, int max_photons, Photon prevPh)
 {
-    if (max_photons == photons.size()) return;
+    if (max_photons >= photons.size()) return;
 
     // Calculate random vector
     float theta = (float)(rand()) / (float)(RAND_MAX);
@@ -168,7 +169,6 @@ void light_value_ph(vector<Primitive *> objs, Vect3 &emission, Point x, Directio
     // Change to global coordinates
     Vect4 wi_aux(wi);
     wi = (T * wi_aux).toDirecton().normalize();
-
     Point closest_point;
     Direction closest_normal;
     string closest_name;
@@ -195,6 +195,10 @@ void light_value_ph(vector<Primitive *> objs, Vect3 &emission, Point x, Directio
     ph.position_ = closest_point.toVect3();
     ph.wp = wi;
 
+    ph.flux = prevPh.flux * brdf;
+
+    if (ph.flux.x >= 255 && ph.flux.y >= 255 && ph.flux.z >= 255) return; // Black
+
     if (intersected == NONE) // No intersection with scene
     {
         ph.material = material;
@@ -208,13 +212,13 @@ void light_value_ph(vector<Primitive *> objs, Vect3 &emission, Point x, Directio
         return;
     }
 
-    light_value_ph(objs, lx, closest_point, wi, light_points, closest_normal, shadowBias, material_aux, photons, max_photons);
-
-    if (max_photons == photons.size()) return;
-
     //Save photon
     ph.material = material;
     if(savePhoton) photons.push_front(ph);
+    if (max_photons == photons.size()) return;
+    
+    light_value_ph(objs, lx, closest_point, wi, light_points, closest_normal, shadowBias, material_aux, photons, max_photons, ph);
+
 }
 
 Direction randomWalk()
@@ -300,17 +304,22 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
             Ray ray(wi, light->center);
             if (hitPosition(objects, ray, n, x, material))
             {   
-                light_value_ph(objects, emission, x, (x - light->center).normalize(), lights, n, 
-                            config.shadow_bias, material, photons, max_shots);
+                Photon ph;
+                ph.wp = wi;
+                ph.position_ = x.toVect3();
+                ph.material = material;
+                ph.flux = (light->power * 4 * PI) / shots_taken;
 
-                if (config.max_photons <= max_shots) break;
+                // photons.push_back(ph);
+
+                light_value_ph(objects, emission, x, (x - light->center).normalize(), lights, n, 
+                            config.shadow_bias, material, photons, max_shots, ph);
+                
+                if (photons.size() >= config.max_photons) break;
             }
         }
 
-        // Update flux
-        for (auto it = photons.begin(); it != photons.end(); ++it)
-            it->flux = (4 * PI * light->powerValue()) / shots_taken;
-
+        photons.begin()->flux = (4 * PI * light->powerValue()) / shots_taken;
 
         all_photons.insert(all_photons.end(), photons.begin(), photons.end());
         if (config.max_photons <= all_photons.size()) break;

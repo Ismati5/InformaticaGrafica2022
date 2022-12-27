@@ -531,7 +531,7 @@ Vect3 Camera::kernel_density(render_config config, PhotonMap map, Point x, Direc
     vector<Photon> photons = search_nearest(map, x.toVect3(), config.k, config.r);
     
     Vect3 leftComp;
-    float rightComp;
+    Vect3 rightComp;
 
     Vect3 kernel_dens = (0, 0, 0);
     for (Photon ph : photons)
