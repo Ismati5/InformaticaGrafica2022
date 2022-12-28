@@ -515,11 +515,12 @@ vector<Photon> Camera::search_nearest(PhotonMap map, Vect3 x, unsigned long K, f
 
     // nearest is the nearest photons returned by the KDTree
     vector<const Photon *> aux = map.nearest_neighbors(query_position,
-                                    nphotons_estimate,
-                                    radius_estimate);
+                                                       nphotons_estimate,
+                                                       radius_estimate);
 
     vector<Photon> photons;
-    for (const Photon *ph : aux){
+    for (const Photon *ph : aux)
+    {
         photons.push_back(*ph);
     }
     return photons;
@@ -529,26 +530,25 @@ Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, rend
 {
     materialType type;
     vector<Photon> photons = search_nearest(map, x.toVect3(), config.k, config.r);
-    
-    Vect3 leftComp;
-    Vect3 rightComp;
-    Vect3 ld;
+
+    Vect3 leftComp = Vect3(0, 0, 0);
+    Vect3 rightComp = Vect3(0, 0, 0);
+    Vect3 ld = Vect3(0, 0, 0);
 
     direct_light(objs, ld, x, w0, lights, n, material.kd, config.shadow_bias, material);
 
-    Vect3 kernel_dens = (0, 0, 0);
+    Vect3 kernel_dens = Vect3(0, 0, 0);
     for (Photon ph : photons)
     {
         leftComp = fr(x, ph.wp, w0, ph.material, type);
         rightComp = ph.flux / (PI * config.r * config.r);
-        
+
         // cout << "Emission: " << kernel_dens << endl;
         kernel_dens += leftComp * rightComp;
     }
 
     return ld + kernel_dens;
 }
-
 
 void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission, PhotonMap map)
 {
@@ -628,7 +628,7 @@ void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light 
                             }
                         }
                     }
-                    lowest_t1 = numeric_limits<float>::infinity();    
+                    lowest_t1 = numeric_limits<float>::infinity();
                     if (intersected)
                     {
                         closest_emission = emission_ph(objs, lights, config, map, closest_x, w0, closest_normal, closest_material);

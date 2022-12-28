@@ -36,12 +36,11 @@ Vect3 fr_ph(Point x, Direction wi, Direction w0, Material material, materialType
         type = ABSORTION;
         return Vect3(0, 0, 0);
     }
-    return Vect3(0,0,0);
-
+    return Vect3(0, 0, 0);
 }
 
 intersectionType closestObj_ph(vector<Primitive *> objs, Ray ray, Direction &closest_normal, Point &closest_point,
-                                    Direction w0, Material material, Material &intersectedMaterial)
+                               Direction w0, Material material, Material &intersectedMaterial)
 {
     float t1, lowest_t1 = numeric_limits<float>::infinity();
     Direction normal;
@@ -84,8 +83,8 @@ intersectionType closestObj_ph(vector<Primitive *> objs, Ray ray, Direction &clo
 }
 
 void direct_light(vector<Primitive *> objs, Vect3 &emission,
-                          Point x, Direction w0, vector<Light *> light_points,
-                          Direction n, float shadowBias, Material material)
+                  Point x, Direction w0, vector<Light *> light_points,
+                  Direction n, float shadowBias, Material material)
 {
 
     Vect3 aux_emission;
@@ -143,10 +142,11 @@ void direct_light(vector<Primitive *> objs, Vect3 &emission,
 }
 
 void light_value_ph(vector<Primitive *> objs, Vect3 &emission, Point x, Direction w0,
-                         vector<Light *> light_points, Direction n, float shadowBias, 
-                         Material material, list<Photon> &photons, int max_photons, Photon prevPh)
+                    vector<Light *> light_points, Direction n, float shadowBias,
+                    Material material, list<Photon> &photons, int max_photons, Photon prevPh)
 {
-    if (max_photons == photons.size()) return;
+    if (max_photons == photons.size())
+        return;
 
     // Calculate random vector
     float theta = (float)(rand()) / (float)(RAND_MAX);
@@ -183,7 +183,7 @@ void light_value_ph(vector<Primitive *> objs, Vect3 &emission, Point x, Directio
 
     // Only store non diffuse intersections
     bool savePhoton = true;
-    if (material_type == SPECULAR || material_type == REFRACTION) 
+    if (material_type == SPECULAR || material_type == REFRACTION)
         savePhoton = false;
 
     Ray ray(wi, x);
@@ -196,35 +196,39 @@ void light_value_ph(vector<Primitive *> objs, Vect3 &emission, Point x, Directio
     ph.wp = wi;
     ph.flux = prevPh.flux * brdf;
 
-    if (ph.flux.x >= 255 && ph.flux.y >= 255 && ph.flux.z >= 255) return; // Black
+    if (ph.flux.x >= 255 && ph.flux.y >= 255 && ph.flux.z >= 255) // ???
+        return;                                                   // Black
 
     if (intersected == NONE) // No intersection with scene
     {
         ph.material = material;
-        if(savePhoton) photons.push_front(ph);
+        if (savePhoton)
+            photons.push_front(ph);
         return;
     }
     else if (intersected == LIGHT) // Intersection with area light
     {
         ph.material = material;
-        if(savePhoton) photons.push_front(ph);
+        if (savePhoton)
+            photons.push_front(ph);
         return;
     }
 
-    //Save photon
+    // Save photon
     ph.material = material;
-    if(savePhoton) photons.push_front(ph);
-    if (max_photons == photons.size()) return;
-    
-    light_value_ph(objs, lx, closest_point, wi, light_points, closest_normal, shadowBias, material_aux, photons, max_photons, ph);
+    if (savePhoton)
+        photons.push_front(ph);
+    if (max_photons == photons.size())
+        return;
 
+    light_value_ph(objs, lx, closest_point, wi, light_points, closest_normal, shadowBias, material_aux, photons, max_photons, ph);
 }
 
 Direction randomWalk()
 {
-    float theta = (float)(rand()) / (float)(RAND_MAX);                
-    float phi = (float)(rand()) / (float)(RAND_MAX);             
- 
+    float theta = (float)(rand()) / (float)(RAND_MAX);
+    float phi = (float)(rand()) / (float)(RAND_MAX);
+
     theta = acos(2 * theta - 1);
     phi = 2 * PI * phi;
 
@@ -232,7 +236,7 @@ Direction randomWalk()
 }
 
 // Returns true if ray "ray" hits something. n, x and m will contain the data of the closest hit
-bool hitPosition(vector<Primitive *> objects, Ray ray, Direction &n, Point &x, Material &m) 
+bool hitPosition(vector<Primitive *> objects, Ray ray, Direction &n, Point &x, Material &m)
 {
     float t1, lowest_t1 = numeric_limits<float>::infinity();
     Direction hitNormal;
@@ -255,32 +259,32 @@ bool hitPosition(vector<Primitive *> objects, Ray ray, Direction &n, Point &x, M
     }
 
     return intersected;
-
 }
 
 void printList(list<Photon> list)
 {
     for (Photon ph : list)
     {
-        cout << "============================================" <<endl;
-        cout << "POSITION:" <<  ph.position_ << endl;
-        cout << "WP:" <<  ph.wp << endl;
-        cout << "FLUX:" <<  ph.flux << endl;
-        cout << "============================================" <<endl;
-
+        cout << "============================================" << endl;
+        cout << "POSITION:" << ph.position_ << endl;
+        cout << "WP:" << ph.wp << endl;
+        cout << "FLUX:" << ph.flux << endl;
+        cout << "============================================" << endl;
     }
-    cout << "SIZE:" <<  list.size() << endl << endl;
+    cout << "SIZE:" << list.size() << endl
+         << endl;
 }
 
 /*
     Example function to generate the photon map with the given photons
 */
-PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> objects, render_config config){
+PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> objects, render_config config)
+{
 
     Point x;
     Direction n;
     Material material;
-    Vect3 emission = Vect3(0,0,0);
+    Vect3 emission = Vect3(0, 0, 0);
 
     const size_t fixedListSize(config.max_photons);
     list<Photon> all_photons(fixedListSize);
@@ -288,7 +292,8 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
     list<Photon> photons(fixedListSize);
 
     float totalPower = 0;
-    for (Light *light : lights) totalPower += light->powerValue();
+    for (Light *light : lights)
+        totalPower += light->powerValue();
 
     int added_photons = 0;
     for (Light *light : lights)
@@ -302,35 +307,29 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
             shots_taken++;
             Ray ray(wi, light->center);
             if (hitPosition(objects, ray, n, x, material))
-            {   
+            {
                 Photon ph;
                 ph.wp = wi;
                 ph.position_ = x.toVect3();
                 ph.material = material;
                 ph.flux = (light->power * 4 * PI) / max_shots;
 
-                // photons.push_back(ph);
+                light_value_ph(objects, emission, x, (x - light->center).normalize(), lights, n,
+                               config.shadow_bias, material, photons, max_shots, ph);
 
-                light_value_ph(objects, emission, x, (x - light->center).normalize(), lights, n, 
-                            config.shadow_bias, material, photons, max_shots, ph);
-                
-                if (photons.size() >= config.max_photons) break;
+                if (photons.size() >= config.max_photons)
+                    break;
             }
         }
 
         // photons.begin()->flux = (4 * PI * light->powerValue()) / shots_taken;
 
         all_photons.insert(all_photons.end(), photons.begin(), photons.end());
-        if (config.max_photons <= all_photons.size()) break;
-        
+        if (config.max_photons <= all_photons.size())
+            break;
     }
 
     // printList(all_photons);
     PhotonMap map = PhotonMap(all_photons, PhotonAxisPosition());
     return map;
-
 }
-
-
-
-
