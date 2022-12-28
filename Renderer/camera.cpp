@@ -268,7 +268,7 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
     }
     else if (material_type == REFRACTION)
     {
-        float no = 1;
+        float no = 1; // Hay que tener en cuenta el medio por el que viene, no el ultimo medio visitado
         float nf, ni = material.ref_coef;
 
         Direction auxN = n;
