@@ -146,7 +146,7 @@ void light_value_ph(vector<Primitive *> objs, Vect3 &emission, Point x, Directio
                          vector<Light *> light_points, Direction n, float shadowBias, 
                          Material material, list<Photon> &photons, int max_photons, Photon prevPh)
 {
-    if (max_photons >= photons.size()) return;
+    if (max_photons == photons.size()) return;
 
     // Calculate random vector
     float theta = (float)(rand()) / (float)(RAND_MAX);
@@ -194,7 +194,6 @@ void light_value_ph(vector<Primitive *> objs, Vect3 &emission, Point x, Directio
     Photon ph;
     ph.position_ = closest_point.toVect3();
     ph.wp = wi;
-
     ph.flux = prevPh.flux * brdf;
 
     if (ph.flux.x >= 255 && ph.flux.y >= 255 && ph.flux.z >= 255) return; // Black
@@ -308,7 +307,7 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
                 ph.wp = wi;
                 ph.position_ = x.toVect3();
                 ph.material = material;
-                ph.flux = (light->power * 4 * PI) / shots_taken;
+                ph.flux = (light->power * 4 * PI) / max_shots;
 
                 // photons.push_back(ph);
 
@@ -319,7 +318,7 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
             }
         }
 
-        photons.begin()->flux = (4 * PI * light->powerValue()) / shots_taken;
+        // photons.begin()->flux = (4 * PI * light->powerValue()) / shots_taken;
 
         all_photons.insert(all_photons.end(), photons.begin(), photons.end());
         if (config.max_photons <= all_photons.size()) break;

@@ -525,13 +525,16 @@ vector<Photon> Camera::search_nearest(PhotonMap map, Vect3 x, unsigned long K, f
     return photons;
 }
 
-Vect3 Camera::kernel_density(render_config config, PhotonMap map, Point x, Direction w0)
+Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, render_config config, PhotonMap map, Point x, Direction w0, Direction n, Material material)
 {
     materialType type;
     vector<Photon> photons = search_nearest(map, x.toVect3(), config.k, config.r);
     
     Vect3 leftComp;
     Vect3 rightComp;
+    Vect3 ld;
+
+    direct_light(objs, ld, x, w0, lights, n, material.kd, config.shadow_bias, material);
 
     Vect3 kernel_dens = (0, 0, 0);
     for (Photon ph : photons)
@@ -543,8 +546,9 @@ Vect3 Camera::kernel_density(render_config config, PhotonMap map, Point x, Direc
         kernel_dens += leftComp * rightComp;
     }
 
-    return kernel_dens;
+    return ld + kernel_dens;
 }
+
 
 void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission, PhotonMap map)
 {
@@ -624,11 +628,10 @@ void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light 
                             }
                         }
                     }
-                    lowest_t1 = numeric_limits<float>::infinity();
-                    
+                    lowest_t1 = numeric_limits<float>::infinity();    
                     if (intersected)
                     {
-                        closest_emission = kernel_density(config, map, closest_x, w0);
+                        closest_emission = emission_ph(objs, lights, config, map, closest_x, w0, closest_normal, closest_material);
 
                         intersections++;
                         total_emission += closest_emission;
