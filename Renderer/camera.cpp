@@ -540,7 +540,7 @@ Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, rend
     Vect3 kernel_dens = Vect3(0, 0, 0);
     for (Photon ph : photons)
     {
-        leftComp = fr(x, ph.wp, w0, ph.material, type);
+        leftComp = fr(x, ph.wp, w0, ph. material, type);
         rightComp = ph.flux / (PI * config.r * config.r);
 
         // cout << "Emission: " << kernel_dens << endl;
