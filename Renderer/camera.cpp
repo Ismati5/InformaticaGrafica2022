@@ -151,7 +151,7 @@ intersectionType Camera::closestObj(vector<Primitive *> objs, Ray ray, Direction
  */
 void Camera::direct_light(vector<Primitive *> objs, Vect3 &emission,
                           Point x, Direction w0, vector<Light *> light_points,
-                          Direction n, Vect3 color, float shadowBias, Material material)
+                          Direction n, Vect3 color, float shadowBias, Material material, Vect3 brdf)
 {
 
     Vect3 aux_emission;
@@ -193,13 +193,14 @@ void Camera::direct_light(vector<Primitive *> objs, Vect3 &emission,
         // If it's not a shadow
         if (!isShadow)
         {
+            // cout <<"NOT SHADOW" << endl;
             // Left term (Li)
             aux_emission = light->power / ((x - light->center).modulus() * (x - light->center).modulus());
 
             // Middle term (fr)
 
-            aux_emission *= (fr(x, wi, w0, material, material_type) / PI);
-
+            aux_emission *= (brdf / PI);
+            // cout << "SSS: " << (fr(x, wi, w0, material, material_type) / PI) << endl;
             // Right term
             aux_emission *= abs(n.dotProd((light->center - x).normalize()));
 
@@ -335,7 +336,7 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
     }
 
     // Light from point sources
-    direct_light(objs, ld, x, w0, light_points, n, color, shadowBias, material);
+    direct_light(objs, ld, x, w0, light_points, n, color, shadowBias, material, brdf);
 
     emission = ld + lx * brdf;
     // cout << "B - Emission from: " << name << " = " << emission << " (ld = " << ld << ", fr = " << brdf << ", lx = " << lx << ")" << endl;
@@ -535,19 +536,32 @@ Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, rend
     Vect3 rightComp = Vect3(0, 0, 0);
     Vect3 ld = Vect3(0, 0, 0);
 
-    direct_light(objs, ld, x, w0, lights, n, material.kd, config.shadow_bias, material);
-
-    Vect3 kernel_dens = Vect3(0, 0, 0);
-    for (Photon ph : photons)
+    materialType material_type;
+    Vect3 brdf = fr(x, Direction(0,0,0), w0, material, material_type, true); // No se puede absorber
+    if (material_type == DIFFUSE)
     {
-        leftComp = fr(x, ph.wp, w0, ph. material, type);
-        rightComp = ph.flux / (PI * config.r * config.r);
+        Vect3 kernel_dens = Vect3(0, 0, 0);
+        for (Photon ph : photons)
+        {
+            leftComp = fr(x, ph.wp, w0, ph. material, type);
+            // rightComp = ph.flux;
+            rightComp = ph.flux * (1 - x.distance(ph.position_) / config.r); // Non-Constant density estimation
 
-        // cout << "Emission: " << kernel_dens << endl;
-        kernel_dens += leftComp * rightComp;
+            // cout << "D: " << x.distance(ph.position_) << endl;
+            // cout << "P: " << distance << endl;
+
+            kernel_dens += leftComp * rightComp / (PI * config.r * config.r);
+        }
+
+        direct_light(objs, ld, x, w0, lights, n, material.kd, config.shadow_bias, material, brdf);
+        // cout << ld << "--" << kernel_dens << "--" << brdf << endl;
+        return ld + kernel_dens * brdf;
+
+    }else
+    {
+        return Vect3(0,0,0);
     }
 
-    return ld + kernel_dens;
 }
 
 void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission, PhotonMap map)
@@ -634,6 +648,7 @@ void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light 
                         closest_emission = emission_ph(objs, lights, config, map, closest_x, w0, closest_normal, closest_material);
 
                         intersections++;
+                        // cout << closest_emission << endl;
                         total_emission += closest_emission;
                         intersected = false;
                     }
@@ -641,7 +656,6 @@ void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light 
 
                 if (intersections > 0)
                 {
-
                     total_emission /= (float)config.rays;
 
                     if (max_emission < round(total_emission.x))

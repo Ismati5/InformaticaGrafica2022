@@ -26,6 +26,20 @@ Vect3 Point::toVect3()
     return Vect3(this->x, this->y, this->z);
 }
 
+float Point::distance(Vect3 p)
+{
+    return sqrt( pow((this->x - p.x),2) +
+                 pow((this->y - p.y),2) +
+                 pow((this->z - p.z),2));
+}
+
+float Point::distance(Point p)
+{
+    return sqrt( pow((this->x - p.x),2) +
+                 pow((this->y - p.y),2) +
+                 pow((this->z - p.z),2));
+}
+
 /**
  * @brief Point = Point + Direction
  *

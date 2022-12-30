@@ -38,6 +38,9 @@ public:
 
     Vect3 toVect3();
 
+    float distance(Vect3 p);
+    float distance(Point p);
+
     /**
      * @brief Point = Point + Direction
      *

@@ -340,6 +340,7 @@ void renderPhotonMapping(string file, int rays, int max_photons)
     // Photon mapping
     config.max_photons = max_photons;
 
+
     if (objs.size() == 0)
     {
         cout << "[!] Scene is empty! Objects are needed." << endl;

@@ -15,7 +15,7 @@ Vect3 fr_ph(Point x, Direction wi, Direction w0, Material material, materialType
 
     float p = 0;
 
-    type = material.getMatType(p);
+    type = material.getMatType(p, false);
 
     p = 1; // PROVISIONAL
 
@@ -245,10 +245,6 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
                     break;
             }
         }
-
-        // No se si esto esta bien
-        for (Photon i : all_photons)
-            i.flux *= shots_taken / max_shots;
 
         // photons.begin()->flux = (4 * PI * light->powerValue()) / shots_taken;
 

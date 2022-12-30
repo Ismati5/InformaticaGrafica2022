@@ -25,6 +25,8 @@
 #include "light.hpp"
 #include "variables.hpp"
 
+const int MAX_SIZE_KERNEL = 5;
+
 using namespace std;
 
 /**
@@ -103,7 +105,7 @@ public:
      * @param absorbed
      * @return Vect3
      */
-    Vect3 fr(Point x, Direction wi, Direction w0, Material material, materialType &type)
+    Vect3 fr(Point x, Direction wi, Direction w0, Material material, materialType &type, bool noAbsortion = false)
     {
 
         // return material.kd / 255.0; // pa que siga funcionando de momento
@@ -115,7 +117,7 @@ public:
 
         float p = 0;
 
-        type = material.getMatType(p);
+        type = material.getMatType(p, noAbsortion);
 
         p = 1; // PROVISIONAL
 
@@ -152,7 +154,7 @@ public:
      */
     void direct_light(vector<Primitive *> objs, Vect3 &emission,
                       Point x, Direction w0, vector<Light *> light_points,
-                      Direction n, Vect3 color, float shadowBias, Material material);
+                      Direction n, Vect3 color, float shadowBias, Material material, Vect3 brdf);
 
     /**
      * @brief Light value emission

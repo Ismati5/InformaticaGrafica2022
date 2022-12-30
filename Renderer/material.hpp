@@ -57,18 +57,20 @@ public:
      *
      * @return materialType
      */
-    materialType getMatType(float &p)
+    materialType getMatType(float &p, bool noAbsortion)
     {
 
         float kd_max = kd.maxValue() / 255.0;
         float ks_max = ks.maxValue() / 255.0;
         float kt_max = kt.maxValue() / 255.0;
+        
+        float pabs_aux = pabs;
+        if (noAbsortion)
+            pabs_aux = 0;
 
-        float pd = kd_max / (kd_max + ks_max + kt_max + pabs);
-        float ps = ks_max / (kd_max + ks_max + kt_max + pabs);
-        float pt = kt_max / (kd_max + ks_max + kt_max + pabs);
-
-        pabs = 1 - (pd + ps + pt);
+        float pd = kd_max / (kd_max + ks_max + kt_max + pabs_aux);
+        float ps = ks_max / (kd_max + ks_max + kt_max + pabs_aux);
+        float pt = kt_max / (kd_max + ks_max + kt_max + pabs_aux);
 
         float type = (float)(rand()) / (float)(RAND_MAX);
 
