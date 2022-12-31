@@ -119,7 +119,7 @@ void light_value_ph(vector<Primitive *> objs, Point x, Direction w0,
     if (material_type == SPECULAR)
     {
         savePhoton = false;
-        wi = (w0 - (n * 2 * (w0.dotProd(n)))).normalize();    
+        wi = (w0 - (n * 2 * (w0.dotProd(n)))).normalize();
     }
     else if (material_type == REFRACTION)
     {
@@ -164,15 +164,11 @@ void light_value_ph(vector<Primitive *> objs, Point x, Direction w0,
     ph.flux = brdf * prevFlux;
     ph.material = material;
 
-    if (ph.flux.x >= 255 && ph.flux.y >= 255 && ph.flux.z >= 255) // Me lo dijo Jorge Lisa 
+    if (ph.flux.x >= 255 && ph.flux.y >= 255 && ph.flux.z >= 255) // Me lo dijo Jorge Lisa
         return;                                                   // Black
 
     if (intersected == NONE) // No intersection with scene
-    {
-        if (savePhoton)
-            photons.push_front(ph);
         return;
-    }
     else if (intersected == LIGHT) // Intersection with area light
     {
         if (savePhoton)
@@ -183,7 +179,7 @@ void light_value_ph(vector<Primitive *> objs, Point x, Direction w0,
     // Save photon
     if (savePhoton)
         photons.push_front(ph);
-        
+
     if (max_photons == photons.size())
         return;
 
@@ -246,6 +242,9 @@ void printList(list<Photon> list)
 */
 PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> objects, render_config config)
 {
+
+    srand(time(NULL));
+
     const size_t fixedListSize(config.max_photons);
     list<Photon> all_photons(fixedListSize);
     list<Photon> photons(fixedListSize);
@@ -275,20 +274,22 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
             {
                 light_value_ph(objects, x, (x - light->center).normalize(), lights, n,
                                config.shadow_bias, material, photons, max_shots, (light->power * 4 * PI) / max_shots);
-
-                if (photons.size() >= config.max_photons)
-                    break;
             }
+
+            if (photons.size() >= config.max_photons)
+                break;
         }
 
         // photons.begin()->flux = (4 * PI * light->powerValue()) / shots_taken;
 
         all_photons.insert(all_photons.end(), photons.begin(), photons.end());
+
         if (config.max_photons <= all_photons.size())
             break;
     }
 
     // printList(all_photons);
     PhotonMap map = PhotonMap(all_photons, PhotonAxisPosition());
+
     return map;
 }

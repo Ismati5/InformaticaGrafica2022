@@ -555,7 +555,8 @@ bool Camera::hitPosition(vector<Primitive *> objects, Ray ray, Direction &n, Poi
 Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, render_config config, PhotonMap map, Point x, Direction w0, Direction n, Material material)
 {
     materialType material_type;
-    Vect3 brdf = fr(x, Direction(0,0,0), w0, material, material_type, true); // No se puede absorber
+    Direction wi;
+    Vect3 brdf = fr(x, Direction(0, 0, 0), w0, material, material_type, true); // No se puede absorber
     if (material_type == DIFFUSE)
     {
         materialType type;
@@ -568,7 +569,7 @@ Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, rend
         Vect3 kernel_dens = Vect3(0, 0, 0);
         for (Photon ph : photons)
         {
-            leftComp = fr(x, ph.wp, w0, ph. material, type);
+            leftComp = fr(x, ph.wp, w0, ph.material, type);
             // rightComp = ph.flux;
             rightComp = ph.flux * (1 - x.distance(ph.position_) / config.r); // Non-Constant density estimation
 
@@ -581,12 +582,12 @@ Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, rend
         direct_light(objs, ld, x, w0, lights, n, material.kd, config.shadow_bias, material, brdf);
         // cout << ld << "--" << kernel_dens << "--" << brdf << endl;
         return ld + kernel_dens * brdf;
-
-    }else if (material_type == SPECULAR)
-    {
-        w0 = (w0 - (n * 2 * (w0.dotProd(n)))).normalize();
     }
-    else // REFRACTION
+    else if (material_type == SPECULAR)
+    {
+        wi = (w0 - (n * 2 * (w0.dotProd(n)))).normalize();
+    }
+    else if (material_type == REFRACTION) // REFRACTION
     {
         float no = 1; // Hay que tener en cuenta el medio por el que viene, no el ultimo medio visitado
         float nf, ni = material.ref_coef;
@@ -613,21 +614,20 @@ Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, rend
 
         float k = 1 - nf * nf * (1 - angI * angI);
         if (k < 0)
-            w0 = Direction(0, 0, 0);
+            wi = Direction(0, 0, 0);
         else
-            w0 = (w0 * nf + auxN * (nf * angI - sqrtf(k))).normalize();
+            wi = (w0 * nf + auxN * (nf * angI - sqrtf(k))).normalize();
     }
-    
-    Ray ray(w0, x);
+
+    Ray ray(wi, x);
     if (hitPosition(objs, ray, n, x, material))
     {
-        return emission_ph(objs, lights, config, map, x, w0, n, material);   
+        return emission_ph(objs, lights, config, map, x, wi, n, material);
     }
     else
     {
-        return Vect3(0,0,0);
+        return Vect3(0, 0, 0);
     }
-
 }
 
 void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission, PhotonMap map)
