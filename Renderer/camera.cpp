@@ -589,7 +589,7 @@ Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, rend
     }
     else if (material_type == REFRACTION) // REFRACTION
     {
-        float no = 1; // Hay que tener en cuenta el medio por el que viene, no el ultimo medio visitado
+        float no = 1.5; // Hay que tener en cuenta el medio por el que viene, no el ultimo medio visitado
         float nf, ni = material.ref_coef;
 
         Direction auxN = n;
@@ -714,7 +714,6 @@ void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light 
                         closest_emission = emission_ph(objs, lights, config, map, closest_x, w0, closest_normal, closest_material);
 
                         intersections++;
-                        // cout << closest_emission << endl;
                         total_emission += closest_emission;
                         intersected = false;
                     }
