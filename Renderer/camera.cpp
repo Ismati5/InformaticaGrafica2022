@@ -92,7 +92,7 @@ Direction Camera::randomDir(Direction pixelSize)
  * @return intersectionType
  */
 intersectionType Camera::closestObj(vector<Primitive *> objs, Ray ray, Direction &closest_normal, Point &closest_point,
-                                    Vect3 &closest_emission, Direction w0, Vect3 color, string &name, Material material, Material &intersectedMaterial)
+                                    Vect3 &closest_emission, Direction w0, string &name, Material material, Material &intersectedMaterial)
 {
     float t1, lowest_t1 = numeric_limits<float>::infinity();
     Vect3 emission;
@@ -314,7 +314,7 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
 
     Material material_aux;
 
-    intersectionType intersected = closestObj(objs, ray, closest_normal, closest_point, closest_emission, w0, color, closest_name, material, material_aux);
+    intersectionType intersected = closestObj(objs, ray, closest_normal, closest_point, closest_emission, w0, closest_name, material, material_aux);
 
     if (intersected == NONE) // No intersection with scene
     {
@@ -527,19 +527,44 @@ vector<Photon> Camera::search_nearest(PhotonMap map, Vect3 x, unsigned long K, f
     return photons;
 }
 
+bool Camera::hitPosition(vector<Primitive *> objects, Ray ray, Direction &n, Point &x, Material &m)
+{
+    bool intersected = false;
+    float t1, lowest_t1 = numeric_limits<float>::infinity();
+    Direction hitNormal;
+    Point hitPoint;
+
+    for (Primitive *obj : objects)
+    {
+        if (obj->intersect(ray, t1, hitNormal, hitPoint))
+        {
+            intersected = true;
+            if (t1 < lowest_t1)
+            {
+                x = hitPoint;
+                n = hitNormal;
+                m = obj->material;
+                lowest_t1 = t1;
+            }
+        }
+    }
+
+    return intersected;
+}
+
 Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, render_config config, PhotonMap map, Point x, Direction w0, Direction n, Material material)
 {
-    materialType type;
-    vector<Photon> photons = search_nearest(map, x.toVect3(), config.k, config.r);
-
-    Vect3 leftComp = Vect3(0, 0, 0);
-    Vect3 rightComp = Vect3(0, 0, 0);
-    Vect3 ld = Vect3(0, 0, 0);
-
     materialType material_type;
     Vect3 brdf = fr(x, Direction(0,0,0), w0, material, material_type, true); // No se puede absorber
     if (material_type == DIFFUSE)
     {
+        materialType type;
+        vector<Photon> photons = search_nearest(map, x.toVect3(), config.k, config.r);
+
+        Vect3 leftComp = Vect3(0, 0, 0);
+        Vect3 rightComp = Vect3(0, 0, 0);
+        Vect3 ld = Vect3(0, 0, 0);
+
         Vect3 kernel_dens = Vect3(0, 0, 0);
         for (Photon ph : photons)
         {
@@ -557,7 +582,48 @@ Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, rend
         // cout << ld << "--" << kernel_dens << "--" << brdf << endl;
         return ld + kernel_dens * brdf;
 
-    }else
+    }else if (material_type == SPECULAR)
+    {
+        w0 = (w0 - (n * 2 * (w0.dotProd(n)))).normalize();
+    }
+    else // REFRACTION
+    {
+        float no = 1; // Hay que tener en cuenta el medio por el que viene, no el ultimo medio visitado
+        float nf, ni = material.ref_coef;
+
+        Direction auxN = n;
+        float angI = auxN.dotProd(w0.normalize());
+
+        if (angI < -1)
+            angI = -1;
+        else if (angI > 1)
+            angI = 1;
+
+        if (angI < 0)
+        {
+            angI = -angI;
+        }
+        else
+        {
+            auxN = auxN * -1;
+            swap(no, ni);
+        }
+
+        nf = no / ni;
+
+        float k = 1 - nf * nf * (1 - angI * angI);
+        if (k < 0)
+            w0 = Direction(0, 0, 0);
+        else
+            w0 = (w0 * nf + auxN * (nf * angI - sqrtf(k))).normalize();
+    }
+    
+    Ray ray(w0, x);
+    if (hitPosition(objs, ray, n, x, material))
+    {
+        return emission_ph(objs, lights, config, map, x, w0, n, material);   
+    }
+    else
     {
         return Vect3(0,0,0);
     }

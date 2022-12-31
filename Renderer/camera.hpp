@@ -93,7 +93,7 @@ public:
      * @return intersectionType
      */
     intersectionType closestObj(vector<Primitive *> objs, Ray ray, Direction &closest_normal,
-                                Point &closest_point, Vect3 &closest_emission, Direction w0, Vect3 color, string &name, Material material, Material &intersectedMaterial);
+                                Point &closest_point, Vect3 &closest_emission, Direction w0, string &name, Material material, Material &intersectedMaterial);
 
     /**
      * @brief Returns the color
@@ -193,6 +193,8 @@ public:
     void render_thread(int id, vector<Primitive *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission);
 
     vector<Photon> search_nearest(PhotonMap map, Vect3 x, unsigned long K, float r);
+
+    bool hitPosition(vector<Primitive *> objects, Ray ray, Direction &n, Point &x, Material &m);
 
     Vect3 emission_ph(vector<Primitive *> objs, vector<Light *> lights, render_config config, PhotonMap map, Point x, Direction w0, Direction n, Material material);
 

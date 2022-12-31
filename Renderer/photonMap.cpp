@@ -116,8 +116,43 @@ void light_value_ph(vector<Primitive *> objs, Point x, Direction w0,
 
     // Only store non diffuse intersections
     bool savePhoton = true;
-    if (material_type == SPECULAR || material_type == REFRACTION)
+    if (material_type == SPECULAR)
+    {
         savePhoton = false;
+        wi = (w0 - (n * 2 * (w0.dotProd(n)))).normalize();    
+    }
+    else if (material_type == REFRACTION)
+    {
+        savePhoton = false;
+        float no = 1; // Hay que tener en cuenta el medio por el que viene, no el ultimo medio visitado
+        float nf, ni = material.ref_coef;
+
+        Direction auxN = n;
+        float angI = auxN.dotProd(w0.normalize());
+
+        if (angI < -1)
+            angI = -1;
+        else if (angI > 1)
+            angI = 1;
+
+        if (angI < 0)
+        {
+            angI = -angI;
+        }
+        else
+        {
+            auxN = auxN * -1;
+            swap(no, ni);
+        }
+
+        nf = no / ni;
+
+        float k = 1 - nf * nf * (1 - angI * angI);
+        if (k < 0)
+            wi = Direction(0, 0, 0);
+        else
+            wi = (w0 * nf + auxN * (nf * angI - sqrtf(k))).normalize();
+    }
 
     Ray ray(wi, x);
     Material intersected_material;
