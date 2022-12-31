@@ -712,7 +712,6 @@ void Camera::renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light 
                     if (intersected)
                     {
                         closest_emission = emission_ph(objs, lights, config, map, closest_x, w0, closest_normal, closest_material);
-
                         intersections++;
                         total_emission += closest_emission;
                         intersected = false;
