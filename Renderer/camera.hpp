@@ -108,8 +108,6 @@ public:
     Vect3 fr(Point x, Direction wi, Direction w0, Material material, materialType &type, bool noAbsortion = false)
     {
 
-        // return material.kd / 255.0; // pa que siga funcionando de momento
-
         if (material.isLight())
         {
             return (material.ke / 255.0);

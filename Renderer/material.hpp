@@ -63,7 +63,7 @@ public:
         float kd_max = kd.maxValue() / 255.0;
         float ks_max = ks.maxValue() / 255.0;
         float kt_max = kt.maxValue() / 255.0;
-        
+
         float pabs_aux = pabs;
         if (noAbsortion)
             pabs_aux = 0;
@@ -72,36 +72,24 @@ public:
         float ps = ks_max / (kd_max + ks_max + kt_max + pabs_aux);
         float pt = kt_max / (kd_max + ks_max + kt_max + pabs_aux);
 
+        if (noAbsortion)
+            pabs_aux = 0;
+        else
+            pabs_aux = pabs / (kd_max + ks_max + kt_max + pabs_aux);
+
         float type = (float)(rand()) / (float)(RAND_MAX);
 
-        /*cout << "kd_max: " << kd_max << endl;
-        cout << "ks_max: " << ks_max << endl;
-        cout << "kt_max: " << kt_max << endl;
-        cout << "abs: " << pabs << endl;
-
-        cout << endl;
-
-        cout << "RR: " << type << endl;
-        cout << "pd: " << pd << endl;
-        cout << "ps: " << ps << endl;
-        cout << "pt: " << pt << endl;
-        cout << "abs: " << pabs << endl;
-
-        cout << endl;
-
-        */
-
-        if (type <= pd)
+        if (type < pd)
         {
             p = pd;
             return DIFFUSE;
         }
-        else if (type <= ps + pd)
+        else if (type < ps + pd)
         {
             p = ps;
             return SPECULAR;
         }
-        else if (type <= pt + ps + pd)
+        else if (type < pt + ps + pd)
         {
             p = pt;
             return REFRACTION;

@@ -355,7 +355,7 @@ void gamma(string fileName, float g, float value)
             long v = s * m / c;
             // Apply gamma curve
 
-            v = pow(v / m, g) * m;
+            v = pow(v, 1 / g);
 
             s = round(v * c / m);
             // Write number to the outfile

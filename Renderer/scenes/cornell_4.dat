@@ -1,0 +1,16 @@
+#
+# Default Cornell Box 
+#
+# Diffuse spheres and planes
+# Area Light
+#
+RESOLUTION 256 256
+THREADS 12
+CAMERA  0 0 -3.5
+PLANE   red_plane   1 0 0   1   DIFF_RED
+PLANE   green_plane -1 0 0  1  DIFF_GREEN
+PLANE   floor_plane 0 1 0   1   DIFF_LIGHT_GREY
+PLANE   ceiling_plane 0 -1 0   1   EM_LIGHT_GREY
+PLANE   back_plane  0 0 -1  1   DIFF_LIGHT_GREY
+SPHERE  purple_sphere -0.5 -0.7 0.25    0.3 DIFF_PURPLE
+SPHERE  blue_sphere   0.5 -0.7 -0.25    0.3   DIFF_BLUE
