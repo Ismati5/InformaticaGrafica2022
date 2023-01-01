@@ -117,8 +117,6 @@ public:
 
         type = material.getMatType(p, noAbsortion);
 
-        p = 1; // PROVISIONAL
-
         switch (type)
         {
         case DIFFUSE:

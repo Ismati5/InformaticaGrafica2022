@@ -60,12 +60,12 @@ Material diff_dark_blue(dark_blue, none, none, none, 0.2);
 Material diff_green(green, none, none, none, 0.2);
 Material diff_light_grey(light_grey, none, none, none, 0.2);
 Material diff_grey(grey, none, none, none, 0.2);
-Material diff_spec_blue(blue, white, none, none, 0.2);
-Material diff_spec_dark_blue(dark_blue, white, none, none, 0.2);
-Material diff_spec_red(red, white, none, none, 0.2);
-Material diff_spec_purple(purple, white, none, none, 0.2);
+Material diff_spec_blue(blue / 2, light_grey / 2, none, none, 0.2);
+Material diff_spec_dark_blue(dark_blue / 2, white / 2, none, none, 0.2);
+Material diff_spec_red(red / 2, white / 2, none, none, 0.2);
+Material diff_spec_purple(purple / 2, white / 2, none, none, 0.2);
 
-Material spec(grey, grey, none, none, 0.2);
+Material spec(grey / 2, grey / 2, none, none, 0.2);
 
 Material refr(none, none, white, none, 1.5, 0.2);
 

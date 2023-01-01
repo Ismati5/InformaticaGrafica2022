@@ -260,13 +260,11 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
 
     if (material_type == ABSORTION) // Case absortion
     {
-        cout << "A BRDF: " << brdf << endl;
         emission = Vect3(0, 0, 0);
         return;
     }
     else if (material_type == SPECULAR)
     {
-        cout << "S BRDF: " << brdf << endl;
         wi = (w0 - (n * 2 * (w0.dotProd(n)))).normalize();
     }
     else if (material_type == REFRACTION)
@@ -328,8 +326,6 @@ void Camera::light_value(vector<Primitive *> objs, Vect3 &emission, Point x, Dir
 
     // Light from point sources
     direct_light(objs, ld, x, w0, light_points, n, color, shadowBias, material, brdf);
-
-    cout << "D BRDF: " << brdf << endl;
 
     emission = ld + lx * brdf;
 }

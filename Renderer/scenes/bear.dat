@@ -4,7 +4,7 @@
 # Area Light
 #
 # $DEBUG_PATH
-RESOLUTION  512 512
+RESOLUTION  256 256
 THREADS 12
 CAMERA  0 0.5 -10
 PLANE   left_plane   1 0 0   3   DIFF_LIGHT_GREY
@@ -12,4 +12,4 @@ PLANE   right_plane -1 0 0  3  DIFF_LIGHT_GREY
 PLANE   floor_plane 0 1 0   1   DIFF_LIGHT_GREY
 PLANE   ceiling_plane 0 -1 0   5   EM_LIGHT_GREY
 PLANE   back_plane  0 0 -1  3   DIFF_LIGHT_GREY
-OBJECT  Bear  objs/Bear.obj -25   0 0 -2.7  0 x -60 y 0 z    DIFF_SPEC_RED
+OBJECT  Bear  objs/Bear.obj -25   0 0 -2.7  0 x -60 y 0 z    DIFF_PURPLE
