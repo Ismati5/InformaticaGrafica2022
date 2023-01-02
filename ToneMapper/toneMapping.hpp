@@ -2,15 +2,18 @@
 #include <fstream>
 #include <string>
 #include <cmath>
+#include <vector>
+#include <windows.h>
+#include <algorithm>
 
 using namespace std;
 
-void processHeader(ifstream &file, ofstream &outFile,
+// return max emission position in the output vector
+int processHeader(ifstream &file,
                    float &m, float &c, int &width,
-                   int &height, bool ldr, bool write)
+                   int &height, bool ldr, bool write, vector<string> &output)
 {
-
-    int initial_vars = 0;
+    int initial_vars = 0, max_pos;
     string line;
     bool hasMax = false;
 
@@ -26,21 +29,20 @@ void processHeader(ifstream &file, ofstream &outFile,
             }
 
             if (write)
-                outFile << line << endl;
+                output.push_back(line + "\n");
         }
         else
         {
-
             // First line is skipped
+
             // Image resolution
             if (initial_vars == 1)
             {
-
                 width = stoi(line.substr(0, line.find(" ")));
                 height = stoi(line.substr(line.find(" "), line.length()));
 
                 if (write)
-                    outFile << line << endl;
+                    output.push_back(line + "\n");
 
             } // Color resolution
             else if (initial_vars == 2)
@@ -48,17 +50,23 @@ void processHeader(ifstream &file, ofstream &outFile,
                 c = stof(line);
                 int hdrC = ldr ? 255 : c;
                 if (write)
-                    outFile << hdrC << endl;
-            }
+                    output.push_back(to_string(hdrC));
 
+                max_pos = output.size();
+            }
             else if (write)
-                outFile << line << endl;
+                output.push_back(line + "\n");
+
             initial_vars++;
         }
     }
 
+    output.push_back("\n");
+
     if (!hasMax)
         m = c;
+
+    return max_pos - 1;
 }
 
 void showProgress(int row, int height)
@@ -86,11 +94,22 @@ void showProgress(int row, int height)
     }
 }
 
-void ldr(string fileName)
+void dumpToFile(ofstream &outFile, vector<string> header, vector<string> output)
 {
+    for (string s : header)
+        outFile << s;
+
+    for (string s : output)
+        outFile << s;
+}
+
+string ldr(string fileName)
+{
+    vector<string> header;
+    vector<string> output;
 
     float m, c;
-    int width, height;
+    int width, height, max_pos, max = numeric_limits<int>::lowest();
 
     ifstream file;
     ofstream outFile;
@@ -103,7 +122,7 @@ void ldr(string fileName)
     }
     else
     {
-        processHeader(file, outFile, m, c, width, height, true, true);
+        max_pos = processHeader(file, m, c, width, height, true, true, header);
 
         string num;
         int numI;
@@ -117,24 +136,26 @@ void ldr(string fileName)
             numI = stoi(num);
             float v = numI * m / c;
             int reduced = round(v * (255 / m));
-            outFile << reduced;
+            if (reduced > max) max = reduced;
+
+            output.push_back(to_string(reduced));
             count++;
             if (count == 3)
             {
                 count = 0;
-                outFile << "    ";
+                output.push_back("    ");
                 column++;
             }
             if (column == width)
             {
-                outFile << endl;
+                output.push_back("\n");
                 column = 0;
                 row++;
                 showProgress(row, height);
             }
             else
             {
-                outFile << " ";
+                output.push_back(" ");
             }
             file >> num;
         }
@@ -144,16 +165,22 @@ void ldr(string fileName)
     cout << "LDR export completed! Check the new file "
          << "ldr_" + fileName << "." << endl;
 
+    header[max_pos] = to_string(max);
+
+    dumpToFile(outFile, header, output);
+
     file.close();
     outFile.close();
+
+    return "ldr\\ldr_" + fileName;
 }
 
-void clamping(string fileName, float value = 0.0)
+string clamping(string fileName, float value = 0.0)
 {
-
+    vector<string> header;
+    vector<string> output;
     float m, c;
-    int width, height;
-
+    int width, height, max_pos, max = numeric_limits<int>::lowest();
     ifstream file;
     ofstream outFile;
     file.open(fileName);
@@ -165,8 +192,7 @@ void clamping(string fileName, float value = 0.0)
     }
     else
     {
-
-        processHeader(file, outFile, m, c, width, height, false, true);
+        max_pos = processHeader(file, m, c, width, height, false, true, header);
 
         if (value == 0.0)
         {
@@ -189,31 +215,31 @@ void clamping(string fileName, float value = 0.0)
                 v = value;
                 v = v * m / value;
                 s = round(v * c / m);
-                outFile << s;
             }
             else
             {
                 v = v * m / value;
                 s = round(v * c / m);
-                outFile << s;
             }
+            if (s > max) max = s;
+            output.push_back(to_string(s));
             count++;
             if (count == 3)
             {
                 count = 0;
-                outFile << "    ";
+                output.push_back("    ");
                 column++;
             }
             if (column == width)
             {
-                outFile << endl;
+                output.push_back("\n");
                 column = 0;
                 row++;
                 showProgress(row, height);
             }
             else
             {
-                outFile << " ";
+                output.push_back(" ");
             }
             file >> num;
         }
@@ -224,15 +250,23 @@ void clamping(string fileName, float value = 0.0)
     cout << "Clamping completed! Check the new file "
          << "c_" + fileName << "." << endl;
 
+    header[max_pos] = to_string(max);
+
+    dumpToFile(outFile, header, output);
+
     file.close();
     outFile.close();
+
+    return "c_" + fileName;
 }
 
-void equalization(string fileName, float value = 0.0)
+string equalization(string fileName, float value = 0.0)
 {
 
+    vector<string> header;
+    vector<string> output;
     float m, c;
-    int width, height;
+    int width, height, max_pos, max = numeric_limits<int>::lowest();;
 
     ifstream file;
     ofstream outFile;
@@ -246,7 +280,7 @@ void equalization(string fileName, float value = 0.0)
     else
     {
 
-        processHeader(file, outFile, m, c, width, height, false, true);
+        max_pos = processHeader(file, m, c, width, height, false, true, header);
 
         string num;
         int s;
@@ -267,24 +301,27 @@ void equalization(string fileName, float value = 0.0)
             float v = s * m / c;
             v = v * m / value;
             s = v * c / m;
-            outFile << s;
+            if (s > max) max = s;
+
+            output.push_back(to_string(s));
             count++;
             if (count == 3)
             {
                 count = 0;
-                outFile << "    ";
+                output.push_back("    ");
                 column++;
             }
             if (column == width)
             {
-                outFile << endl;
+                
+                output.push_back("\n");
                 column = 0;
                 row++;
                 showProgress(row, height);
             }
             else
             {
-                outFile << " ";
+                output.push_back(" ");
             }
             file >> num;
         }
@@ -295,11 +332,17 @@ void equalization(string fileName, float value = 0.0)
     cout << "Equalization completed! Check the new file "
          << "e_" + fileName << "." << endl;
 
+    header[max_pos] = to_string(max);
+
+    dumpToFile(outFile, header, output);
+
     file.close();
     outFile.close();
+
+    return "e_" + fileName;
 }
 
-void equalizationAndCampling(string fileName, float value = 0.0)
+string equalizationAndCampling(string fileName, float value = 0.0)
 {
     string oldFileName = fileName;
     // First the picture is equalized
@@ -307,16 +350,18 @@ void equalizationAndCampling(string fileName, float value = 0.0)
     fileName = "e_" + oldFileName;
 
     // Then the picture is clamped
-    clamping(fileName, value);
+    string outFile = clamping(fileName, value);
 
     if (remove(("e_" + oldFileName).c_str()))
     {
         throw std::invalid_argument("Error deleting e_" + oldFileName);
     }
+
+    return outFile;
 }
 
 // Gamma values between 0-2 (>1 darker, <1 brighter)
-void gamma(string fileName, float g, float value)
+string gamma(string fileName, float g, float value)
 {
     string oldFileName = fileName;
     // First the picture is equalized
@@ -324,8 +369,10 @@ void gamma(string fileName, float g, float value)
     equalization(fileName, value);
     fileName = "e_" + fileName;
 
+    vector<string> header;
+    vector<string> output;
     float m, c;
-    int width, height;
+    int width, height, max_pos, max = numeric_limits<int>::lowest();;
 
     ifstream file;
     ofstream outFile;
@@ -338,7 +385,7 @@ void gamma(string fileName, float g, float value)
     }
     else
     {
-        processHeader(file, outFile, m, c, width, height, false, true);
+        max_pos = processHeader(file, m, c, width, height, false, true, header);
 
         string num;
 
@@ -358,27 +405,30 @@ void gamma(string fileName, float g, float value)
             v = pow(v, 1 / g);
 
             s = round(v * c / m);
+            if (s > max) max = s;
+
             // Write number to the outfile
+            output.push_back(to_string(s));
             outFile << s;
             count++;
             // Write spaces every three numbers
             if (count == 3)
             {
                 count = 0;
-                outFile << "    ";
+                output.push_back("    ");
                 column++;
             }
             // No more columns in this row
             if (column == width)
             {
-                outFile << endl;
+                output.push_back("\n");
                 column = 0;
                 row++;
                 showProgress(row, height);
             }
             else
             {
-                outFile << " ";
+                output.push_back(" ");
             }
             file >> num;
         }
@@ -389,6 +439,10 @@ void gamma(string fileName, float g, float value)
     cout << "Gamma curve completed! Check the new file "
          << "g_" + oldFileName << "." << endl;
 
+    header[max_pos] = to_string(max);
+     
+    dumpToFile(outFile, header, output);
+
     file.close();
     outFile.close();
 
@@ -397,19 +451,23 @@ void gamma(string fileName, float g, float value)
     {
         throw std::invalid_argument("Error deleting " + fileName);
     }
+
+    return "g_" + oldFileName;
 }
 
-void clampingAndGamma(string fileName, float g, float value = 0.0)
+string clampingAndGamma(string fileName, float g, float value = 0.0)
 {
     string oldFileName = fileName;
     gamma(fileName, g, value);
     fileName = "g_" + oldFileName;
 
     // Then the picture is clamped
-    clamping(fileName, value);
+    string outFile = clamping(fileName, value);
 
     if (remove(("g_" + oldFileName).c_str()))
     {
         throw std::invalid_argument("Error deleting g_" + oldFileName);
     }
+
+    return outFile;
 }
