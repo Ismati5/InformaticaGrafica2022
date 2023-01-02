@@ -10,8 +10,8 @@ using namespace std;
 
 // return max emission position in the output vector
 int processHeader(ifstream &file,
-                   float &m, float &c, int &width,
-                   int &height, bool ldr, bool write, vector<string> &output)
+                  float &m, float &c, int &width,
+                  int &height, bool ldr, bool write, vector<string> &output)
 {
     int initial_vars = 0, max_pos;
     string line;
@@ -136,7 +136,8 @@ string ldr(string fileName)
             numI = stoi(num);
             float v = numI * m / c;
             int reduced = round(v * (255 / m));
-            if (reduced > max) max = reduced;
+            if (reduced > max)
+                max = reduced;
 
             output.push_back(to_string(reduced));
             count++;
@@ -221,7 +222,8 @@ string clamping(string fileName, float value = 0.0)
                 v = v * m / value;
                 s = round(v * c / m);
             }
-            if (s > max) max = s;
+            if (s > max)
+                max = s;
             output.push_back(to_string(s));
             count++;
             if (count == 3)
@@ -266,7 +268,8 @@ string equalization(string fileName, float value = 0.0)
     vector<string> header;
     vector<string> output;
     float m, c;
-    int width, height, max_pos, max = numeric_limits<int>::lowest();;
+    int width, height, max_pos, max = numeric_limits<int>::lowest();
+    ;
 
     ifstream file;
     ofstream outFile;
@@ -301,7 +304,8 @@ string equalization(string fileName, float value = 0.0)
             float v = s * m / c;
             v = v * m / value;
             s = v * c / m;
-            if (s > max) max = s;
+            if (s > max)
+                max = s;
 
             output.push_back(to_string(s));
             count++;
@@ -313,7 +317,7 @@ string equalization(string fileName, float value = 0.0)
             }
             if (column == width)
             {
-                
+
                 output.push_back("\n");
                 column = 0;
                 row++;
@@ -372,7 +376,8 @@ string gamma(string fileName, float g, float value)
     vector<string> header;
     vector<string> output;
     float m, c;
-    int width, height, max_pos, max = numeric_limits<int>::lowest();;
+    int width, height, max_pos, max = numeric_limits<int>::lowest();
+    ;
 
     ifstream file;
     ofstream outFile;
@@ -405,11 +410,11 @@ string gamma(string fileName, float g, float value)
             v = pow(v, 1 / g);
 
             s = round(v * c / m);
-            if (s > max) max = s;
+            if (s > max)
+                max = s;
 
             // Write number to the outfile
             output.push_back(to_string(s));
-            outFile << s;
             count++;
             // Write spaces every three numbers
             if (count == 3)
@@ -440,7 +445,7 @@ string gamma(string fileName, float g, float value)
          << "g_" + oldFileName << "." << endl;
 
     header[max_pos] = to_string(max);
-     
+
     dumpToFile(outFile, header, output);
 
     file.close();
