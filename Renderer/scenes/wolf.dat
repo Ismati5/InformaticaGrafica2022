@@ -4,12 +4,13 @@
 # Area Light
 #
 # $DEBUG_PATH
-RESOLUTION  256 256
+RESOLUTION  1024 1024
 THREADS 12
 CAMERA  0 0 -30
-PLANE   left_plane   1 0 0   10   DIFF_LIGHT_GREY
-PLANE   right_plane -1 0 0  10  DIFF_LIGHT_GREY
-PLANE   floor_plane 0 1 0   8   DIFF_LIGHT_GREY
+PLANE   left_plane   1 0 0   10   DIFF_GREY
+PLANE   right_plane -1 0 0  10  DIFF_GREY
+PLANE   floor_plane 0 1 0   8   DIFF_GREY
 PLANE   ceiling_plane 0 -1 0   20   EM_LIGHT_GREY
-PLANE   back_plane  0 0 -1  15   DIFF_LIGHT_GREY
-OBJECT  Wolf  objs/Wolf.obj -13   0 -8 0 0 x 215 y 0 z    DIFF_SPEC_PURPLE
+PLANE   back_plane  0 0 -1  15   DIFF_GREY
+SPHERE  blue_sphere   0 0 0    5   SPEC_REFR
+# OBJECT  Wolf  objs/Wolf.obj -13   0 -8 0 0 x 215 y 0 z    SPEC_REFR

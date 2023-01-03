@@ -491,7 +491,7 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
     }
 }
 
-vector<Photon> Camera::search_nearest(PhotonMap map, Vect3 x, unsigned long K, float r)
+vector<Photon> Camera::search_nearest(PhotonMap &map, Vect3 x, unsigned long K, float r)
 {
     // Position to look for the nearest photons
     Vect3 query_position = x;
@@ -527,7 +527,7 @@ bool Camera::hitPosition(vector<Primitive *> objects, Ray ray, Direction &n, Poi
         if (obj->intersect(ray, t1, hitNormal, hitPoint))
         {
             intersected = true;
-            if (t1 < lowest_t1)
+            if (t1 < lowest_t1 && t1 > 0.0001)
             {
                 x = hitPoint;
                 n = hitNormal;
@@ -540,11 +540,11 @@ bool Camera::hitPosition(vector<Primitive *> objects, Ray ray, Direction &n, Poi
     return intersected;
 }
 
-Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, render_config config, PhotonMap map, Point x, Direction w0, Direction n, Material material)
+Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, render_config config, PhotonMap &map, Point x, Direction w0, Direction n, Material material)
 {
     materialType material_type;
     Direction wi;
-    Vect3 brdf = fr(x, Direction(0, 0, 0), w0, material, material_type, true); // No se puede absorber
+    Vect3 brdf = fr(x, Direction(0, 0, 0), w0, material, material_type, false); // No se puede absorber. Como que no? xd
     if (material_type == DIFFUSE)
     {
         materialType type;
@@ -575,9 +575,9 @@ Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, rend
     {
         wi = (w0 - (n * 2 * (w0.dotProd(n)))).normalize();
     }
-    else if (material_type == REFRACTION) // REFRACTION
+    else if (material_type == REFRACTION)
     {
-        float no = 1.5; // Hay que tener en cuenta el medio por el que viene, no el ultimo medio visitado
+        float no = 1; // Hay que tener en cuenta el medio por el que viene, no el ultimo medio visitado
         float nf, ni = material.ref_coef;
 
         Direction auxN = n;
@@ -605,6 +605,10 @@ Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, rend
             wi = Direction(0, 0, 0);
         else
             wi = (w0 * nf + auxN * (nf * angI - sqrtf(k))).normalize();
+    }
+    else if (material_type == ABSORTION)
+    {
+        return Vect3(0, 0, 0);
     }
 
     Ray ray(wi, x);

@@ -3,9 +3,9 @@
 #
 # Photon mapping cornell box
 #
-RESOLUTION 512 512
+RESOLUTION 256 256
 THREADS 12
-K 500
+K 1000
 R 0.08
 CAMERA  0 0 -3.5
 LIGHT   0 0.5 0 WHITE
@@ -14,5 +14,5 @@ PLANE   green_plane -1 0 0  1  DIFF_GREEN
 PLANE   floor_plane 0 1 0   1   DIFF_LIGHT_GREY
 PLANE   ceiling_plane 0 -1 0   1   DIFF_LIGHT_GREY
 PLANE   back_plane  0 0 -1  1   DIFF_LIGHT_GREY
-SPHERE  left_sphere -0.5 -0.7 0.25    0.3 DIFF_PURPLE
+SPHERE  left_sphere -0.5 -0.7 0.25    0.3 DIFF_SPEC_BLUE
 SPHERE  right_sphere   0.5 -0.7 -0.25    0.3   SPEC_REFR

@@ -65,8 +65,6 @@ public:
         float kt_max = kt.maxValue() / 255.0;
 
         float pabs_aux = pabs;
-        if (noAbsortion)
-            pabs_aux = 0;
 
         float pd = kd_max / (kd_max + ks_max + kt_max + pabs_aux);
         float ps = ks_max / (kd_max + ks_max + kt_max + pabs_aux);
@@ -81,17 +79,17 @@ public:
 
         if (type < pd)
         {
-            p = pd;
+            p = pd + pabs_aux;
             return DIFFUSE;
         }
         else if (type < ps + pd)
         {
-            p = ps;
+            p = ps + pabs_aux;
             return SPECULAR;
         }
         else if (type < pt + ps + pd)
         {
-            p = pt;
+            p = pt + pabs_aux;
             return REFRACTION;
         }
         else

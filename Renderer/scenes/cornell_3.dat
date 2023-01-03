@@ -2,9 +2,9 @@
 # Default Cornell Box 
 #
 # Diffuse, specular and refractive spheres and planes
-# Small rea Light
+# Small Area Light
 #
-RESOLUTION  256 256
+RESOLUTION  512 512
 THREADS 12
 CAMERA  0 0 -3.5
 PLANE   red_plane   1 0 0   1   DIFF_RED

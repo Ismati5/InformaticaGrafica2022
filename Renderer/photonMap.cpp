@@ -6,7 +6,7 @@ using namespace std;
 #include "ray.hpp"
 #include "primitive.hpp"
 
-Vect3 fr_ph(Point x, Direction wi, Direction w0, Material material, materialType &type)
+Vect3 fr_ph(Point x, Direction wi, Direction w0, Material material, materialType &type, bool noAbsortion = false)
 {
     if (material.isLight())
     {
@@ -15,9 +15,7 @@ Vect3 fr_ph(Point x, Direction wi, Direction w0, Material material, materialType
 
     float p = 0;
 
-    type = material.getMatType(p, false);
-
-    p = 1; // PROVISIONAL
+    type = material.getMatType(p, noAbsortion);
 
     switch (type)
     {
@@ -55,7 +53,7 @@ intersectionType closestObj_ph(vector<Primitive *> objs, Ray ray, Direction &clo
         if (obj->intersect(ray, t1, normal, point))
         {
             intersected = true;
-            if (t1 < lowest_t1)
+            if (t1 < lowest_t1 && t1 > 0.0001)
             {
                 lowest_t1 = t1;
                 closest_point = point;
@@ -80,8 +78,6 @@ void light_value_ph(vector<Primitive *> objs, Point x, Direction w0,
                     vector<Light *> light_points, Direction n, float shadowBias,
                     Material material, list<Photon> &photons, int max_photons, Vect3 prevFlux)
 {
-    if (max_photons == photons.size())
-        return;
 
     // Calculate random vector
     float theta = (float)(rand()) / (float)(RAND_MAX);
@@ -158,30 +154,18 @@ void light_value_ph(vector<Primitive *> objs, Point x, Direction w0,
     Material intersected_material;
     intersectionType intersected = closestObj_ph(objs, ray, closest_normal, closest_point, w0, material, intersected_material);
 
+    if (intersected == NONE) // No intersection with scene
+        return;
+
     Photon ph;
     ph.position_ = closest_point.toVect3();
     ph.wp = wi;
     ph.flux = brdf * prevFlux;
     ph.material = material;
 
-    if (ph.flux.x >= 255 && ph.flux.y >= 255 && ph.flux.z >= 255) // Me lo dijo Jorge Lisa
-        return;                                                   // Black
-
-    if (intersected == NONE) // No intersection with scene
-        return;
-    else if (intersected == LIGHT) // Intersection with area light
-    {
-        if (savePhoton)
-            photons.push_front(ph);
-        return;
-    }
-
     // Save photon
     if (savePhoton)
         photons.push_front(ph);
-
-    if (max_photons == photons.size())
-        return;
 
     light_value_ph(objs, closest_point, wi, light_points, closest_normal, shadowBias, intersected_material, photons, max_photons, ph.flux);
 }
@@ -210,7 +194,7 @@ bool hitPosition(vector<Primitive *> objects, Ray ray, Direction &n, Point &x, M
         if (obj->intersect(ray, t1, hitNormal, hitPoint))
         {
             intersected = true;
-            if (t1 < lowest_t1)
+            if (t1 < lowest_t1 && t1 > 0.0001)
             {
                 x = hitPoint;
                 n = hitNormal;
@@ -259,33 +243,23 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
     Point x;
     Direction n, wi;
     Material material;
-    int max_shots, shots_taken = 0;
+    int max_shots = 0;
     for (Light *light : lights)
     {
         photons.clear();
-        shots_taken = 0;
         ray.p = light->center;
         max_shots = config.max_photons * (light->powerValue() / totalPower);
         for (int i = 0; i < max_shots; i++)
         {
-            shots_taken++;
             ray.d = randomWalk();
             if (hitPosition(objects, ray, n, x, material))
             {
                 light_value_ph(objects, x, (x - light->center).normalize(), lights, n,
                                config.shadow_bias, material, photons, max_shots, (light->power * 4 * PI) / max_shots);
             }
-
-            if (photons.size() >= config.max_photons)
-                break;
         }
 
-        // photons.begin()->flux = (4 * PI * light->powerValue()) / shots_taken;
-
         all_photons.insert(all_photons.end(), photons.begin(), photons.end());
-
-        if (config.max_photons <= all_photons.size())
-            break;
     }
 
     // printList(all_photons);

@@ -25,8 +25,6 @@
 #include "light.hpp"
 #include "variables.hpp"
 
-const int MAX_SIZE_KERNEL = 5;
-
 using namespace std;
 
 /**
@@ -188,11 +186,11 @@ public:
      */
     void render_thread(int id, vector<Primitive *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission);
 
-    vector<Photon> search_nearest(PhotonMap map, Vect3 x, unsigned long K, float r);
+    vector<Photon> search_nearest(PhotonMap &map, Vect3 x, unsigned long K, float r);
 
     bool hitPosition(vector<Primitive *> objects, Ray ray, Direction &n, Point &x, Material &m);
 
-    Vect3 emission_ph(vector<Primitive *> objs, vector<Light *> lights, render_config config, PhotonMap map, Point x, Direction w0, Direction n, Material material);
+    Vect3 emission_ph(vector<Primitive *> objs, vector<Light *> lights, render_config config, PhotonMap &map, Point x, Direction w0, Direction n, Material material);
 
     void renderPhoton_thread(int id, vector<Primitive *> objs, vector<Light *> lights, render_config &config, atomic_int &num_tile, atomic_int &max_emission, PhotonMap map);
 };
