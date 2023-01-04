@@ -22,6 +22,7 @@
 #include "sphere.hpp"
 #include "plane.hpp"
 #include "triangle.hpp"
+#include "square.hpp"
 #include "light.hpp"
 #include "variables.hpp"
 

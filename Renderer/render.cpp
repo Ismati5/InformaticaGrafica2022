@@ -265,6 +265,14 @@ render_config loadScene(string file, Camera &camera, vector<Primitive *> &objs, 
                 Triangle *auxTriangle = new Triangle(Point(x1, y1, z1), Point(x2, y2, z2), Point(x3, y3, z3), stringToMaterial(material));
                 objs.push_back(auxTriangle);
             }
+            else if (data == "SQUARE") // Load a sphere
+            {
+                string material;
+                float x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4;
+                file_stream >> x1 >> y1 >> z1 >> x2 >> y2 >> z2 >> x3 >> y3 >> z3 >> x4 >> y4 >> z4 >> material;
+                Square *auxSquare = new Square(Point(x1, y1, z1), Point(x2, y2, z2), Point(x3, y3, z3), Point(x4, y4, z4), stringToMaterial(material));
+                objs.push_back(auxSquare);
+            }
             else if (data == "OBJECT") // Load a sphere
             {
                 string name, obj_file, material, axis;
@@ -362,37 +370,6 @@ void renderPhotonMapping(string file, int rays, int max_photons)
 
     cout << "2 > Filling the photon map ..." << endl
          << endl;
-
-    // // Default CORNELL BOX
-    // Point o(0, 0, -3.5);
-    // Direction l(-config.aspect_ratio, 0, 0);
-    // Direction u(0, 1, 0);
-    // Direction f(0, 0, 3);
-    // Camera camera(l, u, f, o, config.resol);
-
-    // Light light(Point(0, 0.5, 0), white);
-    // lights.push_back(&light);
-
-    // Plane left_plane(Direction(1, 0, 0), 1, "red_plane", diff_red);
-    // objs.push_back(&left_plane);
-
-    // Plane right_plane(Direction(-1, 0, 0), 1, "green_plane", diff_green);
-    // objs.push_back(&right_plane);
-
-    // Plane floor_plane(Direction(0, 1, 0), 1, "floor_plane", diff_light_grey);
-    // objs.push_back(&floor_plane);
-
-    // Plane ceiling_plane(Direction(0, -1, 0), 1, "ceiling_plane", diff_light_grey);
-    // objs.push_back(&ceiling_plane);
-
-    // Plane back_plane(Direction(0, 0, -1), 1, "back_plane", diff_light_grey);
-    // objs.push_back(&back_plane);
-
-    // Sphere left_sphere(Point(-0.5, -0.7, 0.25), 0.3, "blue_sphere", diff_blue);
-    // objs.push_back(&left_sphere);
-
-    // Sphere right_sphere(Point(0.5, -0.7, -0.25), 0.3, "red_sphere", diff_red);
-    // objs.push_back(&right_sphere);
 
     PhotonMap map = generation_of_photon_map(lights, objs, config);
 
