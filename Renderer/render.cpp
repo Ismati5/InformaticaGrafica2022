@@ -61,6 +61,7 @@ Material diff_green(green, none, none, none, 0.2);
 Material diff_light_grey(light_grey, none, none, none, 0.2);
 Material diff_grey(grey, none, none, none, 0.2);
 Material diff_spec_blue(blue / 2, light_grey / 2, none, none, 0.2);
+Material diff_spec_grey(grey / 2, light_grey / 2, none, none, 0.2);
 Material diff_spec_dark_blue(dark_blue / 2, white / 2, none, none, 0.2);
 Material diff_spec_red(red / 2, white / 2, none, none, 0.2);
 Material diff_spec_purple(purple / 2, white / 2, none, none, 0.2);
@@ -72,6 +73,7 @@ Material refr(none, none, white, none, 1.5, 0.2);
 Material spec_refr(none, Vect3(30, 30, 30), white, none, 1.5, 0.2);
 
 Material em_light_grey(light_grey, none, none, light_grey, 0.2);
+Material em_white(white, none, none, white, 0.2);
 Material em_light_blue(blue_p, none, none, blue_p, 0.2);
 
 // 32:9
@@ -99,6 +101,75 @@ int Resol_400[2] = {400, 400};
 int Resol_512[2] = {512, 512};
 int Resol_1024[2] = {1024, 1024};
 int Resol_2048[2] = {2048, 2048};
+
+/**
+ * @brief Reads a texture from a texture file (.ppm)
+ *
+ * @param fileName
+ * @return Vect3*
+ */
+Vect3 *readTextureFile(string fileName, int texture_res[2])
+{
+    Vect3 *result;
+
+    ifstream file;
+    file.open(fileName);
+
+    if (!file)
+    {
+        cout << "Texture file " << fileName << " could not be found!" << endl;
+        exit(1);
+    }
+    else
+    {
+
+        int initial_vars = 0;
+        string line;
+        while (initial_vars < 3)
+        {
+            getline(file, line);
+            if (line[0] != '#')
+            {
+                if (initial_vars == 1)
+                {
+                    texture_res[0] = stoi(line.substr(0, line.find(" ")));
+                    texture_res[1] = stoi(line.substr(line.find(" "), line.length()));
+                }
+                initial_vars++;
+            }
+        }
+
+        string num1, num2, num3;
+        int i = 0;
+
+        result = (Vect3 *)malloc(texture_res[0] * texture_res[1] * sizeof(Vect3));
+
+        file >> num1 >> num2 >> num3;
+        while (!file.eof())
+        {
+            result[i] = Vect3(stoi(num1), stoi(num2), stoi(num3));
+            file >> num1 >> num2 >> num3;
+            i++;
+        }
+
+        file.close();
+    }
+
+    return result;
+}
+
+/**
+ * @brief Creates a new diffuse material given a texture
+ *
+ * @param file
+ * @return Material
+ */
+Material textureMaterial(string file, Point ref_point, Direction e1, Direction e2, Direction normal)
+{
+    int texture_res[2];
+    Vect3 *texture = readTextureFile(file, texture_res);
+    return Material(white, none, none, none, 0.2, texture, texture_res, ref_point, e1, e2, normal);
+}
 
 /**
  * @brief Returns color from string
@@ -153,6 +224,8 @@ Material stringToMaterial(string name)
         return diff_spec_dark_blue;
     else if (name == "DIFF_SPEC_PURPLE")
         return diff_spec_purple;
+    else if (name == "DIFF_SPEC_GREY")
+        return diff_spec_grey;
     else if (name == "SPEC_REFR")
         return spec_refr;
     else if (name == "SPEC")
@@ -163,6 +236,8 @@ Material stringToMaterial(string name)
         return em_light_grey;
     else if (name == "EM_LIGHT_BLUE")
         return em_light_blue;
+    else if (name == "EM_WHITE")
+        return em_white;
     else
     {
         cout << "[!] Invalid material used: " << name << endl;
@@ -267,10 +342,22 @@ render_config loadScene(string file, Camera &camera, vector<Primitive *> &objs, 
             }
             else if (data == "SQUARE") // Load a sphere
             {
-                string material;
+                string material, texture;
                 float x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4;
-                file_stream >> x1 >> y1 >> z1 >> x2 >> y2 >> z2 >> x3 >> y3 >> z3 >> x4 >> y4 >> z4 >> material;
-                Square *auxSquare = new Square(Point(x1, y1, z1), Point(x2, y2, z2), Point(x3, y3, z3), Point(x4, y4, z4), stringToMaterial(material));
+                file_stream >> x1 >> y1 >> z1 >> x2 >> y2 >> z2 >> x3 >> y3 >> z3 >> x4 >> y4 >> z4 >> texture;
+
+                Square *auxSquare;
+
+                if (texture == "none")
+                {
+                    file_stream >> material;
+                    auxSquare = new Square(Point(x1, y1, z1), Direction(x2, y2, z2), Direction(x3, y3, z3), Direction(x4, y4, z4), stringToMaterial(material));
+                }
+                else
+                {
+                    auxSquare = new Square(Point(x1, y1, z1), Direction(x2, y2, z2), Direction(x3, y3, z3), Direction(x4, y4, z4), textureMaterial(texture, Point(x1, y1, z1), Direction(x3, y3, z3), Direction(x4, y4, z4), Direction(x2, y2, z2)));
+                }
+
                 objs.push_back(auxSquare);
             }
             else if (data == "OBJECT") // Load a sphere

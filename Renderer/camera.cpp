@@ -115,7 +115,7 @@ intersectionType Camera::closestObj(vector<Primitive *> objs, Ray ray, Direction
                 lowest_t1 = t1;
                 closest_point = point;
                 closest_normal = normal;
-                closest_emission = obj->color();
+                closest_emission = obj->color(point);
                 name = obj->name;
 
                 intersectedMaterial = obj->material;
@@ -193,14 +193,12 @@ void Camera::direct_light(vector<Primitive *> objs, Vect3 &emission,
         // If it's not a shadow
         if (!isShadow)
         {
-            // cout <<"NOT SHADOW" << endl;
             // Left term (Li)
             aux_emission = light->power / ((x - light->center).modulus() * (x - light->center).modulus());
 
             // Middle term (fr)
-
             aux_emission *= (brdf / PI);
-            // cout << "SSS: " << (fr(x, wi, w0, material, material_type) / PI) << endl;
+
             // Right term
             aux_emission *= abs(n.dotProd((light->center - x).normalize()));
 
@@ -384,6 +382,7 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                     string closest_name;
                     Point closest_x;
                     Material closest_material;
+                    Vect3 closest_color;
                     bool closest_light = false;
                     Vect3 closest_power;
 
@@ -402,7 +401,7 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                                 if (i->isLight())
                                 {
                                     closest_light = true;
-                                    closest_power = i->power();
+                                    closest_power = i->color(x);
                                 }
                                 else
                                     closest_light = false;
@@ -410,6 +409,7 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                                 closest_material = i->material;
                                 closest_name = i->name;
                                 closest_normal = sur_normal;
+                                closest_color = i->color(x);
                                 closest_x = x;
 
                                 w0 = (x - origin).normalize();
@@ -427,23 +427,12 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
                         {
 
                             if (!closest_light)
-                                light_value(objs, closest_emission, closest_x, w0, lights, closest_normal, closest_material.kd, config.shadow_bias, closest_name, closest_material, 1);
+                                light_value(objs, closest_emission, closest_x, w0, lights, closest_normal, closest_color, config.shadow_bias, closest_name, closest_material, 1);
                             else
                                 closest_emission = closest_power * fr(closest_x, ray.d, w0, closest_material, material_type);
-
-                            /*if (closest_name == "refraction_sphere")
-                            {
-                                cout << "Hit with " << closest_name << endl;
-                                cout << "Total emission: " << closest_emission << " from ray " << r << endl
-                                     << endl
-                                     << endl;
-
-                                char a;
-                                cin >> a;
-                            }*/
                         }
                         else
-                            closest_emission = closest_material.kd; // Without path tracing
+                            closest_emission = closest_color; // Without path tracing
 
                         intersections++;
                         total_emission += closest_emission;
@@ -453,20 +442,7 @@ void Camera::render_thread(int id, vector<Primitive *> objs, vector<Light *> lig
 
                 if (intersections > 0)
                 {
-
-                    /*cout << endl
-                         << "@@@ TOTAL: "
-                         << total_emission << " from " << config.rays << " intersections. @@@" << endl
-                         << endl;
-
-                    cout << i << ":" << j << "  -> " << intersections << endl;*/
-
                     total_emission /= (float)config.rays;
-
-                    /*cout << endl
-                         << "@@@ - Final TOTAL: "
-                         << total_emission << " - @@@" << endl
-                         << endl;*/
 
                     if (max_emission < round(total_emission.x))
                         max_emission = round(total_emission.x);
@@ -558,17 +534,13 @@ Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, rend
         for (Photon ph : photons)
         {
             leftComp = fr(x, ph.wp, w0, ph.material, type);
-            // rightComp = ph.flux;
-            rightComp = ph.flux * (1 - x.distance(ph.position_) / config.r); // Non-Constant density estimation
 
-            // cout << "D: " << x.distance(ph.position_) << endl;
-            // cout << "P: " << distance << endl;
+            rightComp = ph.flux * (1 - x.distance(ph.position_) / config.r); // Non-Constant density estimation
 
             kernel_dens += leftComp * rightComp / (PI * config.r * config.r);
         }
 
         direct_light(objs, ld, x, w0, lights, n, material.kd, config.shadow_bias, material, brdf);
-        // cout << ld << "--" << kernel_dens << "--" << brdf << endl;
         return ld + kernel_dens * brdf;
     }
     else if (material_type == SPECULAR)
@@ -577,7 +549,7 @@ Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, rend
     }
     else if (material_type == REFRACTION)
     {
-        float no = 1; // Hay que tener en cuenta el medio por el que viene, no el ultimo medio visitado
+        float no = 1;
         float nf, ni = material.ref_coef;
 
         Direction auxN = n;

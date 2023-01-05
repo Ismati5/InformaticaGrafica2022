@@ -35,7 +35,20 @@ public:
     float pabs;
     float ref_coef;
 
+    // Textures
+    Vect3 *texture;
+    int texture_res[2] = {0, 0};
+    Point ref_point;
+    Direction e1, e2;
+    Direction normal;
+
     Material() {}
+
+    Material(Vect3 kd_, Vect3 ks_, Vect3 kt_, Vect3 ke_, float _absortion, Vect3 *texture, int _texture_res[2], Point ref_point, Direction e1, Direction e2, Direction normal) : kd(kd_), ks(ks_), kt(kt_), ke(ke_), ref_coef(1), pabs(_absortion), texture(texture), ref_point(ref_point), e1(e1), e2(e2), normal(normal)
+    {
+        texture_res[0] = _texture_res[0];
+        texture_res[1] = _texture_res[1];
+    }
 
     Material(Vect3 kd_, Vect3 ks_, Vect3 kt_, Vect3 ke_, float _absortion) : kd(kd_), ks(ks_), kt(kt_), ke(ke_), ref_coef(1), pabs(_absortion) {}
 
@@ -50,6 +63,17 @@ public:
     bool isLight()
     {
         return ke.x > 0 || ke.y > 0 || ke.z > 0;
+    }
+
+    /**
+     * @brief Material has a custom texture
+     *
+     * @return true
+     * @return false
+     */
+    bool hasTexture()
+    {
+        return !(texture_res[0] == 0 && texture_res[1] == 0);
     }
 
     /**

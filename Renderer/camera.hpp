@@ -113,6 +113,7 @@ public:
         }
 
         float p = 0;
+        Vect3 kd;
 
         type = material.getMatType(p, noAbsortion);
 
@@ -120,7 +121,73 @@ public:
         {
         case DIFFUSE:
             type = DIFFUSE;
-            return (material.kd / 255.0) / p;
+
+            if (material.hasTexture())
+            {
+
+                float dist_x, dist_y, width, height;
+                int texel_x, texel_y;
+
+                if (material.normal.x != 0) // Facing X axis
+                {
+                    dist_x = abs((material.ref_point - x).z);
+                    dist_y = abs((material.ref_point - x).y);
+
+                    width = abs(material.e1.z);
+                    height = abs(material.e2.y);
+
+                    dist_x /= width;
+                    dist_y /= height;
+
+                    dist_x *= material.texture_res[0];
+                    dist_y *= material.texture_res[1];
+
+                    texel_x = dist_x;
+                    texel_y = dist_y;
+                }
+                else if (material.normal.y != 0) // Facing Y axis
+                {
+                    dist_x = abs((material.ref_point - x).x);
+                    dist_y = abs((material.ref_point - x).z);
+
+                    width = abs(material.e1.x);
+                    height = abs(material.e2.z);
+
+                    dist_x /= width;
+                    dist_y /= height;
+
+                    dist_x *= material.texture_res[0];
+                    dist_y *= material.texture_res[1];
+
+                    texel_x = dist_x;
+                    texel_y = dist_y;
+                }
+                else if (material.normal.z != 0) // Facing Z axis
+                {
+                    dist_x = abs((material.ref_point - x).x);
+                    dist_y = abs((material.ref_point - x).y);
+
+                    width = abs(material.e1.x);
+                    height = abs(material.e2.y);
+
+                    dist_x /= width;
+                    dist_y /= height;
+
+                    dist_x *= material.texture_res[0];
+                    dist_y *= material.texture_res[1];
+
+                    texel_x = dist_x;
+                    texel_y = dist_y;
+                }
+
+                kd = material.texture[texel_x + texel_y * material.texture_res[0]];
+            }
+            else
+            {
+                kd = material.kd;
+            }
+
+            return (kd / 255.0) / p;
         case SPECULAR:
             type = SPECULAR;
             return (material.ks / 255.0) / p;

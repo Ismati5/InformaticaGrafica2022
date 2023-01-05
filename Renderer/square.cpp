@@ -28,56 +28,35 @@ bool Square::intersect(Ray ray, float &t, Direction &sur_normal, Point &x)
     Direction d = ray.d;
     Point o = ray.p;
 
-    float denominator = normal.dotProd(normal);
-    float NdotRayDirection = normal.dotProd(d);
+    // assuming vectors are normalized
+    float denominator = d.dotProd(normal);
 
-    if (fabs(NdotRayDirection) < 1e-8) // almost 0
-        return false;                  // they are parallel so they don't intersect !
+    if (denominator != 0)
+    {
 
-    // compute d parameter using equation 2
-    float df = -normal.dotProd(Direction(p1.x, p1.y, p1.z));
+        float numerator = (p - o).dotProd(normal);
+        t = numerator / denominator;
+        // The normal is equal to the surface normal
+        sur_normal = normal;
 
-    // compute t (equation 3)
-    t = -(df + normal.dotProd(Direction(o.x, o.y, o.z))) / NdotRayDirection;
+        if (t > 0)
+        {
 
-    // check if the triangle is in behind the ray
-    if (t < 0)
-        return false; // the triangle is behind
+            Direction intersection = d * t;
+            x = ray.p + intersection;
 
-    x = o + d * t;
+            Direction v = x - p;
 
-    Direction C;
+            float width = e1.modulus();
+            float height = e2.modulus();
 
-    // edge 0
-    Direction edge0 = p2 - p1;
-    Direction v0 = x - p1;
-    C = edge0.crossProd(v0);
-    if (normal.dotProd(C) < 0)
-        return false;
+            float proj1 = v.dotProd(e1) / width;
+            float proj2 = v.dotProd(e2) / height;
 
-    // edge 1
-    Direction edge1 = p3 - p2;
-    Direction v1 = x - p2;
-    C = edge1.crossProd(v1);
-    if (normal.dotProd(C) < 0)
-        return false;
+            if ((proj1 < width && proj1 > 0) && (proj2 < height && proj2 > 0))
+                return true;
+        }
+    }
 
-    // edge 2
-    Direction edge2 = p4 - p3;
-    Direction v2 = x - p3;
-    C = edge2.crossProd(v2);
-    if (normal.dotProd(C) < 0)
-        return false;
-
-    // edge 3
-    Direction edge3 = p1 - p4;
-    Direction v3 = x - p4;
-    C = edge3.crossProd(v3);
-    if (normal.dotProd(C) < 0)
-        return false;
-
-    sur_normal = normal;
-
-    cout << "INTERSECT" << endl;
-    return true;
+    return false;
 }
