@@ -4,7 +4,7 @@
 # Testing
 #
 # Scene config
-RESOLUTION 1280 720
+RESOLUTION 426 240
 THREADS 12
 CAMERA  0 0 -5
 # Lights
@@ -12,20 +12,32 @@ LIGHT   0 0.5 -1 WHITE
 LIGHT   -1 0.025 0.5 WHITE
 LIGHT   0 0.025 0.5 WHITE
 LIGHT   1 0.025 0.5 WHITE
-LIGHT   0.5 0.025 -0.2 WHITE
-LIGHT   -0.5 0.025 -0.2 WHITE
+LIGHT   0.8 0.025 -0.2 WHITE
+LIGHT   0.8 0.025 -2.2 WHITE
+LIGHT   -0.8 0.025 -0.2 WHITE
+LIGHT   -0.8 0.025 -2.6 WHITE
 # Ceiling and floor
 PLANE   floor_plane 0 1 0   1   DIFF_SPEC_GREY
 PLANE   ceiling_plane 0 -1 0   1   DIFF_LIGHT_GREY
 # Objects
 # OBJECT  Bench  objs/lowpoly_bench.obj 1   -1 -1 -0.75     0 x   90 y  0 z  DIFF_LIGHT_GREY
+OBJECT  Goku  objs/cubo_goku.obj -5   1.25 -1 0     0 x   -90 y  0 z  DIFF_SPEC_GOLD
+OBJECT  Column1  objs/column.obj -5   1.25 -1 0     0 x   0 y  0 z  DIFF_SPEC_MARMOL
+SQUARE 1.5 0.1 -0.2     -1 0 0     0 0 -0.2   0 -0.25 0     ./textures/label.ppm
+OBJECT  Goku2  objs/cubo_goku.obj -5   1.25 -1 -2     0 x   -90 y  0 z  DIFF_SPEC_PURPLE
+OBJECT  Column2  objs/column.obj -5   1.25 -1 -2     0 x   0 y  0 z  DIFF_SPEC_MARMOL
+SQUARE 1.5 0.1 -2.2     -1 0 0     0 0 -0.2   0 -0.25 0     ./textures/label.ppm
+# Random assets
+SQUARE -1.25 0.95 1    0 0 -1     0.3 0 0   0 -0.1 0     ./textures/rejilla.ppm
 # Frames
-SQUARE -1.5 0.45 -0.8    1 0 0     0 0 1.2   0 -0.85 0     ./textures/paisaje_marco.ppm
+SQUARE -1.5 0.45 -3.2    1 0 0     0 0 1.2   0 -0.85 0     ./textures/paisaje_marco.ppm
+SQUARE -1.5 -0.44 -2.1     1 0 0     0 0 0.1   0 -0.08 0     ./textures/label.ppm
+SQUARE -1.5 0.45 -0.8    1 0 0     0 0 1.2   0 -0.85 0     ./textures/hamilton_crash_marco2.ppm
 SQUARE -1.5 -0.44 0.3     1 0 0     0 0 0.1   0 -0.08 0     ./textures/label.ppm
 SQUARE -1.5 0.1 -1.1     1 0 0     0 0 0.2   0 -0.3 0     ./textures/label.ppm
 SQUARE -1.2 0.35 1    0 0 -1     0.4 0 0   0 -0.65 0     ./textures/zaragoza_leones_marco.ppm
 SQUARE -0.9 -0.34 1    0 0 -1     0.1 0 0   0 -0.08 0     ./textures/label.ppm
-SQUARE -0.6 0.45 1    0 0 -1     1.2 0 0   0 -0.85 0     ./textures/hamilton_crash_marco2.ppm
+SQUARE -0.6 0.45 1    0 0 -1     1.2 0 0   0 -0.85 0     ./textures/bear_frame.ppm
 SQUARE 0.5 -0.44 1    0 0 -1     0.1 0 0   0 -0.08 0     ./textures/label.ppm
 SQUARE 0.8 0.35 1    0 0 -1     0.4 0 0   0 -0.65 0     ./textures/witcher_frame.ppm
 SQUARE 1.1 -0.34 1    0 0 -1     0.1 0 0   0 -0.08 0     ./textures/label.ppm

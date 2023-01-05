@@ -38,6 +38,8 @@ Vect3 dark_purple = Vect3(156, 12, 153);
 Vect3 light_grey = Vect3(231, 230, 230);
 
 Vect3 grey = Vect3(112, 128, 144);
+Vect3 marmol = Vect3(255, 252, 240);
+Vect3 gold = Vect3(255, 215, 0);
 
 Vect3 yellow = Vect3(233, 236, 107);
 Vect3 dark_blue = Vect3(0, 11, 141);
@@ -61,10 +63,14 @@ Material diff_green(green, none, none, none, 0.2);
 Material diff_light_grey(light_grey, none, none, none, 0.2);
 Material diff_grey(grey, none, none, none, 0.2);
 Material diff_spec_blue(blue / 2, light_grey / 2, none, none, 0.2);
-Material diff_spec_grey(grey / 2, light_grey / 2, none, none, 0.2);
+Material diff_spec_grey(grey * 4 / 5, light_grey * 1 / 5, none, none, 0.2);
+Material diff_spec_light_grey(light_grey * 4 / 5, light_grey * 1 / 5, none, none, 0.2);
 Material diff_spec_dark_blue(dark_blue / 2, white / 2, none, none, 0.2);
 Material diff_spec_red(red / 2, white / 2, none, none, 0.2);
 Material diff_spec_purple(purple / 2, white / 2, none, none, 0.2);
+
+Material diff_spec_marmol(marmol * 4 / 5, light_grey * 1 / 5, none, none, 0.2);
+Material diff_spec_gold(gold * 1 / 5, light_grey * 4 / 5, none, none, 0.2);
 
 Material spec(grey / 2, grey / 2, none, none, 0.2);
 
@@ -238,6 +244,12 @@ Material stringToMaterial(string name)
         return em_light_blue;
     else if (name == "EM_WHITE")
         return em_white;
+    else if (name == "DIFF_SPEC_MARMOL")
+        return diff_spec_marmol;
+    else if (name == "DIFF_SPEC_LIGHT_GREY")
+        return diff_spec_light_grey;
+    else if (name == "DIFF_SPEC_GOLD")
+        return diff_spec_gold;
     else
     {
         cout << "[!] Invalid material used: " << name << endl;
