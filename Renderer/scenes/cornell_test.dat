@@ -4,7 +4,7 @@
 # Testing
 #
 # Scene config
-RESOLUTION 640 360
+RESOLUTION 1280 720
 THREADS 12
 CAMERA  0 0 -5
 # Lights
@@ -12,21 +12,31 @@ LIGHT   0 0.5 -1 WHITE
 LIGHT   -1 0.025 0.5 WHITE
 LIGHT   0 0.025 0.5 WHITE
 LIGHT   1 0.025 0.5 WHITE
-LIGHT   0.6 0 0 WHITE
-LIGHT   -0.6 0 0 WHITE
+LIGHT   0.5 0.025 -0.2 WHITE
+LIGHT   -0.5 0.025 -0.2 WHITE
 # Ceiling and floor
 PLANE   floor_plane 0 1 0   1   DIFF_SPEC_GREY
 PLANE   ceiling_plane 0 -1 0   1   DIFF_LIGHT_GREY
 # Objects
 # OBJECT  Bench  objs/lowpoly_bench.obj 1   -1 -1 -0.75     0 x   90 y  0 z  DIFF_LIGHT_GREY
 # Frames
+SQUARE -1.5 0.45 -0.8    1 0 0     0 0 1.2   0 -0.85 0     ./textures/paisaje_marco.ppm
+SQUARE -1.5 -0.44 0.3     1 0 0     0 0 0.1   0 -0.08 0     ./textures/label.ppm
+SQUARE -1.5 0.1 -1.1     1 0 0     0 0 0.2   0 -0.3 0     ./textures/label.ppm
 SQUARE -1.2 0.35 1    0 0 -1     0.4 0 0   0 -0.65 0     ./textures/zaragoza_leones_marco.ppm
 SQUARE -0.9 -0.34 1    0 0 -1     0.1 0 0   0 -0.08 0     ./textures/label.ppm
 SQUARE -0.6 0.45 1    0 0 -1     1.2 0 0   0 -0.85 0     ./textures/hamilton_crash_marco2.ppm
 SQUARE 0.5 -0.44 1    0 0 -1     0.1 0 0   0 -0.08 0     ./textures/label.ppm
-SQUARE 0.8 0.35 1    0 0 -1     0.4 0 0   0 -0.65 0     ./textures/illojuan_cuadro.ppm
+SQUARE 0.8 0.35 1    0 0 -1     0.4 0 0   0 -0.65 0     ./textures/witcher_frame.ppm
 SQUARE 1.1 -0.34 1    0 0 -1     0.1 0 0   0 -0.08 0     ./textures/label.ppm
+# Mini-walls
+SQUARE -1.5 1 -1.7    0 0 -1     0.1 0 0   0 -2 0      ./textures/background.ppm
+SQUARE -1.5 1 0.8    0 0 -1     0.2 0 0   0 -2 0      ./textures/background.ppm
+SQUARE 1.3 1 0.8    0 0 -1     0.2 0 0   0 -2 0      ./textures/background.ppm
+SQUARE -1.4 1 -1.7    1 0 0     0 0 0.4   0 -2 0      ./textures/background.ppm
+SQUARE -1.3 1 0.8    1 0 0     0 0 0.2   0 -2 0      ./textures/background.ppm
+SQUARE 1.3 1 1    -1 0 0     0 0 -0.2   0 -2 0      ./textures/background.ppm
 # Walls
-SQUARE -1.5 1 1    0 0 -1     3 0 0   0 -2 0     ./textures/background.ppm
 SQUARE -1.5 1 -3    1 0 0     0 0 4   0 -2 0      ./textures/background.ppm
+SQUARE -1.5 1 1    0 0 -1     3 0 0   0 -2 0     ./textures/background.ppm
 SQUARE 1.5 1 1    -1 0 0     0 0 -4   0 -2 0      ./textures/background.ppm
