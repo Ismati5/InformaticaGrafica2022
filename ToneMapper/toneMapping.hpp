@@ -377,7 +377,6 @@ string gamma(string fileName, float g, float value)
     vector<string> output;
     float m, c;
     int width, height, max_pos, max = numeric_limits<int>::lowest();
-    ;
 
     ifstream file;
     ofstream outFile;
@@ -407,9 +406,10 @@ string gamma(string fileName, float g, float value)
             long v = s * m / c;
             // Apply gamma curve
 
-            v = pow(v, 1 / g);
+            v = m * pow(v / m, 1 / g);
 
             s = round(v * c / m);
+
             if (s > max)
                 max = s;
 
