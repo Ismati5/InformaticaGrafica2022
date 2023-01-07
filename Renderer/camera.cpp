@@ -542,6 +542,9 @@ Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, rend
 
         direct_light(objs, ld, x, w0, lights, n, material.kd, config.shadow_bias, material, brdf);
         return ld + kernel_dens * brdf;
+
+        // Metodo 1
+        // return kernel_dens + kernel_dens * brdf;
     }
     else if (material_type == SPECULAR)
     {

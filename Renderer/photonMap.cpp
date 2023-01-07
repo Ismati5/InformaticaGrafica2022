@@ -254,6 +254,14 @@ PhotonMap generation_of_photon_map(vector<Light *> lights, vector<Primitive *> o
             ray.d = randomWalk();
             if (hitPosition(objects, ray, n, x, material))
             {
+                // Metodo 1
+                // Photon ph;
+                // ph.position_ = x.toVect3();
+                // ph.wp = ray.d;
+                // ph.flux = (light->power * 4 * PI) / max_shots;
+                // ph.material = material;
+                // photons.push_back(ph);
+
                 light_value_ph(objects, x, (x - light->center).normalize(), lights, n,
                                config.shadow_bias, material, photons, max_shots, (light->power * 4 * PI) / max_shots);
             }
