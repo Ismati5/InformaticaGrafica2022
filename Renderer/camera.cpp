@@ -520,7 +520,7 @@ Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, rend
 {
     materialType material_type;
     Direction wi;
-    Vect3 brdf = fr(x, Direction(0, 0, 0), w0, material, material_type, false); // No se puede absorber. Como que no? xd
+    Vect3 brdf = fr(x, Direction(0, 0, 0), w0, material, material_type, false);
     if (material_type == DIFFUSE)
     {
         materialType type;
@@ -533,7 +533,7 @@ Vect3 Camera::emission_ph(vector<Primitive *> objs, vector<Light *> lights, rend
         Vect3 kernel_dens = Vect3(0, 0, 0);
         for (Photon ph : photons)
         {
-            leftComp = fr(x, ph.wp, w0, ph.material, type);
+            leftComp = fr(x, ph.wp, w0, material, type);
 
             rightComp = ph.flux * (1 - x.distance(ph.position_) / config.r); // Non-Constant density estimation
 

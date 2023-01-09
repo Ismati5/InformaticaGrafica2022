@@ -187,6 +187,8 @@ Vect3 stringToColor(string name)
 {
     if (name == "WHITE")
         return white;
+    else if (name == "ULTRA_WHITE")
+        return white * 100;
     else
     {
         cout << "[!] Invalid color used: " << name << endl;

@@ -4,7 +4,7 @@
 # Diffuse, specular and refractive spheres and planes
 # Point light
 #
-RESOLUTION  256 256
+RESOLUTION 256 256
 THREADS 12
 CAMERA  0 0 -3.5
 LIGHT   0 0.5 0 WHITE
