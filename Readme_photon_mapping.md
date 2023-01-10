@@ -1,8 +1,8 @@
 # Informatica gráfica
 
-Ismael Tienda Hernando    796919
+Ismael Tienda Hernando  796919
 
-Adrián Yago Hernández        796441
+Adrián Yago Hernández   796441
 
 ---
 
@@ -26,7 +26,7 @@ Para la ejecución se utiliza el siguiente comando:
 render -p <filename> <rays per pixel> <max photons>
 ```
 
-Los parametros son los siguiente:
+Los parámetros son los siguiente:
 
 - "filename": Hace referencia al fichero de extensión .dat en el que se encuentra la escena. El fichero debe de pasarse al comando sin la extensión del archivo
 
