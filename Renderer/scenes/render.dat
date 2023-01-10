@@ -4,17 +4,15 @@
 # Testing
 #
 # Scene config
-RESOLUTION 1280 720
+RESOLUTION 320 180
 THREADS 12
 CAMERA  0 0 -5
 # Lights
-LIGHT   0 0.5 -1 WHITE
 LIGHT   3 0.5 -2 WHITE
 LIGHT   -1 0.025 0.5 WHITE
 LIGHT   0 0.025 0.5 WHITE
 LIGHT   1 0.025 0.5 WHITE
-LIGHT   0.8 0.025 -0.2 WHITE
-LIGHT   0.8 0.025 -2.2 WHITE
+LIGHT   0.8 0.025 -0.5 WHITE
 LIGHT   -0.8 0.025 -0.2 WHITE
 LIGHT   -0.8 0.025 -2.6 WHITE
 LIGHT   2.6 0.025 -1.75 WHITE
@@ -22,12 +20,11 @@ LIGHT   2.6 0.025 -1.75 WHITE
 PLANE   floor_plane 0 1 0   1   DIFF_SPEC_GREY
 PLANE   ceiling_plane 0 -1 0   1   DIFF_LIGHT_GREY
 # Objects
+OBJECT  Amogus  objs/amogus_hiding.obj -2.8   -0.8 -1 -1     0 x   0 y  0 z  DIFF_RED
 OBJECT  Bench  objs/banco.obj -2.8   -0.8 -1 -1     0 x   0 y  0 z  DIFF_GREY
-# OBJECT  Goku  objs/cubo_goku.obj -5   1.25 -1 0     0 x   -90 y  0 z  DIFF_SPEC_GOLD
+OBJECT  August  objs/august_up.obj -5   1.25 -1 -0.5     0 x   -45 y  0 z  DIFF_LIGHTER_GREY
 OBJECT  Column1  objs/column.obj -5   1.25 -1 -0.5     0 x   0 y  0 z  DIFF_LIGHT_GREY
 SQUARE 1.5 0.1 -0.7     -1 0 0     0 0 -0.15   0 -0.2 0     ./textures/label.ppm
-# OBJECT  Goku2  objs/cubo_goku.obj -5   1.25 -1 -2     0 x   -90 y  0 z  DIFF_SPEC_PURPLE
-# OBJECT  Column2  objs/column.obj -5   1.25 -1 -2     0 x   0 y  0 z  DIFF_SPEC_MARMOL
 # Random assets
 SQUARE -1.25 0.95 1    0 0 -1     0.3 0 0   0 -0.1 0     ./textures/rejilla.ppm
 # Frames
