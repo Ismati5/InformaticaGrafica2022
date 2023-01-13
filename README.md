@@ -1,22 +1,79 @@
 # InformaticaGrafica2022
 
-Work done by Adrián Yago & Ismael Tienda, Computer engineering students, 2022.
-<br/><br/>
+Ismael Tienda Hernando  796919
+
+Adrián Yago Hernández   796441
+
+
+---
+
+#### Ejemplos de imágenes
+
+![concurso_796441_796919](https://user-images.githubusercontent.com/79214939/212430982-9a69cda7-2384-415a-945d-3d4d1259e075.png)
+Final work, rendered in 1920x1080 - Path Tracing with shadows - 64 rpp
 <br/><br/>
 ![bear](https://user-images.githubusercontent.com/79214939/209251178-e99bdc11-4f6a-4684-bde1-aa2081c05530.png)
 Bear rendered in 1920x1080 - Path Tracing with shadows - 312 rpp
+
 <br/><br/>
+---
 <br/><br/>
-![cornell_f1](https://user-images.githubusercontent.com/79214939/209251430-4ea7a3d7-5f4c-46d8-b3a1-3e845e649234.png)
-<br/>
-F1 Cars rendered in 1280x720 - Path Tracing with shadows - 80 rpp
-<br/><br/>
-<br/><br/>
- ![image](https://user-images.githubusercontent.com/79214939/207554659-a4176ec8-faa4-4f3c-8b69-4e5642d27a29.png)
- <br/>
- Tree scene rendered in 1280x720 - Path Tracing with shadows and area light - 20 rpp
- <br/><br/>
- <br/><br/>
-![test_cornell64](https://user-images.githubusercontent.com/79214939/200829093-c0141aa4-d9a6-42b8-8ac9-de902754424b.png)
-![cornell_1](https://user-images.githubusercontent.com/79214939/209252021-0962bb36-b4cb-4e91-8e50-30962474f74a.png)
-![cornell_2](https://user-images.githubusercontent.com/79214939/209252034-a7d323bf-18b3-460d-8753-e0b59cba42a8.png)
+
+#### Compilación
+
+Para la compilación se recomienda utilizar ejecutar el fichero "makefile.bat" si se está ejecutando el proyecto en windows. 
+
+Si se quiere compilar manualmente se puede utilizar el siguiente comando:
+
+```cpp
+g++ point.cpp direction.cpp render.cpp matrix4.cpp vect4.cpp vect3.cpp object.cpp sphere.cpp station.cpp primitive.cpp light.cpp plane.cpp camera.cpp triangle.cpp square.cpp -o render -std=c++17 -O1
+```
+
+---
+
+
+#### Ejecución path tracer
+
+Para la ejecución se utiliza el siguiente comando:
+
+```cpp
+render -r <filename> <rays per pixel>
+```
+
+Los parámetros son los siguientes:
+
+- "filename": Hace referencia al fichero de extensión .dat en el que se encuentra la escena. El fichero debe de pasarse al comando sin la extensión del archivo
+
+- "rays per pixel": Son los rayos por pixeles con los que se renderizará la escena.
+
+Un ejemplo de uso sería el siguiente
+
+```cpp
+./render -r cornell_1 32
+```
+
+---
+
+#### Ejecución photon mapping
+
+Para la ejecución se utiliza el siguiente comando:
+
+```cpp
+render -p <filename> <rays per pixel> <max photons>
+```
+
+Los parámetros son los siguiente:
+
+- "filename": Hace referencia al fichero de extensión .dat en el que se encuentra la escena. El fichero debe de pasarse al comando sin la extensión del archivo
+
+- "rays per pixel": Son los rayos por pixeles con los que se renderizará la escena.
+
+- "max photons": Es el número de fotones que se guardarán en el mapa de fotones.
+
+Un ejemplo de uso sería el siguiente
+
+```cpp
+./render -p cornell_pm 32 10000
+```
+
+En la carpeta "scenes" se encuentran varios ficheros .dat con varias escenas con las que hacer pruebas.
